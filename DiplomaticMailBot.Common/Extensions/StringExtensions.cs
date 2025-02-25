@@ -101,9 +101,9 @@ public static class StringExtensions
         ArgumentNullException.ThrowIfNull(src);
 
         return src
+            .Replace("&", "&amp;", StringComparison.Ordinal)
             .Replace("<", "&lt;", StringComparison.Ordinal)
-            .Replace(">", "&gt;", StringComparison.Ordinal)
-            .Replace("&", "&amp;", StringComparison.Ordinal);
+            .Replace(">", "&gt;", StringComparison.Ordinal);
     }
 
     public static string CutToLastClosingLinkTag(this string src)
@@ -114,6 +114,12 @@ public static class StringExtensions
         }
 
         const string closingTag = "</a>";
+
+        if (!src.Contains(closingTag, StringComparison.Ordinal))
+        {
+            return src;
+        }
+
         if (!src.EndsWith(closingTag, StringComparison.Ordinal))
         {
             var lastIndexOfBracket = src.LastIndexOf(closingTag, StringComparison.Ordinal);

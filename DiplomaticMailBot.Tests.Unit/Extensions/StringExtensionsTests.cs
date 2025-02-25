@@ -55,4 +55,122 @@ public sealed class StringExtensionsTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => source.TryRight(maxLength));
     }
+
+    [TestCase(null, null, true)]
+    [TestCase(null, "", false)]
+    [TestCase("", null, false)]
+    [TestCase("", "", true)]
+    [TestCase("test", "TEST", true)]
+    [TestCase("test", "test", true)]
+    [TestCase("test", "other", false)]
+    public void EqualsIgnoreCase_ShouldReturnExpectedResult(string? source, string? target, bool expectedResult)
+    {
+        var actualResult = source.EqualsIgnoreCase(target);
+        Assert.That(actualResult, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public void GetNonEmpty_WhenAllValuesEmpty_ShouldReturnEmptyCollection()
+    {
+        var result = StringExtensions.GetNonEmpty(null, string.Empty, " ", "\t", "\n");
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public void GetNonEmpty_WhenSomeValuesNonEmpty_ShouldReturnNonEmptyValues()
+    {
+        var result = StringExtensions.GetNonEmpty(null, "test1", string.Empty, " ", "test2", "\t", "\n");
+        Assert.That(result, Is.EqualTo(new[] { "test1", "test2" }));
+    }
+
+    [Test]
+    public void IsNotNullOrEmpty_WhenNull_ShouldReturnFalse()
+    {
+        string? value = null;
+        Assert.That(value.IsNotNullOrEmpty(), Is.False);
+    }
+
+    [Test]
+    public void IsNotNullOrEmpty_WhenEmpty_ShouldReturnFalse()
+    {
+        Assert.That(string.Empty.IsNotNullOrEmpty(), Is.False);
+    }
+
+    [Test]
+    public void IsNotNullOrEmpty_WhenNonEmpty_ShouldReturnTrue()
+    {
+        Assert.That("test".IsNotNullOrEmpty(), Is.True);
+    }
+
+    [Test]
+    public void EscapeSpecialTelegramMdCharacters_WhenNull_ShouldThrowArgumentNullException()
+    {
+        string? value = null;
+        Assert.Throws<ArgumentNullException>(() => value!.EscapeSpecialTelegramMdCharacters());
+    }
+
+    [Test]
+    public void EscapeSpecialTelegramMdCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
+    {
+        var input = "Hello_World*[Test]~`>#+-=|{}.!";
+        var expected = @"Hello\_World\*\[Test\]\~\`\>\#\+\-\=\|\{\}\.\!";
+        var result = input.EscapeSpecialTelegramMdCharacters();
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void EscapeSpecialTelegramHtmlCharacters_WhenNull_ShouldThrowArgumentNullException()
+    {
+        string? value = null;
+        Assert.Throws<ArgumentNullException>(() => value!.EscapeSpecialTelegramHtmlCharacters());
+    }
+
+    [Test]
+    public void EscapeSpecialTelegramHtmlCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
+    {
+        var input = "Hello<World>&Test";
+        var expected = "Hello&lt;World&gt;&amp;Test";
+        var result = input.EscapeSpecialTelegramHtmlCharacters();
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void CutToLastClosingLinkTag_WhenNull_ShouldReturnNull()
+    {
+        string? value = null;
+        var result = value!.CutToLastClosingLinkTag();
+        Assert.That(result, Is.EqualTo(null));
+    }
+
+    [Test]
+    public void CutToLastClosingLinkTag_WhenEmpty_ShouldReturnEmpty()
+    {
+        var result = string.Empty.CutToLastClosingLinkTag();
+        Assert.That(result, Is.EqualTo(string.Empty));
+    }
+
+    [Test]
+    public void CutToLastClosingLinkTag_WhenNoClosingTag_ShouldReturnEmpty()
+    {
+        var result = "Hello World".CutToLastClosingLinkTag();
+        Assert.That(result, Is.EqualTo("Hello World"));
+    }
+
+    [Test]
+    public void CutToLastClosingLinkTag_WhenHasClosingTag_ShouldCutToLastTag()
+    {
+        var input = "Hello <a>World</a> extra text";
+        var expected = "Hello <a>World</a>";
+        var result = input.CutToLastClosingLinkTag();
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void CutToLastClosingLinkTag_WhenMultipleTags_ShouldCutToLastTag()
+    {
+        var input = "<a>First</a> middle <a>Last</a> extra";
+        var expected = "<a>First</a> middle <a>Last</a>";
+        var result = input.CutToLastClosingLinkTag();
+        Assert.That(result, Is.EqualTo(expected));
+    }
 }
