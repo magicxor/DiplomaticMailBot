@@ -250,7 +250,7 @@ dotnet_diagnostic.IDE0055.severity = suggestion
 dotnet_diagnostic.IDE0270.severity = suggestion
 
 # MA0051: Method is too long (261 lines; maximum allowed: 60)
-dotnet_diagnostic.MA0051.severity = suggestion
+dotnet_diagnostic.MA0051.severity = none
 
 # CA2007: Consider calling ConfigureAwait on the awaited task
 dotnet_diagnostic.CA2007.severity = none
