@@ -30,7 +30,7 @@ public sealed class Worker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Worker running at: {Time}", timeProvider.GetUtcNow().DateTime);
+            _logger.LogInformation("Worker running at: {Time}", timeProvider.GetUtcNow().UtcDateTime);
 
             await scheduledProcessingService.ExecuteAsync(stoppingToken);
 

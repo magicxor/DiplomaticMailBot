@@ -1,6 +1,5 @@
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Exceptions;
-using LanguageExt.Common;
 
 namespace DiplomaticMailBot.Tests.Unit.Exceptions;
 

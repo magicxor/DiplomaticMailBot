@@ -1,1 +1,3 @@
-P:System.DateTime.Now;Use System.DateTime.UtcNow instead
+P:System.DateTime.Now;Use TimeProvider methods instead
+P:System.DateTime.UtcNow;Use TimeProvider methods instead
+P:System.DateTime.Today;Use TimeProvider methods instead

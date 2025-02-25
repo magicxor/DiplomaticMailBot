@@ -34,6 +34,12 @@ dotnet_diagnostic.SA1600.severity = none
 # Reason: it doesn't respect internal modifier
 dotnet_diagnostic.SA1602.severity = none
 
+# SA1615: Element return value should be documented
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
+
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
 
@@ -285,8 +291,8 @@ dotnet_diagnostic.MA0002.severity = none
 # CA1308: In method 'HandleBreakOffRelationsAsync', replace the call to 'ToLowerInvariant' with 'ToUpperInvariant'
 dotnet_diagnostic.CA1308.severity = none
 
-# SA1601: Partial elements should be documented
-dotnet_diagnostic.SA1601.severity = none
+# SA1313: Parameter 'Port' should begin with lower-case letter
+dotnet_diagnostic.SA1313.severity = none
 
 # formatting rules
 indent_size = 4
