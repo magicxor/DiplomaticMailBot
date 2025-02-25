@@ -25,7 +25,7 @@ public sealed class Worker : BackgroundService
         var scheduledProcessingService = scope.ServiceProvider.GetRequiredService<ScheduledProcessingService>();
         var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
 
-        await seedService.SeedAsync(stoppingToken);
+        await seedService.InitializeDbAsync(stoppingToken);
         await telegramBotService.StartAsync(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)

@@ -48,31 +48,4 @@ public sealed class SlotTemplateRepository
 
         return result;
     }
-
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Seeding default slot template");
-
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
-
-        if (await applicationDbContext.SlotTemplates.AnyAsync(cancellationToken: cancellationToken))
-        {
-            _logger.LogDebug("Default slot template already seeded");
-            return;
-        }
-
-        var slotTemplate = new SlotTemplate
-        {
-            VoteStartAt = new TimeOnly(14, 00),
-            VoteEndAt = new TimeOnly(16, 00),
-            Number = 1,
-        };
-        applicationDbContext.SlotTemplates.Add(slotTemplate);
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
-
-        _logger.LogInformation("Default slot template seeded: voteStartAt={VoteStartAt}, voteEndAt={VoteEndAt}, number={Number}",
-            slotTemplate.VoteStartAt,
-            slotTemplate.VoteEndAt,
-            slotTemplate.Number);
-    }
 }

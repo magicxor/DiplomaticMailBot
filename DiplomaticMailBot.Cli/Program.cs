@@ -75,6 +75,7 @@ public sealed class Program
                          .AddScoped<DiplomaticMailPollRepository>()
                          .AddScoped<DiplomaticMailCandidatesRepository>()
                          .AddScoped<SlotTemplateRepository>()
+                         .AddScoped<SeedRepository>()
                          /* Domain */
                         .AddScoped<SlotDateCalculator>()
                         .AddScoped<PreviewGenerator>()

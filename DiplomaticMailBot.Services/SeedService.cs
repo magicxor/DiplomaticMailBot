@@ -2,17 +2,18 @@
 
 namespace DiplomaticMailBot.Services;
 
-public class SeedService
+public sealed class SeedService
 {
-    private readonly SlotTemplateRepository _slotTemplateRepository;
+    private readonly SeedRepository _seedRepository;
 
-    public SeedService(SlotTemplateRepository slotTemplateRepository)
+    public SeedService(SeedRepository seedRepository)
     {
-        _slotTemplateRepository = slotTemplateRepository;
+        _seedRepository = seedRepository;
     }
 
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task InitializeDbAsync(CancellationToken cancellationToken = default)
     {
-        await _slotTemplateRepository.SeedAsync(cancellationToken);
+        await _seedRepository.MigrateAsync(cancellationToken);
+        await _seedRepository.SeedAsync(cancellationToken);
     }
 }
