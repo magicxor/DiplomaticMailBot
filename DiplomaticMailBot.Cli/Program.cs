@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
@@ -18,13 +19,14 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace DiplomaticMailBot.Cli;
 
-public sealed class Program
+public static class Program
 {
     private static readonly LoggingConfiguration LoggingConfiguration = new XmlLoggingConfiguration("nlog.config");
 
     private static readonly Action<ILogger, string, Exception?> LogMessage =
         LoggerMessage.Define<string>(LogLevel.Debug, EventCode.DatabaseQuery.ToEventId(), "DB query: {Message}");
 
+    [SuppressMessage("Major Code Smell", "S2139:Exceptions should be either logged or rethrown but not both", Justification = "Entry point")]
     public static void Main(string[] args)
     {
         // NLog: setup the logger first to catch all errors

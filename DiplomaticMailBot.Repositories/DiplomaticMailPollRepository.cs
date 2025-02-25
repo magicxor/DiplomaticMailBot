@@ -68,8 +68,8 @@ public sealed class DiplomaticMailPollRepository
             {
                 _logger.LogInformation("One candidate for slot instance {SlotInstanceId}; choosing it", slotInstance.Id);
 
-                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteStartAt);
-                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteEndAt);
+                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteStartAt, DateTimeKind.Utc);
+                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteEndAt, DateTimeKind.Utc);
                 if (voteEndsAtDateTime <= voteStartsAtDateTime)
                 {
                     voteEndsAtDateTime = voteEndsAtDateTime.AddDays(1);
@@ -170,6 +170,9 @@ public sealed class DiplomaticMailPollRepository
         Func<RegisteredChatSm, RegisteredChatSm, IReadOnlyCollection<DiplomaticMailCandidateSm>, CancellationToken, Task<int>> sendPollCallback,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(sendMessageCallback);
+        ArgumentNullException.ThrowIfNull(sendPollCallback);
+
         _logger.LogDebug("Opening pending polls");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
@@ -314,6 +317,8 @@ public sealed class DiplomaticMailPollRepository
         Func<long, int, CancellationToken, Task<Either<int, Error>>> stopPollCallback,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(stopPollCallback);
+
         _logger.LogDebug("Closing expired polls");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;

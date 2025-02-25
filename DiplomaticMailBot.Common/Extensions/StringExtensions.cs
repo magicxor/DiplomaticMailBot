@@ -84,11 +84,13 @@ public static class StringExtensions
 
     public static string EscapeSpecialTelegramMdCharacters(this string src)
     {
+        ArgumentNullException.ThrowIfNull(src);
+
         string[] chars = ["_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"];
 
         foreach (var c in chars)
         {
-            src = src.Replace(c, @"\" + c);
+            src = src.Replace(c, @"\" + c, StringComparison.Ordinal);
         }
 
         return src;
@@ -96,10 +98,12 @@ public static class StringExtensions
 
     public static string EscapeSpecialTelegramHtmlCharacters(this string src)
     {
+        ArgumentNullException.ThrowIfNull(src);
+
         return src
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("&", "&amp;");
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal)
+            .Replace("&", "&amp;", StringComparison.Ordinal);
     }
 
     public static string CutToLastClosingLinkTag(this string src)
@@ -110,7 +114,7 @@ public static class StringExtensions
         }
 
         const string closingTag = "</a>";
-        if (!src.EndsWith(closingTag))
+        if (!src.EndsWith(closingTag, StringComparison.Ordinal))
         {
             var lastIndexOfBracket = src.LastIndexOf(closingTag, StringComparison.Ordinal);
             src = src[..(lastIndexOfBracket + closingTag.Length)];

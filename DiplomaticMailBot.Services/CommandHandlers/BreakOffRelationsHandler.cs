@@ -30,6 +30,9 @@ public sealed partial class BreakOffRelationsHandler
 
     public async Task HandleBreakOffRelationsAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var userCommandText = userCommand.Text ?? string.Empty;
 
         var match = BreakOffRelationsRegex().Match(userCommandText);

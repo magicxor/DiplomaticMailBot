@@ -13,7 +13,7 @@ public sealed class SlotDateCalculator
     {
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dateNow = DateOnly.FromDateTime(utcNow);
-        var voteStartsAtDateTime = new DateTime(dateNow, voteStartsAt);
+        var voteStartsAtDateTime = new DateTime(dateNow, voteStartsAt, DateTimeKind.Utc);
 
         var dateTomorrow = dateNow.AddDays(1);
 
@@ -26,8 +26,8 @@ public sealed class SlotDateCalculator
     {
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dateNow = DateOnly.FromDateTime(utcNow);
-        var voteStartsAtDateTime = new DateTime(dateNow, voteStartsAt);
-        var voteEndsAtDateTime = new DateTime(dateNow, voteEndsAt);
+        var voteStartsAtDateTime = new DateTime(dateNow, voteStartsAt, DateTimeKind.Utc);
+        var voteEndsAtDateTime = new DateTime(dateNow, voteEndsAt, DateTimeKind.Utc);
         if (voteEndsAtDateTime <= voteStartsAtDateTime)
         {
             voteEndsAtDateTime = voteEndsAtDateTime.AddDays(1);

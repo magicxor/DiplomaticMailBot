@@ -1,12 +1,8 @@
 ﻿namespace DiplomaticMailBot.Common.Enums;
 
-public static class Defaults
-{
-    public const int StartingEventCode = 99150000;
-}
-
 public enum EventCode
 {
+    None = 0,
     DatabaseQuery = Defaults.StartingEventCode + 1,
     AliasIsTaken = Defaults.StartingEventCode + 2,
     RegisteredChatNotFound = Defaults.StartingEventCode + 3,

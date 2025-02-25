@@ -1,0 +1,17 @@
+# see https://www.jetbrains.com/help/resharper/EditorConfig_Index.html
+[*.cs]
+# Class with virtual (overridable) members never inherited
+# We use virtual navigational properties, so this warning is useless
+resharper_class_with_virtual_members_never_inherited_global_highlighting = none
+resharper_class_with_virtual_members_never_inherited_local_highlighting = none
+
+# Property can be made init-only
+# We use entity framework, so this warning is useless
+resharper_property_can_be_made_init_only_global_highlighting = none
+resharper_property_can_be_made_init_only_local_highlighting = none
+
+# CA2227: Change 'SlotInstances' to be read-only by removing the property setter
+dotnet_diagnostic.CA2227.severity = none
+
+# IDE0028: Collection initialization can be simplified
+dotnet_diagnostic.IDE0028.severity = none

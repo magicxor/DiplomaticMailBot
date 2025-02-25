@@ -30,6 +30,15 @@ public sealed class DiplomaticMailCandidatesRepository
 
     public async Task<Either<bool, Error>> PutAsync(DiplomaticMailCandidatePutSm sm, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(sm);
+        ArgumentOutOfRangeException.ThrowIfZero(sm.MessageId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sm.Preview);
+        ArgumentOutOfRangeException.ThrowIfZero(sm.SubmitterId);
+        ArgumentOutOfRangeException.ThrowIfZero(sm.AuthorId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sm.AuthorName);
+        ArgumentOutOfRangeException.ThrowIfZero(sm.SourceChatId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sm.TargetChatAlias);
+
         _logger.LogInformation("Putting the message to a vote: MessageId={MessageId}, Preview={Preview}, AuthorName={AuthorName}, SourceChatId={SourceChatId}, TargetChatAlias={TargetChatAlias}, SlotTemplateId={SlotTemplateId}, NextVoteSlotDate={NextVoteSlotDate}",
             sm.MessageId,
             sm.Preview.TryLeft(50),
@@ -38,14 +47,6 @@ public sealed class DiplomaticMailCandidatesRepository
             sm.TargetChatAlias,
             sm.SlotTemplateId,
             sm.NextVoteSlotDate);
-
-        ArgumentOutOfRangeException.ThrowIfZero(sm.MessageId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sm.Preview);
-        ArgumentOutOfRangeException.ThrowIfZero(sm.SubmitterId);
-        ArgumentOutOfRangeException.ThrowIfZero(sm.AuthorId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sm.AuthorName);
-        ArgumentOutOfRangeException.ThrowIfZero(sm.SourceChatId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sm.TargetChatAlias);
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 

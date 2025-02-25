@@ -19,6 +19,8 @@ public sealed class TelegramInfoService
 
     public async Task<bool> IsSentByChatAdminAsync(Message message, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(message);
+
         _logger.LogTrace("Checking if message {MessageId} is sent by chat admin", message.MessageId);
 
         var userInfo = await _telegramBotClient.GetChatMember(message.Chat.Id, message.From?.Id ?? 0, cancellationToken);

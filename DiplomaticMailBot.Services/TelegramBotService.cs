@@ -83,7 +83,7 @@ public sealed partial class TelegramBotService
 
             if (!string.IsNullOrWhiteSpace(commandBotUsername)
                 && !string.IsNullOrWhiteSpace(me.Username)
-                && !commandBotUsername.Equals(me.Username, StringComparison.InvariantCultureIgnoreCase))
+                && !commandBotUsername.Equals(me.Username, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -92,13 +92,13 @@ public sealed partial class TelegramBotService
 
             var handlerTask = messageText switch
             {
-                _ when messageText.StartsWith(BotCommands.ListChats) => _registerChatHandler.HandleListChatsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.RegisterChat) => _registerChatHandler.HandleRegisterChatAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.DeregisterChat) => _registerChatHandler.HandleDeregisterChatAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.EstablishRelations) => _establishRelationsHandler.HandleEstablishRelationsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.BreakOffRelations) => _breakOffRelationsHandler.HandleBreakOffRelationsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.PutMessage) => _putMessageHandler.HandlePutMessageAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.WithdrawMessage) => _withdrawMessageHandler.HandleWithdrawMessageAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.ListChats, StringComparison.Ordinal) => _registerChatHandler.HandleListChatsAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.RegisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleRegisterChatAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.DeregisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleDeregisterChatAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.EstablishRelations, StringComparison.Ordinal) => _establishRelationsHandler.HandleEstablishRelationsAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.BreakOffRelations, StringComparison.Ordinal) => _breakOffRelationsHandler.HandleBreakOffRelationsAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.PutMessage, StringComparison.Ordinal) => _putMessageHandler.HandlePutMessageAsync(me, message, cancellationToken),
+                _ when messageText.StartsWith(BotCommands.WithdrawMessage, StringComparison.Ordinal) => _withdrawMessageHandler.HandleWithdrawMessageAsync(me, message, cancellationToken),
                 _ => Task.CompletedTask,
             };
             await handlerTask;
@@ -146,6 +146,6 @@ public sealed partial class TelegramBotService
         );
     }
 
-    [GeneratedRegex(@"^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$")]
+    [GeneratedRegex(@"^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
     private static partial Regex CommandRegex();
 }

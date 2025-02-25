@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35728.132 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Entities", "DiplomaticMailBot.Entities\DiplomaticMailBot.Entities.csproj", "{5E848385-BE8F-48F5-B10F-E5A058C91046}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Data", "DiplomaticMailBot.Data\DiplomaticMailBot.Data.csproj", "{B894892D-98C0-4505-BDD1-ED379488D8FD}"
@@ -33,6 +36,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Services", "DiplomaticMailBot.Services\DiplomaticMailBot.Services.csproj", "{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Cli", "DiplomaticMailBot.Cli\DiplomaticMailBot.Cli.csproj", "{2A06635F-533D-4E47-A48B-067D57545CCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{140878C7-CC07-4662-8BFA-7FCB00B2DE45}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		BannedSymbols.SolutionWide.txt = BannedSymbols.SolutionWide.txt
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,12 +96,15 @@ Global
 		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B894892D-98C0-4505-BDD1-ED379488D8FD} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
 		{5E848385-BE8F-48F5-B10F-E5A058C91046} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
-		{FDA0155C-5723-432D-83D4-6D28213F4CDE} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
-		{A13151C2-7480-452F-B2B6-B6539E1208FA} = {4F31F092-0EB3-4B2A-A551-17F39A3045D5}
+		{B894892D-98C0-4505-BDD1-ED379488D8FD} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
 		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137} = {81DBA627-7E6D-40C6-B6BE-5E9EC5ED5A06}
+		{A13151C2-7480-452F-B2B6-B6539E1208FA} = {4F31F092-0EB3-4B2A-A551-17F39A3045D5}
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
 		{219A2F63-D8FA-449B-8840-C322456FDA46} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
 		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
 		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB} = {9AA1A326-965D-4987-A4D3-14E05E64D532}

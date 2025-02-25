@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Domain;
@@ -32,11 +33,14 @@ public sealed partial class RegisterChatHandler
 
     public async Task HandleListChatsAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var registeredChats = await _registeredChatRepository.ListRegisteredChatsAsync(cancellationToken);
 
-        var registeredChatsString = registeredChats.Any()
+        var registeredChatsString = registeredChats.Count > 0
             ? string.Join(
-                "\n",
+                '\n',
                 registeredChats
                     .OrderBy(chat => chat.ChatAlias)
                     .ThenBy(chat => chat.ChatTitle)
@@ -45,7 +49,7 @@ public sealed partial class RegisterChatHandler
                     .Select(chat => string.Join(
                         " - ",
                         StringExtensions.GetNonEmpty(
-                            chat.CreatedAt?.ToString("yyyy-MM-dd"),
+                            chat.CreatedAt?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                             _previewGenerator.GetChatDisplayString(chat.ChatAlias, chat.ChatTitle))
                         )))
             : "Нет зарегистрированных чатов";
@@ -55,6 +59,9 @@ public sealed partial class RegisterChatHandler
 
     public async Task HandleRegisterChatAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var userCommandText = userCommand.Text ?? string.Empty;
         var chatTitle = userCommand.Chat.Title ?? string.Empty;
 
@@ -105,6 +112,9 @@ public sealed partial class RegisterChatHandler
 
     public async Task HandleDeregisterChatAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var userCommandText = userCommand.Text ?? string.Empty;
 
         var match = DeregisterChatRegex().Match(userCommandText);

@@ -6,6 +6,8 @@ public static class MessageExtensions
 {
     public static ReplyParameters ToReplyParameters(this Message message)
     {
+        ArgumentNullException.ThrowIfNull(message);
+
         return new ReplyParameters
         {
             ChatId = message.Chat.Id,

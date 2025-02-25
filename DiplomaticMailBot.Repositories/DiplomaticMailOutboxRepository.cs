@@ -28,6 +28,8 @@ public sealed class DiplomaticMailOutboxRepository
         Func<RegisteredChatSm, RegisteredChatSm, DiplomaticMailCandidateSm, CancellationToken, Task> processOutboxRecordCallback,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(processOutboxRecordCallback);
+
         _logger.LogDebug("Sending pending mails");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;

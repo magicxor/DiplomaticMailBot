@@ -19,27 +19,27 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<SlotInstance> SlotInstances { get; set; } = null!;
     public DbSet<SlotTemplate> SlotTemplates { get; set; } = null!;
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        ContextConfigurationUtils.SetValueConverters(builder);
-        base.OnModelCreating(builder);
+        ContextConfigurationUtils.SetValueConverters(modelBuilder);
+        base.OnModelCreating(modelBuilder);
 
-        builder.Entity<RegisteredChat>()
-            .HasQueryFilter(x => x.IsDeleted == false);
+        modelBuilder.Entity<RegisteredChat>()
+            .HasQueryFilter(x => !x.IsDeleted);
 
-        builder.Entity<DiplomaticRelation>()
-            .HasQueryFilter(x => x.SourceChat!.IsDeleted == false && x.TargetChat!.IsDeleted == false);
+        modelBuilder.Entity<DiplomaticRelation>()
+            .HasQueryFilter(x => !x.SourceChat!.IsDeleted && !x.TargetChat!.IsDeleted);
 
-        builder.Entity<SlotInstance>()
-            .HasQueryFilter(x => x.FromChat!.IsDeleted == false && x.ToChat!.IsDeleted == false);
+        modelBuilder.Entity<SlotInstance>()
+            .HasQueryFilter(x => !x.FromChat!.IsDeleted && !x.ToChat!.IsDeleted);
 
-        builder.Entity<DiplomaticMailCandidate>()
-            .HasQueryFilter(x => x.SlotInstance!.FromChat!.IsDeleted == false && x.SlotInstance!.ToChat!.IsDeleted == false);
+        modelBuilder.Entity<DiplomaticMailCandidate>()
+            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
 
-        builder.Entity<DiplomaticMailOutbox>()
-            .HasQueryFilter(x => x.SlotInstance!.FromChat!.IsDeleted == false && x.SlotInstance!.ToChat!.IsDeleted == false);
+        modelBuilder.Entity<DiplomaticMailOutbox>()
+            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
 
-        builder.Entity<DiplomaticMailPoll>()
-            .HasQueryFilter(x => x.SlotInstance!.FromChat!.IsDeleted == false && x.SlotInstance!.ToChat!.IsDeleted == false);
+        modelBuilder.Entity<DiplomaticMailPoll>()
+            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
     }
 }

@@ -1,0 +1,7 @@
+# see https://www.jetbrains.com/help/resharper/EditorConfig_Index.html
+[*.cs]
+# CA1707: Remove the underscores from member name
+dotnet_diagnostic.CA1707.severity = none
+
+# MA0132: Do not convert implicitly to DateTimeOffset
+dotnet_diagnostic.MA0132.severity = none

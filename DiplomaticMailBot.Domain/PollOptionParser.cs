@@ -1,4 +1,5 @@
-﻿using DiplomaticMailBot.Common.Enums;
+﻿using System.Globalization;
+using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
 using LanguageExt;
@@ -15,14 +16,14 @@ public sealed class PollOptionParser
             return new DomainError(EventCode.MessageIdNotFound.ToInt(), "Message ID not found");
         }
 
-        var openingBracketIndex = pollOptionText.IndexOf('[');
+        var openingBracketIndex = pollOptionText.IndexOf('[', StringComparison.Ordinal);
 
         if (openingBracketIndex == -1)
         {
             return new DomainError(EventCode.OpeningBracketNotFound.ToInt(), "Opening bracket not found");
         }
 
-        var closingBracketIndex = pollOptionText.IndexOf(']');
+        var closingBracketIndex = pollOptionText.IndexOf(']', StringComparison.Ordinal);
 
         if (closingBracketIndex == -1)
         {
@@ -43,7 +44,7 @@ public sealed class PollOptionParser
             return new DomainError(EventCode.MessageIdNotFound.ToInt(), "Message ID not found");
         }
 
-        if (!int.TryParse(bracketsContent, out var messageId))
+        if (!int.TryParse(bracketsContent, CultureInfo.InvariantCulture, out var messageId))
         {
             return new DomainError(EventCode.MessageIdNotFound.ToInt(), "Message ID not found");
         }

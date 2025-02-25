@@ -46,11 +46,12 @@ public sealed class RegisteredChatRepository
 
     public async Task<Either<RegisteredChatCreateOrUpdateResultSm, Error>> CreateOrUpdateAsync(RegisteredChatCreateOrUpdateRequestSm registeredChatCreateOrUpdateRequestSm, CancellationToken cancellationToken = default)
     {
-        _logger.LogTrace("Creating or updating registered chat {Alias}", registeredChatCreateOrUpdateRequestSm.ChatAlias);
-
+        ArgumentNullException.ThrowIfNull(registeredChatCreateOrUpdateRequestSm);
         ArgumentOutOfRangeException.ThrowIfZero(registeredChatCreateOrUpdateRequestSm.ChatId);
         ArgumentException.ThrowIfNullOrWhiteSpace(registeredChatCreateOrUpdateRequestSm.ChatAlias);
         ArgumentException.ThrowIfNullOrWhiteSpace(registeredChatCreateOrUpdateRequestSm.ChatTitle);
+
+        _logger.LogTrace("Creating or updating registered chat {Alias}", registeredChatCreateOrUpdateRequestSm.ChatAlias);
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 

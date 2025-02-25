@@ -21,6 +21,9 @@ public sealed class WithdrawMessageHandler
 
     public async Task HandleWithdrawMessageAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var replyToMessage = userCommand.ReplyToMessage;
         var commandSenderId = userCommand.From?.Id ?? 0;
 

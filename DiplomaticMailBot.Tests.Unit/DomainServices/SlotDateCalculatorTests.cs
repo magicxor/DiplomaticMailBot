@@ -6,10 +6,10 @@ namespace DiplomaticMailBot.Tests.Unit.DomainServices;
 [TestFixture]
 public sealed class SlotDateCalculatorTests
 {
+    private const string LocalTimeZoneId = "Etc/GMT-11";
+
     private SlotDateCalculator _calculator;
     private FakeTimeProvider _timeProvider;
-    
-    private const string LocalTimeZoneId = "Etc/GMT-11";
 
     [SetUp]
     public void Setup()

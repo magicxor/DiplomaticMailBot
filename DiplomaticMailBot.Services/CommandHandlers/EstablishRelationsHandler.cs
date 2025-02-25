@@ -30,6 +30,9 @@ public sealed partial class EstablishRelationsHandler
 
     public async Task HandleEstablishRelationsAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(userCommand);
+
         var userCommandText = userCommand.Text ?? string.Empty;
 
         var match = EstablishRelationsRegex().Match(userCommandText);
