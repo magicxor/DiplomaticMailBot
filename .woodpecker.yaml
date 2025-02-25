@@ -1,0 +1,28 @@
+steps:
+
+  - name: build and push
+    image: docker:26
+    environment:
+      SOLUTION_DIR: DiplomaticMailBot
+      PROJECT_DIR: DiplomaticMailBot.Cli
+      PROJECT_IMAGE_NAME: diplomatic-mail-tg-bot
+      DOCKER_HOST:
+        from_secret: NAS_DOCKER_HOST
+      NAS_CONTAINER_REGISTRY_HOST:
+        from_secret: NAS_CONTAINER_REGISTRY_HOST
+      NAS_CONTAINER_REGISTRY_LOGIN:
+        from_secret: NAS_CONTAINER_REGISTRY_LOGIN
+      NAS_CONTAINER_REGISTRY_PASSWORD:
+        from_secret: NAS_CONTAINER_REGISTRY_PASSWORD
+
+    commands:
+      - ls -lh
+      - docker info
+      - cd $SOLUTION_DIR
+      - docker login -u $NAS_CONTAINER_REGISTRY_LOGIN -p $NAS_CONTAINER_REGISTRY_PASSWORD $NAS_CONTAINER_REGISTRY_HOST
+      - CURRENT_IMAGE_NAME=$NAS_CONTAINER_REGISTRY_HOST/$PROJECT_IMAGE_NAME:latest
+      - docker build . --progress=plain --file=$PROJECT_DIR/Dockerfile -t $CURRENT_IMAGE_NAME
+      - docker push $CURRENT_IMAGE_NAME
+    when:
+      - event: [ push, manual ]
+        branch: master

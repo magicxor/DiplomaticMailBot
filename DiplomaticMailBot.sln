@@ -1,0 +1,101 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Entities", "DiplomaticMailBot.Entities\DiplomaticMailBot.Entities.csproj", "{5E848385-BE8F-48F5-B10F-E5A058C91046}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Data", "DiplomaticMailBot.Data\DiplomaticMailBot.Data.csproj", "{B894892D-98C0-4505-BDD1-ED379488D8FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Domain", "DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj", "{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Common", "DiplomaticMailBot.Common\DiplomaticMailBot.Common.csproj", "{A13151C2-7480-452F-B2B6-B6539E1208FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Infrastructure", "1 Infrastructure", "{D90BAF9C-1945-455B-9D28-5A919DC0EB0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Repositories", "DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj", "{FDA0155C-5723-432D-83D4-6D28213F4CDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Common", "0 Common", "{4F31F092-0EB3-4B2A-A551-17F39A3045D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Business Logic", "2 Business Logic", "{81DBA627-7E6D-40C6-B6BE-5E9EC5ED5A06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.TelegramInterop", "DiplomaticMailBot.TelegramInterop\DiplomaticMailBot.TelegramInterop.csproj", "{219A2F63-D8FA-449B-8840-C322456FDA46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.ServiceModels", "DiplomaticMailBot.ServiceModels\DiplomaticMailBot.ServiceModels.csproj", "{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 Tests", "5 Tests", "{9AA1A326-965D-4987-A4D3-14E05E64D532}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Presentation", "4 Presentation", "{48E78D3C-877A-4421-839C-923B28EA61AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Tests.Unit", "DiplomaticMailBot.Tests.Unit\DiplomaticMailBot.Tests.Unit.csproj", "{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Tests.Integration", "DiplomaticMailBot.Tests.Integration\DiplomaticMailBot.Tests.Integration.csproj", "{7367CE87-AC40-41DF-820E-FEAF84AD6381}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Service", "3 Service", "{6632809C-C146-47A4-A291-53280125EE35}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Services", "DiplomaticMailBot.Services\DiplomaticMailBot.Services.csproj", "{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Cli", "DiplomaticMailBot.Cli\DiplomaticMailBot.Cli.csproj", "{2A06635F-533D-4E47-A48B-067D57545CCC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E848385-BE8F-48F5-B10F-E5A058C91046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E848385-BE8F-48F5-B10F-E5A058C91046}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E848385-BE8F-48F5-B10F-E5A058C91046}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E848385-BE8F-48F5-B10F-E5A058C91046}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B894892D-98C0-4505-BDD1-ED379488D8FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B894892D-98C0-4505-BDD1-ED379488D8FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B894892D-98C0-4505-BDD1-ED379488D8FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B894892D-98C0-4505-BDD1-ED379488D8FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A13151C2-7480-452F-B2B6-B6539E1208FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A13151C2-7480-452F-B2B6-B6539E1208FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A13151C2-7480-452F-B2B6-B6539E1208FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A13151C2-7480-452F-B2B6-B6539E1208FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{219A2F63-D8FA-449B-8840-C322456FDA46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{219A2F63-D8FA-449B-8840-C322456FDA46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{219A2F63-D8FA-449B-8840-C322456FDA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{219A2F63-D8FA-449B-8840-C322456FDA46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7367CE87-AC40-41DF-820E-FEAF84AD6381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7367CE87-AC40-41DF-820E-FEAF84AD6381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7367CE87-AC40-41DF-820E-FEAF84AD6381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7367CE87-AC40-41DF-820E-FEAF84AD6381}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A06635F-533D-4E47-A48B-067D57545CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A06635F-533D-4E47-A48B-067D57545CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B894892D-98C0-4505-BDD1-ED379488D8FD} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
+		{5E848385-BE8F-48F5-B10F-E5A058C91046} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
+		{FDA0155C-5723-432D-83D4-6D28213F4CDE} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
+		{A13151C2-7480-452F-B2B6-B6539E1208FA} = {4F31F092-0EB3-4B2A-A551-17F39A3045D5}
+		{CB46BE62-8C10-4ED1-A7E3-C026A3C9D137} = {81DBA627-7E6D-40C6-B6BE-5E9EC5ED5A06}
+		{219A2F63-D8FA-449B-8840-C322456FDA46} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
+		{F36E7BBF-BC4C-405D-82F6-DDDD1DC2C83A} = {D90BAF9C-1945-455B-9D28-5A919DC0EB0A}
+		{311BEFA0-6860-4BCF-AFCB-76FE35D6C2BB} = {9AA1A326-965D-4987-A4D3-14E05E64D532}
+		{7367CE87-AC40-41DF-820E-FEAF84AD6381} = {9AA1A326-965D-4987-A4D3-14E05E64D532}
+		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC} = {6632809C-C146-47A4-A291-53280125EE35}
+		{2A06635F-533D-4E47-A48B-067D57545CCC} = {48E78D3C-877A-4421-839C-923B28EA61AD}
+	EndGlobalSection
+EndGlobal

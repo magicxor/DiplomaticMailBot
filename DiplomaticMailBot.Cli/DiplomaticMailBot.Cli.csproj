@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-DiplomaticMailBot.Cli-3d3bd409-87df-4c5d-b25c-562f3637ae10</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Humanizer.Core" />
+        <PackageReference Include="Humanizer.Core.ru" />
+        <PackageReference Include="LanguageExt.Core" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" >
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+        <PackageReference Include="NLog.Extensions.Logging" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+        <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+        <PackageReference Include="Telegram.Bot" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+        <Content Update="nlog.config">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DiplomaticMailBot.Common\DiplomaticMailBot.Common.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Data\DiplomaticMailBot.Data.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Entities\DiplomaticMailBot.Entities.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Services\DiplomaticMailBot.Services.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.TelegramInterop\DiplomaticMailBot.TelegramInterop.csproj" />
+    </ItemGroup>
+</Project>
