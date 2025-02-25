@@ -159,8 +159,8 @@ public sealed class StringExtensionsTests
     [Test]
     public void CutToLastClosingLinkTag_WhenHasClosingTag_ShouldCutToLastTag()
     {
-        var input = "Hello <a>World</a> extra text";
-        var expected = "Hello <a>World</a>";
+        const string input = "Hello <a>World</a> extra text";
+        const string expected = "Hello <a>World</a>";
         var result = input.CutToLastClosingLinkTag();
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -168,8 +168,8 @@ public sealed class StringExtensionsTests
     [Test]
     public void CutToLastClosingLinkTag_WhenMultipleTags_ShouldCutToLastTag()
     {
-        var input = "<a>First</a> middle <a>Last</a> extra";
-        var expected = "<a>First</a> middle <a>Last</a>";
+        const string input = "<a>First</a> middle <a>Last</a> extra";
+        const string expected = "<a>First</a> middle <a>Last</a>";
         var result = input.CutToLastClosingLinkTag();
         Assert.That(result, Is.EqualTo(expected));
     }
