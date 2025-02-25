@@ -1,5 +1,4 @@
 ﻿using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.SlotTemplate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
