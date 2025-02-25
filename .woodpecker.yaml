@@ -3,7 +3,6 @@ steps:
   - name: build and push
     image: docker:26
     environment:
-      SOLUTION_DIR: DiplomaticMailBot
       PROJECT_DIR: DiplomaticMailBot.Cli
       PROJECT_IMAGE_NAME: diplomatic-mail-tg-bot
       DOCKER_HOST:
@@ -18,7 +17,6 @@ steps:
     commands:
       - ls -lh
       - docker info
-      - cd $SOLUTION_DIR
       - docker login -u $NAS_CONTAINER_REGISTRY_LOGIN -p $NAS_CONTAINER_REGISTRY_PASSWORD $NAS_CONTAINER_REGISTRY_HOST
       - CURRENT_IMAGE_NAME=$NAS_CONTAINER_REGISTRY_HOST/$PROJECT_IMAGE_NAME:latest
       - docker build . --progress=plain --file=$PROJECT_DIR/Dockerfile -t $CURRENT_IMAGE_NAME
