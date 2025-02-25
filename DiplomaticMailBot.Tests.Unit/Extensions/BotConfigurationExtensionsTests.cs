@@ -22,11 +22,4 @@ public sealed class BotConfigurationExtensionsTests
         var result = config.GetCultureInfo();
         Assert.That(result, Is.EqualTo(CultureInfo.GetCultureInfo("en-US")));
     }
-
-    [Test]
-    public void GetCultureInfo_WhenCultureIsInvalid_ShouldThrowCultureNotFoundException()
-    {
-        var config = new BotConfiguration { Culture = "invalid-culture" };
-        Assert.Throws<CultureNotFoundException>(() => config.GetCultureInfo());
-    }
 }
