@@ -3,8 +3,6 @@ using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
-using LanguageExt;
-using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -31,8 +29,8 @@ public sealed class DiplomaticMailPollRepository
         SlotInstance slotInstance,
         DateTime utcNow,
         DateOnly dateNow,
-        Func<RegisteredChatSm, RegisteredChatSm, TimeSpan, DiplomaticMailCandidateSm, CancellationToken, Task> sendMessageCallback,
-        Func<RegisteredChatSm, RegisteredChatSm, IReadOnlyCollection<DiplomaticMailCandidateSm>, CancellationToken, Task<int>> sendPollCallback,
+        SendMessageCallback sendMessageCallback,
+        SendPollCallback sendPollCallback,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Opening poll for slot instance {SlotInstanceId}", slotInstance.Id);
@@ -166,8 +164,8 @@ public sealed class DiplomaticMailPollRepository
     }
 
     public async Task OpenPendingPollsAsync(
-        Func<RegisteredChatSm, RegisteredChatSm, TimeSpan, DiplomaticMailCandidateSm, CancellationToken, Task> sendMessageCallback,
-        Func<RegisteredChatSm, RegisteredChatSm, IReadOnlyCollection<DiplomaticMailCandidateSm>, CancellationToken, Task<int>> sendPollCallback,
+        SendMessageCallback sendMessageCallback,
+        SendPollCallback sendPollCallback,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sendMessageCallback);
@@ -217,7 +215,7 @@ public sealed class DiplomaticMailPollRepository
         ApplicationDbContext applicationDbContext,
         DiplomaticMailPoll pollToClose,
         DateTime utcNow,
-        Func<long, int, CancellationToken, Task<Either<int, Error>>> stopPollCallback,
+        StopPollCallback stopPollCallback,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Closing poll {PollId}", pollToClose.Id);
@@ -314,7 +312,7 @@ public sealed class DiplomaticMailPollRepository
     }
 
     public async Task CloseExpiredPollsAsync(
-        Func<long, int, CancellationToken, Task<Either<int, Error>>> stopPollCallback,
+        StopPollCallback stopPollCallback,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stopPollCallback);

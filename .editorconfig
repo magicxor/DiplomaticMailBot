@@ -294,6 +294,9 @@ dotnet_diagnostic.CA1308.severity = none
 # SA1313: Parameter 'Port' should begin with lower-case letter
 dotnet_diagnostic.SA1313.severity = none
 
+# SA1211: Using alias directive for 'SendPollCallback' should appear before using alias directive for 'StopPollCallback'
+dotnet_diagnostic.SA1211.severity = none
+
 # formatting rules
 indent_size = 4
 roslynator_binary_operator_new_line = before

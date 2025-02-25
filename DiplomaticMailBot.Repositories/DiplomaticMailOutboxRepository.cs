@@ -25,7 +25,7 @@ public sealed class DiplomaticMailOutboxRepository
     }
 
     public async Task SendPendingMailsAsync(
-        Func<RegisteredChatSm, RegisteredChatSm, DiplomaticMailCandidateSm, CancellationToken, Task> processOutboxRecordCallback,
+        ProcessOutboxRecordCallback processOutboxRecordCallback,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(processOutboxRecordCallback);
