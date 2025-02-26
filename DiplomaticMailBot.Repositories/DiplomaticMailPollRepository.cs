@@ -270,19 +270,28 @@ public sealed class DiplomaticMailPollRepository
                             .OrderBy(x => x.Id)
                             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-                        _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate?.Id);
-
-                        applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                        if (chosenCandidate is not null)
                         {
-                            Status = DiplomaticMailOutboxStatus.Pending,
-                            StatusDetails = null,
-                            Attempts = 0,
-                            CreatedAt = utcNow,
-                            SentAt = null,
-                            SlotInstance = pollToClose.SlotInstance,
-                            DiplomaticMailCandidate = chosenCandidate,
-                        });
-                        return true;
+                            _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
+
+                            applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                            {
+                                Status = DiplomaticMailOutboxStatus.Pending,
+                                StatusDetails = null,
+                                Attempts = 0,
+                                CreatedAt = utcNow,
+                                SentAt = null,
+                                SlotInstance = pollToClose.SlotInstance,
+                                DiplomaticMailCandidate = chosenCandidate,
+                            });
+
+                            return true;
+                        }
+                        else
+                        {
+                            _logger.LogError("Chosen candidate not found: {ChosenMessageId}", chosenMessageId);
+                            return false;
+                        }
                     });
             }
             else if (candidates.Count == 1)
@@ -304,9 +313,9 @@ public sealed class DiplomaticMailPollRepository
                     DiplomaticMailCandidate = chosenCandidate,
                 });
             }
-
-            await applicationDbContext.SaveChangesAsync(cancellationToken);
         }
+
+        await applicationDbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Poll {PollId} closed", pollToClose.Id);
     }
