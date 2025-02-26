@@ -1,4 +1,5 @@
-﻿using DiplomaticMailBot.Common.Enums;
+﻿using System.Globalization;
+using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
@@ -155,7 +156,7 @@ public sealed class RegisteredChatRepository
             return new DomainError(EventCode.RegisteredChatAliasMismatch.ToInt(), "Registered chat alias mismatch");
         }
 
-        registeredChat.ChatAlias = string.Empty;
+        registeredChat.ChatAlias = Guid.NewGuid().ToString("d", CultureInfo.InvariantCulture);
         registeredChat.IsDeleted = true;
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
