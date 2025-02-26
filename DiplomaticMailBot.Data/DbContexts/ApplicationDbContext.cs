@@ -28,18 +28,18 @@ public sealed class ApplicationDbContext : DbContext
             .HasQueryFilter(x => !x.IsDeleted);
 
         modelBuilder.Entity<DiplomaticRelation>()
-            .HasQueryFilter(x => !x.SourceChat!.IsDeleted && !x.TargetChat!.IsDeleted);
+            .HasQueryFilter(x => !x.SourceChat.IsDeleted && !x.TargetChat.IsDeleted);
 
         modelBuilder.Entity<SlotInstance>()
-            .HasQueryFilter(x => !x.FromChat!.IsDeleted && !x.ToChat!.IsDeleted);
+            .HasQueryFilter(x => !x.FromChat.IsDeleted && !x.ToChat.IsDeleted);
 
         modelBuilder.Entity<MessageCandidate>()
-            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
+            .HasQueryFilter(x => !x.SlotInstance.FromChat.IsDeleted && !x.SlotInstance.ToChat.IsDeleted);
 
         modelBuilder.Entity<MessageOutbox>()
-            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
+            .HasQueryFilter(x => !x.SlotInstance.FromChat.IsDeleted && !x.SlotInstance.ToChat.IsDeleted);
 
         modelBuilder.Entity<SlotPoll>()
-            .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
+            .HasQueryFilter(x => !x.SlotInstance.FromChat.IsDeleted && !x.SlotInstance.ToChat.IsDeleted);
     }
 }

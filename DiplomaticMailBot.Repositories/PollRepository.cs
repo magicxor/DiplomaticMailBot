@@ -66,8 +66,8 @@ public sealed class PollRepository
             {
                 _logger.LogInformation("One candidate for slot instance {SlotInstanceId}; choosing it", slotInstance.Id);
 
-                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteStartAt, DateTimeKind.Utc);
-                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteEndAt, DateTimeKind.Utc);
+                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteStartAt, DateTimeKind.Utc);
+                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteEndAt, DateTimeKind.Utc);
                 if (voteEndsAtDateTime <= voteStartsAtDateTime)
                 {
                     voteEndsAtDateTime = voteEndsAtDateTime.AddDays(1);
@@ -80,19 +80,19 @@ public sealed class PollRepository
                 await sendMessageCallback(
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.FromChat!.Id,
-                        ChatId = slotInstance.FromChat!.ChatId,
-                        ChatTitle = slotInstance.FromChat!.ChatTitle,
-                        ChatAlias = slotInstance.FromChat!.ChatAlias,
-                        CreatedAt = slotInstance.FromChat!.CreatedAt,
+                        Id = slotInstance.FromChat.Id,
+                        ChatId = slotInstance.FromChat.ChatId,
+                        ChatTitle = slotInstance.FromChat.ChatTitle,
+                        ChatAlias = slotInstance.FromChat.ChatAlias,
+                        CreatedAt = slotInstance.FromChat.CreatedAt,
                     },
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.ToChat!.Id,
-                        ChatId = slotInstance.ToChat!.ChatId,
-                        ChatTitle = slotInstance.ToChat!.ChatTitle,
-                        ChatAlias = slotInstance.ToChat!.ChatAlias,
-                        CreatedAt = slotInstance.ToChat!.CreatedAt,
+                        Id = slotInstance.ToChat.Id,
+                        ChatId = slotInstance.ToChat.ChatId,
+                        ChatTitle = slotInstance.ToChat.ChatTitle,
+                        ChatAlias = slotInstance.ToChat.ChatAlias,
+                        CreatedAt = slotInstance.ToChat.CreatedAt,
                     },
                     timeLeft,
                     new MessageCandidateSm
@@ -129,19 +129,19 @@ public sealed class PollRepository
                 var pollMessageId = await sendPollCallback(
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.FromChat!.Id,
-                        ChatId = slotInstance.FromChat!.ChatId,
-                        ChatTitle = slotInstance.FromChat!.ChatTitle,
-                        ChatAlias = slotInstance.FromChat!.ChatAlias,
-                        CreatedAt = slotInstance.FromChat!.CreatedAt,
+                        Id = slotInstance.FromChat.Id,
+                        ChatId = slotInstance.FromChat.ChatId,
+                        ChatTitle = slotInstance.FromChat.ChatTitle,
+                        ChatAlias = slotInstance.FromChat.ChatAlias,
+                        CreatedAt = slotInstance.FromChat.CreatedAt,
                     },
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.ToChat!.Id,
-                        ChatId = slotInstance.ToChat!.ChatId,
-                        ChatTitle = slotInstance.ToChat!.ChatTitle,
-                        ChatAlias = slotInstance.ToChat!.ChatAlias,
-                        CreatedAt = slotInstance.ToChat!.CreatedAt,
+                        Id = slotInstance.ToChat.Id,
+                        ChatId = slotInstance.ToChat.ChatId,
+                        ChatTitle = slotInstance.ToChat.ChatTitle,
+                        ChatAlias = slotInstance.ToChat.ChatAlias,
+                        CreatedAt = slotInstance.ToChat.CreatedAt,
                     },
                     pollOptions,
                     cancellationToken);
@@ -186,8 +186,8 @@ public sealed class PollRepository
             .Where(slot =>
                 slot.Status == SlotInstanceStatus.Collecting
                 && slot.Date == dateNow
-                && slot.Template!.VoteStartAt <= timeNow
-                && slot.Template!.VoteEndAt >= timeNow
+                && slot.Template.VoteStartAt <= timeNow
+                && slot.Template.VoteEndAt >= timeNow
                 && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id))
             .ToListAsync(cancellationToken);
         var i = 1;
@@ -220,7 +220,7 @@ public sealed class PollRepository
     {
         _logger.LogInformation("Closing poll {PollId}", pollToClose.Id);
 
-        var slotInstance = pollToClose.SlotInstance!;
+        var slotInstance = pollToClose.SlotInstance;
         var relations = await applicationDbContext.DiplomaticRelations
             .Where(x => (x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId)
                         || (x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId))
@@ -230,7 +230,7 @@ public sealed class PollRepository
 
         pollToClose.Status = PollStatus.Closed;
         pollToClose.ClosedAt = utcNow;
-        pollToClose.SlotInstance!.Status = SlotInstanceStatus.Archived;
+        pollToClose.SlotInstance.Status = SlotInstanceStatus.Archived;
 
         if (outgoingRelation is null || incomingRelation is null)
         {
@@ -248,7 +248,7 @@ public sealed class PollRepository
             {
                 _logger.LogInformation("Poll {PollId} has {CandidatesCount} potential candidates; trying to stop it", pollToClose.Id, candidates.Count);
 
-                var chosenMessageIdResult = await stopPollCallback(pollToClose.SlotInstance.FromChat!.ChatId, pollToClose.MessageId, cancellationToken);
+                var chosenMessageIdResult = await stopPollCallback(pollToClose.SlotInstance.FromChat.ChatId, pollToClose.MessageId, cancellationToken);
 
                 _logger.LogInformation("Poll {PollId} stopped", pollToClose.Id);
 
@@ -265,8 +265,8 @@ public sealed class PollRepository
                         var chosenCandidate = await applicationDbContext.MessageCandidates
                             .Where(candidate => candidate.MessageId == chosenMessageId
                                         && candidate.SlotInstanceId == pollToClose.SlotInstanceId
-                                        && candidate.SlotInstance!.FromChatId == pollToClose.SlotInstance.FromChatId
-                                        && candidate.SlotInstance!.ToChatId == pollToClose.SlotInstance.ToChatId)
+                                        && candidate.SlotInstance.FromChatId == pollToClose.SlotInstance.FromChatId
+                                        && candidate.SlotInstance.ToChatId == pollToClose.SlotInstance.ToChatId)
                             .OrderBy(x => x.Id)
                             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -336,11 +336,11 @@ public sealed class PollRepository
 
         var pollsToClose = await applicationDbContext.SlotPolls
             .Include(poll => poll.SlotInstance)
-            .ThenInclude(slot => slot!.FromChat)
+            .ThenInclude(slot => slot.FromChat)
             .Where(x =>
                 x.Status == PollStatus.Opened
-                && ((x.SlotInstance!.Date == dateNow && x.SlotInstance!.Template!.VoteEndAt < timeNow)
-                    || x.SlotInstance!.Date < dateNow))
+                && ((x.SlotInstance.Date == dateNow && x.SlotInstance.Template.VoteEndAt < timeNow)
+                    || x.SlotInstance.Date < dateNow))
             .ToListAsync(cancellationToken);
         var i = 1;
 

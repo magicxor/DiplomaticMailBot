@@ -200,7 +200,7 @@ public sealed class MessageCandidateRepository
         var candidates = await applicationDbContext.MessageCandidates
                             .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
                                                     && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
-                                                    && mailCandidate.SlotInstance!.FromChat!.ChatId == sourceChatId
+                                                    && mailCandidate.SlotInstance.FromChat.ChatId == sourceChatId
                                                     && applicationDbContext
                                                         .SlotInstances
                                                         .Any(slot => slot.Id == mailCandidate.SlotInstanceId

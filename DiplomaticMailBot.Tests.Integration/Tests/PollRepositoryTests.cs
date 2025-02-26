@@ -486,7 +486,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(verifyPoll, Is.Not.Null);
         Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Closed));
         Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
-        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
+        Assert.That(verifyPoll.SlotInstance.Status, Is.EqualTo(SlotInstanceStatus.Archived));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -580,7 +580,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(verifyPoll, Is.Not.Null);
         Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Closed));
         Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
-        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
+        Assert.That(verifyPoll.SlotInstance.Status, Is.EqualTo(SlotInstanceStatus.Archived));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -682,7 +682,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(verifyPoll, Is.Not.Null);
         Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Opened));
         Assert.That(verifyPoll.ClosedAt, Is.Null);
-        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
+        Assert.That(verifyPoll.SlotInstance.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
