@@ -26,10 +26,12 @@ public class SlotInstance
 
     [Required]
     [ForeignKey(nameof(SlotInstance.FromChat))]
+    [Column("SourceChatId")]
     public int FromChatId { get; set; }
 
     [Required]
     [ForeignKey(nameof(SlotInstance.ToChat))]
+    [Column("TargetChatId")]
     public int ToChatId { get; set; }
 
     // FK models
