@@ -22,8 +22,22 @@ public class DiplomaticRelation
 
     // FK models
     [Required]
-    public virtual RegisteredChat? SourceChat { get; set; }
+    public virtual RegisteredChat SourceChat
+    {
+        get => _sourceChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(SourceChat));
+        set => _sourceChat = value;
+    }
+
+    private RegisteredChat? _sourceChat;
 
     [Required]
-    public virtual RegisteredChat? TargetChat { get; set; }
+    public virtual RegisteredChat TargetChat
+    {
+        get => _targetChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(TargetChat));
+        set => _targetChat = value;
+    }
+
+    private RegisteredChat? _targetChat;
 }
