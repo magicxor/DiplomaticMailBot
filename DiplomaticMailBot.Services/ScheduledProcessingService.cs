@@ -45,22 +45,22 @@ public sealed class ScheduledProcessingService
     public async Task OpenPendingPollsAsync(CancellationToken stoppingToken = default)
     {
         await _pollRepository.OpenPendingPollsAsync(
-            async (fromChat, toChat, timeLeft, mailCandidate, cancellationToken) => await _telegramBotClient.SendMessage(
-                fromChat.ChatId,
-                $"{_previewGenerator.GetMessageLinkHtml(fromChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(toChat.ChatAlias, toChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
+            async (sourceChat, targetChat, timeLeft, mailCandidate, cancellationToken) => await _telegramBotClient.SendMessage(
+                sourceChat.ChatId,
+                $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
                 ParseMode.Html,
                 cancellationToken: cancellationToken),
-            async (fromChat, toChat, options, cancellationToken) =>
+            async (sourceChat, targetChat, options, cancellationToken) =>
             {
                 var inputPollOptions = options
                     .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, 20, 100)))
                     .ToList();
-                var pollQuestion = $"Какое послание отправляем в {_previewGenerator.GetChatDisplayString(toChat.ChatAlias, toChat.ChatTitle)}?".TryLeft(300);
+                var pollQuestion = $"Какое послание отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}?".TryLeft(300);
 
-                _logger.LogInformation("Opening poll in chat {ChatId} with question: {PollQuestion}", fromChat.ChatId, pollQuestion);
+                _logger.LogInformation("Opening poll in chat {ChatId} with question: {PollQuestion}", sourceChat.ChatId, pollQuestion);
 
                 var poll = await _telegramBotClient.SendPoll(
-                    fromChat.ChatId,
+                    sourceChat.ChatId,
                     pollQuestion,
                     inputPollOptions,
                     cancellationToken: cancellationToken);
@@ -68,7 +68,7 @@ public sealed class ScheduledProcessingService
                 var detailedPollOptions = options
                     .Select(candidate =>
                         _previewGenerator.GetMessageLinkHtml(
-                            fromChat.ChatId,
+                            sourceChat.ChatId,
                             candidate.MessageId,
                             _previewGenerator.GetPollOptionPreview(
                                 candidate.MessageId,
@@ -82,7 +82,7 @@ public sealed class ScheduledProcessingService
                     .TryLeft(2048)
                     .CutToLastClosingLinkTag();
                 await _telegramBotClient.SendMessage(
-                    fromChat.ChatId,
+                    sourceChat.ChatId,
                     detailedPollOptionsInfoMessageText,
                     ParseMode.Html,
                     poll.ToReplyParameters(),
@@ -118,22 +118,22 @@ public sealed class ScheduledProcessingService
     public async Task SendPendingMailsAsync(CancellationToken stoppingToken = default)
     {
         await _messageOutboxRepository.SendPendingMailsAsync(
-            async (fromChat, toChat, mailCandidate, cancellationToken) =>
+            async (sourceChat, targetChat, mailCandidate, cancellationToken) =>
             {
                 await _telegramBotClient.SendMessage(
-                    toChat.ChatId,
-                    $"Послание из чата {_previewGenerator.GetChatDisplayString(fromChat.ChatAlias, fromChat.ChatTitle)}:",
+                    targetChat.ChatId,
+                    $"Послание из чата {_previewGenerator.GetChatDisplayString(sourceChat.ChatAlias, sourceChat.ChatTitle)}:",
                     cancellationToken: cancellationToken);
 
                 await _telegramBotClient.CopyMessage(
-                    toChat.ChatId,
-                    fromChat.ChatId,
+                    targetChat.ChatId,
+                    sourceChat.ChatId,
                     mailCandidate.MessageId,
                     cancellationToken: cancellationToken);
 
                 await _telegramBotClient.SendMessage(
-                    fromChat.ChatId,
-                    $"Ваше {_previewGenerator.GetMessageLinkHtml(fromChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(toChat.ChatAlias, toChat.ChatTitle)} отправлено!",
+                    sourceChat.ChatId,
+                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} отправлено!",
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
