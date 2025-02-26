@@ -104,7 +104,7 @@ public class PollRepositoryTests : IntegrationTestBase
             CreatedAt = utcNow,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -138,7 +138,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(pollCallbackCalled, Is.False);
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var poll = await verifyContext.DiplomaticMailPolls
+        var poll = await verifyContext.SlotPolls
             .FirstOrDefaultAsync(x => x.SlotInstanceId == slotInstance.Id, cancellationToken);
 
         Assert.That(poll, Is.Not.Null);
@@ -231,7 +231,7 @@ public class PollRepositoryTests : IntegrationTestBase
                 SlotInstance = slotInstance,
             },
         };
-        await dbContext.DiplomaticMailCandidates.AddRangeAsync(candidates);
+        await dbContext.MessageCandidates.AddRangeAsync(candidates);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -266,7 +266,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(pollCallbackCalled, Is.True);
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var poll = await verifyContext.DiplomaticMailPolls
+        var poll = await verifyContext.SlotPolls
             .FirstOrDefaultAsync(x => x.SlotInstanceId == slotInstance.Id, cancellationToken);
 
         Assert.That(poll, Is.Not.Null);
@@ -441,7 +441,7 @@ public class PollRepositoryTests : IntegrationTestBase
                 SlotInstance = slotInstance,
             },
         };
-        dbContext.DiplomaticMailCandidates.AddRange(candidates);
+        dbContext.MessageCandidates.AddRange(candidates);
 
         var poll = new SlotPoll
         {
@@ -450,7 +450,7 @@ public class PollRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-2),
         };
-        dbContext.DiplomaticMailPolls.Add(poll);
+        dbContext.SlotPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -479,7 +479,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(stopPollCallbackMessageId, Is.EqualTo(poll.MessageId));
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var verifyPoll = await verifyContext.DiplomaticMailPolls
+        var verifyPoll = await verifyContext.SlotPolls
             .Include(x => x.SlotInstance)
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
@@ -558,7 +558,7 @@ public class PollRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddDays(-1),
         };
-        dbContext.DiplomaticMailPolls.Add(poll);
+        dbContext.SlotPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -573,7 +573,7 @@ public class PollRepositoryTests : IntegrationTestBase
 
         // Assert
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var verifyPoll = await verifyContext.DiplomaticMailPolls
+        var verifyPoll = await verifyContext.SlotPolls
             .Include(x => x.SlotInstance)
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
@@ -652,7 +652,7 @@ public class PollRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-1),
         };
-        dbContext.DiplomaticMailPolls.Add(poll);
+        dbContext.SlotPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -675,7 +675,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(stopPollCallbackCalled, Is.False);
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var verifyPoll = await verifyContext.DiplomaticMailPolls
+        var verifyPoll = await verifyContext.SlotPolls
             .Include(x => x.SlotInstance)
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
@@ -740,7 +740,7 @@ public class PollRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-2),
         };
-        dbContext.DiplomaticMailPolls.Add(poll);
+        dbContext.SlotPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -763,7 +763,7 @@ public class PollRepositoryTests : IntegrationTestBase
         Assert.That(stopPollCallbackCalled, Is.False);
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var verifyPoll = await verifyContext.DiplomaticMailPolls
+        var verifyPoll = await verifyContext.SlotPolls
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
         Assert.That(verifyPoll, Is.Null);

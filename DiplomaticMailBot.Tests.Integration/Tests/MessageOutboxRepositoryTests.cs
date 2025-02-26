@@ -89,7 +89,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
 
         var outboxItem = new MessageOutbox
         {
@@ -99,7 +99,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };
-        dbContext.DiplomaticMailOutbox.Add(outboxItem);
+        dbContext.MessageOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new MessageOutboxRepository(
@@ -128,7 +128,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         Assert.That(processed.candidate.Preview, Is.EqualTo(candidate.Preview));
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var updatedOutboxItem = await verifyContext.DiplomaticMailOutbox
+        var updatedOutboxItem = await verifyContext.MessageOutbox
             .FirstOrDefaultAsync(x => x.Id == outboxItem.Id, cancellationToken);
 
         Assert.That(updatedOutboxItem, Is.Not.Null);
@@ -191,7 +191,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
 
         var outboxItem = new MessageOutbox
         {
@@ -201,7 +201,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };
-        dbContext.DiplomaticMailOutbox.Add(outboxItem);
+        dbContext.MessageOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new MessageOutboxRepository(
@@ -216,7 +216,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
 
         // Assert
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var updatedOutboxItem = await verifyContext.DiplomaticMailOutbox
+        var updatedOutboxItem = await verifyContext.MessageOutbox
             .FirstOrDefaultAsync(x => x.Id == outboxItem.Id, cancellationToken);
 
         Assert.That(updatedOutboxItem, Is.Not.Null);

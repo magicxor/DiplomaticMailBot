@@ -52,7 +52,7 @@ public sealed class PollRepository
         {
             slotInstance.Status = SlotInstanceStatus.Voting;
 
-            var candidates = await applicationDbContext.DiplomaticMailCandidates
+            var candidates = await applicationDbContext.MessageCandidates
                 .Where(x => x.SlotInstanceId == slotInstance.Id)
                 .ToListAsync(cancellationToken);
 
@@ -103,7 +103,7 @@ public sealed class PollRepository
                     },
                     cancellationToken);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new SlotPoll
+                applicationDbContext.SlotPolls.Add(new SlotPoll
                 {
                     Status = PollStatus.Opened,
                     MessageId = candidates.OrderBy(x => x.Id).First().MessageId,
@@ -148,7 +148,7 @@ public sealed class PollRepository
 
                 _logger.LogInformation("Poll for slot instance {SlotInstanceId} will be opened with message ID {PollMessageId}", slotInstance.Id, pollMessageId);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new SlotPoll
+                applicationDbContext.SlotPolls.Add(new SlotPoll
                 {
                     Status = PollStatus.Opened,
                     MessageId = pollMessageId,
@@ -188,7 +188,7 @@ public sealed class PollRepository
                 && slot.Date == dateNow
                 && slot.Template!.VoteStartAt <= timeNow
                 && slot.Template!.VoteEndAt >= timeNow
-                && !applicationDbContext.DiplomaticMailPolls.Any(poll => poll.SlotInstanceId == slot.Id))
+                && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id))
             .ToListAsync(cancellationToken);
         var i = 1;
 
@@ -235,12 +235,12 @@ public sealed class PollRepository
         if (outgoingRelation is null || incomingRelation is null)
         {
             _logger.LogInformation("Relations for poll {PollId} not found; removing it", pollToClose.Id);
-            applicationDbContext.DiplomaticMailPolls.Remove(pollToClose);
+            applicationDbContext.SlotPolls.Remove(pollToClose);
             applicationDbContext.SlotInstances.Remove(slotInstance);
         }
         else
         {
-            var candidates = await applicationDbContext.DiplomaticMailCandidates
+            var candidates = await applicationDbContext.MessageCandidates
                 .Where(c => c.SlotInstanceId == pollToClose.SlotInstanceId)
                 .ToListAsync(cancellationToken: cancellationToken);
 
@@ -262,7 +262,7 @@ public sealed class PollRepository
                     {
                         _logger.LogInformation("Poll {PollId} stopped, chosen message ID: {ChosenMessageId}", pollToClose.Id, chosenMessageId);
 
-                        var chosenCandidate = await applicationDbContext.DiplomaticMailCandidates
+                        var chosenCandidate = await applicationDbContext.MessageCandidates
                             .Where(candidate => candidate.MessageId == chosenMessageId
                                         && candidate.SlotInstanceId == pollToClose.SlotInstanceId
                                         && candidate.SlotInstance!.FromChatId == pollToClose.SlotInstance.FromChatId
@@ -274,7 +274,7 @@ public sealed class PollRepository
                         {
                             _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                            applicationDbContext.DiplomaticMailOutbox.Add(new MessageOutbox
+                            applicationDbContext.MessageOutbox.Add(new MessageOutbox
                             {
                                 Status = MessageOutboxStatus.Pending,
                                 StatusDetails = null,
@@ -302,7 +302,7 @@ public sealed class PollRepository
 
                 _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                applicationDbContext.DiplomaticMailOutbox.Add(new MessageOutbox
+                applicationDbContext.MessageOutbox.Add(new MessageOutbox
                 {
                     Status = MessageOutboxStatus.Pending,
                     StatusDetails = null,
@@ -334,7 +334,7 @@ public sealed class PollRepository
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var pollsToClose = await applicationDbContext.DiplomaticMailPolls
+        var pollsToClose = await applicationDbContext.SlotPolls
             .Include(poll => poll.SlotInstance)
             .ThenInclude(slot => slot!.FromChat)
             .Where(x =>

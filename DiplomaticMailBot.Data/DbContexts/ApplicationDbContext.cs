@@ -11,9 +11,9 @@ public sealed class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<MessageCandidate> DiplomaticMailCandidates { get; set; } = null!;
-    public DbSet<MessageOutbox> DiplomaticMailOutbox { get; set; } = null!;
-    public DbSet<SlotPoll> DiplomaticMailPolls { get; set; } = null!;
+    public DbSet<MessageCandidate> MessageCandidates { get; set; } = null!;
+    public DbSet<MessageOutbox> MessageOutbox { get; set; } = null!;
+    public DbSet<SlotPoll> SlotPolls { get; set; } = null!;
     public DbSet<DiplomaticRelation> DiplomaticRelations { get; set; } = null!;
     public DbSet<RegisteredChat> RegisteredChats { get; set; } = null!;
     public DbSet<SlotInstance> SlotInstances { get; set; } = null!;
