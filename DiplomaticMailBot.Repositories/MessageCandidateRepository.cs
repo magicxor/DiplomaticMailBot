@@ -4,7 +4,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories.Extensions;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Repositories;
 
-public sealed class DiplomaticMailCandidatesRepository
+public sealed class MessageCandidateRepository
 {
-    private readonly ILogger<DiplomaticMailCandidatesRepository> _logger;
+    private readonly ILogger<MessageCandidateRepository> _logger;
     private readonly IDbContextFactory<ApplicationDbContext> _applicationDbContextFactory;
     private readonly TimeProvider _timeProvider;
 
-    public DiplomaticMailCandidatesRepository(
-        ILogger<DiplomaticMailCandidatesRepository> logger,
+    public MessageCandidateRepository(
+        ILogger<MessageCandidateRepository> logger,
         IDbContextFactory<ApplicationDbContext> applicationDbContextFactory,
         TimeProvider timeProvider)
     {
@@ -28,7 +28,7 @@ public sealed class DiplomaticMailCandidatesRepository
         _timeProvider = timeProvider;
     }
 
-    public async Task<Either<bool, Error>> PutAsync(DiplomaticMailCandidatePutSm sm, CancellationToken cancellationToken = default)
+    public async Task<Either<bool, Error>> PutAsync(MessageCandidatePutSm sm, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sm);
         ArgumentOutOfRangeException.ThrowIfZero(sm.MessageId);

@@ -9,14 +9,14 @@ namespace DiplomaticMailBot.Services.CommandHandlers;
 public sealed class WithdrawMessageHandler
 {
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly DiplomaticMailCandidatesRepository _diplomaticMailCandidatesRepository;
+    private readonly MessageCandidateRepository _messageCandidateRepository;
 
     public WithdrawMessageHandler(
         ITelegramBotClient telegramBotClient,
-        DiplomaticMailCandidatesRepository diplomaticMailCandidatesRepository)
+        MessageCandidateRepository messageCandidateRepository)
     {
         _telegramBotClient = telegramBotClient;
-        _diplomaticMailCandidatesRepository = diplomaticMailCandidatesRepository;
+        _messageCandidateRepository = messageCandidateRepository;
     }
 
     public async Task HandleWithdrawMessageAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
@@ -33,7 +33,7 @@ public sealed class WithdrawMessageHandler
         }
         else
         {
-            var withdrawResult = await _diplomaticMailCandidatesRepository.WithdrawAsync(userCommand.Chat.Id, replyToMessage.MessageId, commandSenderId, cancellationToken);
+            var withdrawResult = await _messageCandidateRepository.WithdrawAsync(userCommand.Chat.Id, replyToMessage.MessageId, commandSenderId, cancellationToken);
 
             await withdrawResult.MatchAsync(
                 async err =>

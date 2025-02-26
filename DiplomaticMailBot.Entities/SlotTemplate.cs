@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("SlotTemplates")]
 public class SlotTemplate
 {
     [Key]

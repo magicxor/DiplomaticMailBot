@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("MessageOutbox")]
 [Index(nameof(Status), Name = $"{nameof(DiplomaticMailOutbox)}_{nameof(Status)}_IX")]
 [Index(nameof(SlotInstanceId), Name = $"{nameof(DiplomaticMailOutbox)}_{nameof(SlotInstanceId)}_IX", IsUnique = true)]
 public class DiplomaticMailOutbox

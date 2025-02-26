@@ -3,7 +3,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -16,7 +16,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
+public class MessageCandidateRepositoryTests : IntegrationTestBase
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
 
@@ -81,12 +81,12 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         dbContext.SlotTemplates.Add(slotTemplate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailCandidatesRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailCandidatesRepository>(),
+        var repository = new MessageCandidateRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageCandidateRepository>(),
             dbContextFactory,
             TimeProvider);
 
-        var input = new DiplomaticMailCandidatePutSm
+        var input = new MessageCandidatePutSm
         {
             MessageId = 789,
             Preview = "Test message",
@@ -173,8 +173,8 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailCandidates.Add(candidate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailCandidatesRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailCandidatesRepository>(),
+        var repository = new MessageCandidateRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageCandidateRepository>(),
             dbContextFactory,
             TimeProvider);
 

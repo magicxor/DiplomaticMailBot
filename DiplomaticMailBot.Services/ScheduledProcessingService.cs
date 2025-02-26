@@ -19,8 +19,8 @@ public sealed class ScheduledProcessingService
     private readonly IOptions<BotConfiguration> _options;
     private readonly ILogger<ScheduledProcessingService> _logger;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly DiplomaticMailPollRepository _diplomaticMailPollRepository;
-    private readonly DiplomaticMailOutboxRepository _diplomaticMailOutboxRepository;
+    private readonly PollRepository _pollRepository;
+    private readonly MessageOutboxRepository _messageOutboxRepository;
     private readonly PollOptionParser _pollOptionParser;
     private readonly PreviewGenerator _previewGenerator;
 
@@ -28,23 +28,23 @@ public sealed class ScheduledProcessingService
         IOptions<BotConfiguration> options,
         ILogger<ScheduledProcessingService> logger,
         ITelegramBotClient telegramBotClient,
-        DiplomaticMailPollRepository diplomaticMailPollRepository,
-        DiplomaticMailOutboxRepository diplomaticMailOutboxRepository,
+        PollRepository pollRepository,
+        MessageOutboxRepository messageOutboxRepository,
         PollOptionParser pollOptionParser,
         PreviewGenerator previewGenerator)
     {
         _options = options;
         _logger = logger;
         _telegramBotClient = telegramBotClient;
-        _diplomaticMailPollRepository = diplomaticMailPollRepository;
-        _diplomaticMailOutboxRepository = diplomaticMailOutboxRepository;
+        _pollRepository = pollRepository;
+        _messageOutboxRepository = messageOutboxRepository;
         _pollOptionParser = pollOptionParser;
         _previewGenerator = previewGenerator;
     }
 
     public async Task OpenPendingPollsAsync(CancellationToken stoppingToken = default)
     {
-        await _diplomaticMailPollRepository.OpenPendingPollsAsync(
+        await _pollRepository.OpenPendingPollsAsync(
             async (fromChat, toChat, timeLeft, mailCandidate, cancellationToken) => await _telegramBotClient.SendMessage(
                 fromChat.ChatId,
                 $"{_previewGenerator.GetMessageLinkHtml(fromChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(toChat.ChatAlias, toChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
@@ -95,7 +95,7 @@ public sealed class ScheduledProcessingService
 
     public async Task CloseExpiredPollsAsync(CancellationToken stoppingToken = default)
     {
-        await _diplomaticMailPollRepository.CloseExpiredPollsAsync(
+        await _pollRepository.CloseExpiredPollsAsync(
             async (chatId, messageId, cancellationToken) =>
             {
                 try
@@ -117,7 +117,7 @@ public sealed class ScheduledProcessingService
 
     public async Task SendPendingMailsAsync(CancellationToken stoppingToken = default)
     {
-        await _diplomaticMailOutboxRepository.SendPendingMailsAsync(
+        await _messageOutboxRepository.SendPendingMailsAsync(
             async (fromChat, toChat, mailCandidate, cancellationToken) =>
             {
                 await _telegramBotClient.SendMessage(

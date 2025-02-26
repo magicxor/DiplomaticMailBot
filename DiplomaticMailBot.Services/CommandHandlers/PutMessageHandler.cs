@@ -4,7 +4,7 @@ using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Domain;
 using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.TelegramInterop.Extensions;
 using Humanizer;
 using Microsoft.Extensions.Options;
@@ -18,7 +18,7 @@ public sealed partial class PutMessageHandler
     private readonly IOptions<BotConfiguration> _options;
     private readonly TimeProvider _timeProvider;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly DiplomaticMailCandidatesRepository _diplomaticMailCandidatesRepository;
+    private readonly MessageCandidateRepository _messageCandidateRepository;
     private readonly PreviewGenerator _previewGenerator;
     private readonly SlotTemplateRepository _slotTemplateRepository;
     private readonly SlotDateCalculator _slotDateCalculator;
@@ -27,7 +27,7 @@ public sealed partial class PutMessageHandler
         IOptions<BotConfiguration> options,
         TimeProvider timeProvider,
         ITelegramBotClient telegramBotClient,
-        DiplomaticMailCandidatesRepository diplomaticMailCandidatesRepository,
+        MessageCandidateRepository messageCandidateRepository,
         PreviewGenerator previewGenerator,
         SlotTemplateRepository slotTemplateRepository,
         SlotDateCalculator slotDateCalculator)
@@ -35,7 +35,7 @@ public sealed partial class PutMessageHandler
         _options = options;
         _timeProvider = timeProvider;
         _telegramBotClient = telegramBotClient;
-        _diplomaticMailCandidatesRepository = diplomaticMailCandidatesRepository;
+        _messageCandidateRepository = messageCandidateRepository;
         _previewGenerator = previewGenerator;
         _slotTemplateRepository = slotTemplateRepository;
         _slotDateCalculator = slotDateCalculator;
@@ -79,7 +79,7 @@ public sealed partial class PutMessageHandler
 
                     var nextVoteSlotDate = _slotDateCalculator.GetNextAvailableSlotDate(slotTemplate.VoteStartAt);
 
-                    var putResult = await _diplomaticMailCandidatesRepository.PutAsync(new DiplomaticMailCandidatePutSm
+                    var putResult = await _messageCandidateRepository.PutAsync(new MessageCandidatePutSm
                     {
                         SlotTemplateId = slotTemplate.Id,
                         NextVoteSlotDate = nextVoteSlotDate,

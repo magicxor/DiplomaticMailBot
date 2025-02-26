@@ -1,21 +1,21 @@
 ﻿using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Repositories;
 
-public sealed class DiplomaticMailOutboxRepository
+public sealed class MessageOutboxRepository
 {
-    private readonly ILogger<DiplomaticMailOutboxRepository> _logger;
+    private readonly ILogger<MessageOutboxRepository> _logger;
     private readonly IDbContextFactory<ApplicationDbContext> _applicationDbContextFactory;
     private readonly TimeProvider _timeProvider;
 
-    public DiplomaticMailOutboxRepository(
-        ILogger<DiplomaticMailOutboxRepository> logger,
+    public MessageOutboxRepository(
+        ILogger<MessageOutboxRepository> logger,
         IDbContextFactory<ApplicationDbContext> applicationDbContextFactory,
         TimeProvider timeProvider)
     {
@@ -47,7 +47,7 @@ public sealed class DiplomaticMailOutboxRepository
             .ThenInclude(candidate => candidate!.SlotInstance)
             .ThenInclude(slot => slot!.ToChat)
             .Where(x =>
-                x.Status == DiplomaticMailOutboxStatus.Pending
+                x.Status == MessageOutboxStatus.Pending
                 && x.SentAt == null
                 && x.Attempts < 3
                 && ((x.SlotInstance!.Date == dateNow && x.SlotInstance!.Template!.VoteEndAt < timeNow)
@@ -86,7 +86,7 @@ public sealed class DiplomaticMailOutboxRepository
                             ChatAlias = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.ChatAlias,
                             CreatedAt = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.CreatedAt,
                         },
-                        new DiplomaticMailCandidateSm
+                        new MessageCandidateSm
                         {
                             MessageId = mailToSend.DiplomaticMailCandidate!.MessageId,
                             AuthorName = mailToSend.DiplomaticMailCandidate!.AuthorName,
@@ -94,7 +94,7 @@ public sealed class DiplomaticMailOutboxRepository
                         },
                         cancellationToken);
 
-                    mailToSend.Status = DiplomaticMailOutboxStatus.Sent;
+                    mailToSend.Status = MessageOutboxStatus.Sent;
                     mailToSend.SentAt = utcNow;
                 }
                 catch (Exception e)

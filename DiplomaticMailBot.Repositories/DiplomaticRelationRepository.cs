@@ -28,7 +28,7 @@ public sealed class DiplomaticRelationRepository
         _timeProvider = timeProvider;
     }
 
-    public async Task<Either<RelationsInfoSm, Error>> EstablishRelationsAsync(long sourceChatId, string targetChatAlias, CancellationToken cancellationToken = default)
+    public async Task<Either<DiplomaticRelationsInfoSm, Error>> EstablishRelationsAsync(long sourceChatId, string targetChatAlias, CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Establishing relations between {SourceChatId} and {TargetChatAlias}", sourceChatId, targetChatAlias);
 
@@ -87,7 +87,7 @@ public sealed class DiplomaticRelationRepository
 
         _logger.LogInformation("Relations established between {SourceChatId} and {TargetChatAlias}", sourceChatId, targetChatAlias);
 
-        return new RelationsInfoSm
+        return new DiplomaticRelationsInfoSm
         {
             IsOutgoingRelationPresent = true,
             IsIncomingRelationPresent = incomingRelation is not null,
@@ -100,7 +100,7 @@ public sealed class DiplomaticRelationRepository
         };
     }
 
-    public async Task<Either<RelationsInfoSm, Error>> BreakOffRelationsAsync(long sourceChatId, string targetChatAlias, CancellationToken cancellationToken = default)
+    public async Task<Either<DiplomaticRelationsInfoSm, Error>> BreakOffRelationsAsync(long sourceChatId, string targetChatAlias, CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Breaking off relations between {SourceChatId} and {TargetChatAlias}", sourceChatId, targetChatAlias);
 
@@ -150,7 +150,7 @@ public sealed class DiplomaticRelationRepository
         applicationDbContext.DiplomaticRelations.Remove(outgoingRelation);
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        return new RelationsInfoSm
+        return new DiplomaticRelationsInfoSm
         {
             IsOutgoingRelationPresent = false,
             IsIncomingRelationPresent = incomingRelation is not null,

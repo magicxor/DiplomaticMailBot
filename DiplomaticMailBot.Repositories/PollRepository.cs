@@ -1,21 +1,21 @@
 ﻿using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Repositories;
 
-public sealed class DiplomaticMailPollRepository
+public sealed class PollRepository
 {
-    private readonly ILogger<DiplomaticMailPollRepository> _logger;
+    private readonly ILogger<PollRepository> _logger;
     private readonly IDbContextFactory<ApplicationDbContext> _applicationDbContextFactory;
     private readonly TimeProvider _timeProvider;
 
-    public DiplomaticMailPollRepository(
-        ILogger<DiplomaticMailPollRepository> logger,
+    public PollRepository(
+        ILogger<PollRepository> logger,
         IDbContextFactory<ApplicationDbContext> applicationDbContextFactory,
         TimeProvider timeProvider)
     {
@@ -95,7 +95,7 @@ public sealed class DiplomaticMailPollRepository
                         CreatedAt = slotInstance.ToChat!.CreatedAt,
                     },
                     timeLeft,
-                    new DiplomaticMailCandidateSm
+                    new MessageCandidateSm
                     {
                         MessageId = diplomaticMailCandidate.MessageId,
                         AuthorName = diplomaticMailCandidate.AuthorName,
@@ -105,7 +105,7 @@ public sealed class DiplomaticMailPollRepository
 
                 applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
                 {
-                    Status = DiplomaticMailPollStatus.Opened,
+                    Status = PollStatus.Opened,
                     MessageId = candidates.OrderBy(x => x.Id).First().MessageId,
                     CreatedAt = utcNow,
                     SlotInstance = slotInstance,
@@ -118,7 +118,7 @@ public sealed class DiplomaticMailPollRepository
                 var pollOptions = candidates
                     .OrderBy(x => x.CreatedAt)
                     .Take(10)
-                    .Select(x => new DiplomaticMailCandidateSm
+                    .Select(x => new MessageCandidateSm
                     {
                         MessageId = x.MessageId,
                         AuthorName = x.AuthorName,
@@ -150,7 +150,7 @@ public sealed class DiplomaticMailPollRepository
 
                 applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
                 {
-                    Status = DiplomaticMailPollStatus.Opened,
+                    Status = PollStatus.Opened,
                     MessageId = pollMessageId,
                     CreatedAt = utcNow,
                     SlotInstance = slotInstance,
@@ -228,7 +228,7 @@ public sealed class DiplomaticMailPollRepository
         var outgoingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId);
         var incomingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId);
 
-        pollToClose.Status = DiplomaticMailPollStatus.Closed;
+        pollToClose.Status = PollStatus.Closed;
         pollToClose.ClosedAt = utcNow;
         pollToClose.SlotInstance!.Status = SlotInstanceStatus.Archived;
 
@@ -276,7 +276,7 @@ public sealed class DiplomaticMailPollRepository
 
                             applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
                             {
-                                Status = DiplomaticMailOutboxStatus.Pending,
+                                Status = MessageOutboxStatus.Pending,
                                 StatusDetails = null,
                                 Attempts = 0,
                                 CreatedAt = utcNow,
@@ -304,7 +304,7 @@ public sealed class DiplomaticMailPollRepository
 
                 applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
                 {
-                    Status = DiplomaticMailOutboxStatus.Pending,
+                    Status = MessageOutboxStatus.Pending,
                     StatusDetails = null,
                     Attempts = 0,
                     CreatedAt = utcNow,
@@ -338,7 +338,7 @@ public sealed class DiplomaticMailPollRepository
             .Include(poll => poll.SlotInstance)
             .ThenInclude(slot => slot!.FromChat)
             .Where(x =>
-                x.Status == DiplomaticMailPollStatus.Opened
+                x.Status == PollStatus.Opened
                 && ((x.SlotInstance!.Date == dateNow && x.SlotInstance!.Template!.VoteEndAt < timeNow)
                     || x.SlotInstance!.Date < dateNow))
             .ToListAsync(cancellationToken);

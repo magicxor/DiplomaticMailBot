@@ -1,6 +1,6 @@
-﻿namespace DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+﻿namespace DiplomaticMailBot.ServiceModels.MessageCandidate;
 
-public class DiplomaticMailCandidateSm
+public class MessageCandidateSm
 {
     public required int MessageId { get; set; }
     public required string AuthorName { get; set; }

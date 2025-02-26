@@ -14,7 +14,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
+public class PollRepositoryTests : IntegrationTestBase
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
     private TimeProvider _timeProvider;
@@ -107,8 +107,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailCandidates.Add(candidate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -142,7 +142,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.SlotInstanceId == slotInstance.Id, cancellationToken);
 
         Assert.That(poll, Is.Not.Null);
-        Assert.That(poll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Opened));
+        Assert.That(poll!.Status, Is.EqualTo(PollStatus.Opened));
         Assert.That(poll.MessageId, Is.EqualTo(candidate.MessageId));
     }
 
@@ -234,8 +234,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         await dbContext.DiplomaticMailCandidates.AddRangeAsync(candidates);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -270,7 +270,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.SlotInstanceId == slotInstance.Id, cancellationToken);
 
         Assert.That(poll, Is.Not.Null);
-        Assert.That(poll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Opened));
+        Assert.That(poll!.Status, Is.EqualTo(PollStatus.Opened));
         Assert.That(poll.MessageId, Is.EqualTo(pollMessageId));
     }
 
@@ -337,8 +337,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.SlotInstances.Add(slotInstance);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -445,7 +445,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
 
         var poll = new DiplomaticMailPoll
         {
-            Status = DiplomaticMailPollStatus.Opened,
+            Status = PollStatus.Opened,
             MessageId = 789,
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-2),
@@ -453,8 +453,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -484,7 +484,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
         Assert.That(verifyPoll, Is.Not.Null);
-        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Closed));
+        Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Closed));
         Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
         Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
     }
@@ -553,7 +553,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
 
         var poll = new DiplomaticMailPoll
         {
-            Status = DiplomaticMailPollStatus.Opened,
+            Status = PollStatus.Opened,
             MessageId = 789,
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddDays(-1),
@@ -561,8 +561,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -578,7 +578,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
         Assert.That(verifyPoll, Is.Not.Null);
-        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Closed));
+        Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Closed));
         Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
         Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
     }
@@ -647,7 +647,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
 
         var poll = new DiplomaticMailPoll
         {
-            Status = DiplomaticMailPollStatus.Opened,
+            Status = PollStatus.Opened,
             MessageId = 789,
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-1),
@@ -655,8 +655,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -680,7 +680,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
         Assert.That(verifyPoll, Is.Not.Null);
-        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Opened));
+        Assert.That(verifyPoll!.Status, Is.EqualTo(PollStatus.Opened));
         Assert.That(verifyPoll.ClosedAt, Is.Null);
         Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
     }
@@ -735,7 +735,7 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
 
         var poll = new DiplomaticMailPoll
         {
-            Status = DiplomaticMailPollStatus.Opened,
+            Status = PollStatus.Opened,
             MessageId = 789,
             SlotInstance = slotInstance,
             CreatedAt = utcNow.AddHours(-2),
@@ -743,8 +743,8 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
         dbContext.DiplomaticMailPolls.Add(poll);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailPollRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
             _timeProvider);
 

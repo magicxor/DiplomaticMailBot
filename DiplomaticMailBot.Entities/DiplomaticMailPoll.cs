@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("SlotPolls")]
 [Index(nameof(SlotInstanceId), Name = $"{nameof(DiplomaticMailPoll)}_{nameof(SlotInstanceId)}_Unique_IX", IsUnique = true)]
 public class DiplomaticMailPoll
 {
