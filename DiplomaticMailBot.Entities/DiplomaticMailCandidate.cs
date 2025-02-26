@@ -37,5 +37,12 @@ public class DiplomaticMailCandidate
 
     // FK models
     [Required]
-    public virtual SlotInstance? SlotInstance { get; set; }
+    public virtual SlotInstance SlotInstance
+    {
+        get => _slotInstance
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(SlotInstance));
+        set => _slotInstance = value;
+    }
+
+    private SlotInstance? _slotInstance;
 }

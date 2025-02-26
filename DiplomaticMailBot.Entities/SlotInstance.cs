@@ -33,13 +33,34 @@ public class SlotInstance
 
     // FK models
     [Required]
-    public virtual SlotTemplate? Template { get; set; }
+    public virtual SlotTemplate Template
+    {
+        get => _template
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(SlotTemplate));
+        set => _template = value;
+    }
+
+    private SlotTemplate? _template;
 
     [Required]
-    public virtual RegisteredChat? FromChat { get; set; }
+    public virtual RegisteredChat FromChat
+    {
+        get => _fromChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(FromChat));
+        set => _fromChat = value;
+    }
+
+    private RegisteredChat? _fromChat;
 
     [Required]
-    public virtual RegisteredChat? ToChat { get; set; }
+    public virtual RegisteredChat ToChat
+    {
+        get => _toChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(ToChat));
+        set => _toChat = value;
+    }
+
+    private RegisteredChat? _toChat;
 
     // Relations
     public virtual ICollection<DiplomaticMailCandidate> DiplomaticMailCandidates { get; set; } = new List<DiplomaticMailCandidate>();

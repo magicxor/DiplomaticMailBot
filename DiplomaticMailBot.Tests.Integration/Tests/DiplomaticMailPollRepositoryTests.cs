@@ -355,4 +355,417 @@ public class DiplomaticMailPollRepositoryTests : IntegrationTestBase
 
         Assert.That(verifySlotInstance, Is.Null);
     }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task CloseExpiredPollsAsync_WhenPollExpiredToday_ClosesPoll(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(-3),
+            VoteEndAt = timeNow.AddHours(-1), // Expired 1 hour ago
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+
+        var slotInstance = new SlotInstance
+        {
+            Status = SlotInstanceStatus.Voting,
+            Date = dateNow,
+            Template = slotTemplate,
+            FromChat = sourceChat,
+            ToChat = targetChat,
+        };
+        dbContext.SlotInstances.Add(slotInstance);
+
+        var candidates = new List<DiplomaticMailCandidate>
+        {
+            new()
+            {
+                MessageId = 100,
+                Preview = "candidate 1",
+                SubmitterId = 5,
+                AuthorId = 6,
+                AuthorName = "author 1",
+                CreatedAt = utcNow.AddHours(-100),
+                SlotInstance = slotInstance,
+            },
+            new()
+            {
+                MessageId = 101,
+                Preview = "candidate 2",
+                SubmitterId = 7,
+                AuthorId = 8,
+                AuthorName = "author 2",
+                CreatedAt = utcNow.AddHours(-101),
+                SlotInstance = slotInstance,
+            },
+        };
+        dbContext.DiplomaticMailCandidates.AddRange(candidates);
+
+        var poll = new DiplomaticMailPoll
+        {
+            Status = DiplomaticMailPollStatus.Opened,
+            MessageId = 789,
+            SlotInstance = slotInstance,
+            CreatedAt = utcNow.AddHours(-2),
+        };
+        dbContext.DiplomaticMailPolls.Add(poll);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new DiplomaticMailPollRepository(
+            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var stopPollCallbackCalled = false;
+        var stopPollCallbackChatId = 0L;
+        var stopPollCallbackMessageId = 0;
+
+        // Act
+        await repository.CloseExpiredPollsAsync(
+            async (chatId, messageId, ct) =>
+            {
+                stopPollCallbackCalled = true;
+                stopPollCallbackChatId = chatId;
+                stopPollCallbackMessageId = messageId;
+                return 100;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(stopPollCallbackCalled, Is.True);
+        Assert.That(stopPollCallbackChatId, Is.EqualTo(sourceChat.ChatId));
+        Assert.That(stopPollCallbackMessageId, Is.EqualTo(poll.MessageId));
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var verifyPoll = await verifyContext.DiplomaticMailPolls
+            .Include(x => x.SlotInstance)
+            .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
+
+        Assert.That(verifyPoll, Is.Not.Null);
+        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Closed));
+        Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
+        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task CloseExpiredPollsAsync_WhenPollFromPastDate_ClosesPoll(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(-3),
+            VoteEndAt = timeNow.AddHours(1), // Not expired by time, but by date
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+
+        var slotInstance = new SlotInstance
+        {
+            Status = SlotInstanceStatus.Collecting,
+            Date = dateNow.AddDays(-1), // Yesterday
+            Template = slotTemplate,
+            FromChat = sourceChat,
+            ToChat = targetChat,
+        };
+        dbContext.SlotInstances.Add(slotInstance);
+
+        var poll = new DiplomaticMailPoll
+        {
+            Status = DiplomaticMailPollStatus.Opened,
+            MessageId = 789,
+            SlotInstance = slotInstance,
+            CreatedAt = utcNow.AddDays(-1),
+        };
+        dbContext.DiplomaticMailPolls.Add(poll);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new DiplomaticMailPollRepository(
+            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        // Act
+        await repository.CloseExpiredPollsAsync(
+            async (chatId, messageId, ct) => 0,
+            cancellationToken);
+
+        // Assert
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var verifyPoll = await verifyContext.DiplomaticMailPolls
+            .Include(x => x.SlotInstance)
+            .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
+
+        Assert.That(verifyPoll, Is.Not.Null);
+        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Closed));
+        Assert.That(verifyPoll.ClosedAt, Is.Not.Null);
+        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Archived));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task CloseExpiredPollsAsync_WhenPollNotExpired_DoesNotClosePoll(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(-1),
+            VoteEndAt = timeNow.AddHours(1), // Not expired
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+
+        var slotInstance = new SlotInstance
+        {
+            Status = SlotInstanceStatus.Collecting,
+            Date = dateNow, // Today
+            Template = slotTemplate,
+            FromChat = sourceChat,
+            ToChat = targetChat,
+        };
+        dbContext.SlotInstances.Add(slotInstance);
+
+        var poll = new DiplomaticMailPoll
+        {
+            Status = DiplomaticMailPollStatus.Opened,
+            MessageId = 789,
+            SlotInstance = slotInstance,
+            CreatedAt = utcNow.AddHours(-1),
+        };
+        dbContext.DiplomaticMailPolls.Add(poll);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new DiplomaticMailPollRepository(
+            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var stopPollCallbackCalled = false;
+
+        // Act
+        await repository.CloseExpiredPollsAsync(
+            async (chatId, messageId, ct) =>
+            {
+                stopPollCallbackCalled = true;
+                return 0;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(stopPollCallbackCalled, Is.False);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var verifyPoll = await verifyContext.DiplomaticMailPolls
+            .Include(x => x.SlotInstance)
+            .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
+
+        Assert.That(verifyPoll, Is.Not.Null);
+        Assert.That(verifyPoll!.Status, Is.EqualTo(DiplomaticMailPollStatus.Opened));
+        Assert.That(verifyPoll.ClosedAt, Is.Null);
+        Assert.That(verifyPoll.SlotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task CloseExpiredPollsAsync_WhenRelationsRemoved_RemovesPoll(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(-3),
+            VoteEndAt = timeNow.AddHours(-1),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+
+        var slotInstance = new SlotInstance
+        {
+            Status = SlotInstanceStatus.Collecting,
+            Date = dateNow,
+            Template = slotTemplate,
+            FromChat = sourceChat,
+            ToChat = targetChat,
+        };
+        dbContext.SlotInstances.Add(slotInstance);
+
+        var poll = new DiplomaticMailPoll
+        {
+            Status = DiplomaticMailPollStatus.Opened,
+            MessageId = 789,
+            SlotInstance = slotInstance,
+            CreatedAt = utcNow.AddHours(-2),
+        };
+        dbContext.DiplomaticMailPolls.Add(poll);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new DiplomaticMailPollRepository(
+            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailPollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var stopPollCallbackCalled = false;
+
+        // Act
+        await repository.CloseExpiredPollsAsync(
+            async (chatId, messageId, ct) =>
+            {
+                stopPollCallbackCalled = true;
+                return 0;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(stopPollCallbackCalled, Is.False);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var verifyPoll = await verifyContext.DiplomaticMailPolls
+            .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
+
+        Assert.That(verifyPoll, Is.Null);
+    }
 }
