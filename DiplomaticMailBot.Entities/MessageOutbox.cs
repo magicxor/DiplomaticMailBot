@@ -34,7 +34,7 @@ public class MessageOutbox
 
     [Required]
     [ForeignKey(nameof(MessageOutbox.MessageCandidate))]
-    public int DiplomaticMailCandidateId { get; set; }
+    public int MessageCandidateId { get; set; }
 
     // FK models
     [Required]
@@ -50,10 +50,10 @@ public class MessageOutbox
     [Required]
     public virtual MessageCandidate MessageCandidate
     {
-        get => _diplomaticMailCandidate
+        get => _messageCandidate
                ?? throw new InvalidOperationException("Uninitialized property: " + nameof(MessageCandidate));
-        set => _diplomaticMailCandidate = value;
+        set => _messageCandidate = value;
     }
 
-    private MessageCandidate? _diplomaticMailCandidate;
+    private MessageCandidate? _messageCandidate;
 }

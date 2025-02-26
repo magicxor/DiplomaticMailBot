@@ -75,7 +75,7 @@ public sealed class PollRepository
 
                 var timeLeft = voteEndsAtDateTime - utcNow;
 
-                var diplomaticMailCandidate = candidates.OrderBy(x => x.Id).First();
+                var messageCandidate = candidates.OrderBy(x => x.Id).First();
 
                 await sendMessageCallback(
                     new RegisteredChatSm
@@ -97,9 +97,9 @@ public sealed class PollRepository
                     timeLeft,
                     new MessageCandidateSm
                     {
-                        MessageId = diplomaticMailCandidate.MessageId,
-                        AuthorName = diplomaticMailCandidate.AuthorName,
-                        Preview = diplomaticMailCandidate.Preview,
+                        MessageId = messageCandidate.MessageId,
+                        AuthorName = messageCandidate.AuthorName,
+                        Preview = messageCandidate.Preview,
                     },
                     cancellationToken);
 
