@@ -103,7 +103,7 @@ public sealed class PollRepository
                     },
                     cancellationToken);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
+                applicationDbContext.DiplomaticMailPolls.Add(new SlotPoll
                 {
                     Status = PollStatus.Opened,
                     MessageId = candidates.OrderBy(x => x.Id).First().MessageId,
@@ -148,7 +148,7 @@ public sealed class PollRepository
 
                 _logger.LogInformation("Poll for slot instance {SlotInstanceId} will be opened with message ID {PollMessageId}", slotInstance.Id, pollMessageId);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
+                applicationDbContext.DiplomaticMailPolls.Add(new SlotPoll
                 {
                     Status = PollStatus.Opened,
                     MessageId = pollMessageId,
@@ -213,7 +213,7 @@ public sealed class PollRepository
 
     private async Task CloseExpiredPollAsync(
         ApplicationDbContext applicationDbContext,
-        DiplomaticMailPoll pollToClose,
+        SlotPoll pollToClose,
         DateTime utcNow,
         StopPollCallback stopPollCallback,
         CancellationToken cancellationToken = default)
@@ -274,7 +274,7 @@ public sealed class PollRepository
                         {
                             _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                            applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                            applicationDbContext.DiplomaticMailOutbox.Add(new MessageOutbox
                             {
                                 Status = MessageOutboxStatus.Pending,
                                 StatusDetails = null,
@@ -282,7 +282,7 @@ public sealed class PollRepository
                                 CreatedAt = utcNow,
                                 SentAt = null,
                                 SlotInstance = pollToClose.SlotInstance,
-                                DiplomaticMailCandidate = chosenCandidate,
+                                MessageCandidate = chosenCandidate,
                             });
 
                             return true;
@@ -302,7 +302,7 @@ public sealed class PollRepository
 
                 _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                applicationDbContext.DiplomaticMailOutbox.Add(new MessageOutbox
                 {
                     Status = MessageOutboxStatus.Pending,
                     StatusDetails = null,
@@ -310,7 +310,7 @@ public sealed class PollRepository
                     CreatedAt = utcNow,
                     SentAt = null,
                     SlotInstance = pollToClose.SlotInstance,
-                    DiplomaticMailCandidate = chosenCandidate,
+                    MessageCandidate = chosenCandidate,
                 });
             }
         }

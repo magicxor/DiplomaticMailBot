@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 namespace DiplomaticMailBot.Entities;
 
 [Table("SlotPolls")]
-[Index(nameof(SlotInstanceId), Name = $"{nameof(DiplomaticMailPoll)}_{nameof(SlotInstanceId)}_Unique_IX", IsUnique = true)]
-public class DiplomaticMailPoll
+[Index(nameof(SlotInstanceId), Name = $"{nameof(SlotPoll)}_{nameof(SlotInstanceId)}_Unique_IX", IsUnique = true)]
+public class SlotPoll
 {
     [Key]
     public int Id { get; set; }
@@ -25,7 +25,7 @@ public class DiplomaticMailPoll
 
     // FK id
     [Required]
-    [ForeignKey(nameof(DiplomaticMailPoll.SlotInstance))]
+    [ForeignKey(nameof(SlotPoll.SlotInstance))]
     public int SlotInstanceId { get; set; }
 
     // FK models

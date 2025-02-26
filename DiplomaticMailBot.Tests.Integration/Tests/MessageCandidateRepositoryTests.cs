@@ -160,7 +160,7 @@ public class MessageCandidateRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",

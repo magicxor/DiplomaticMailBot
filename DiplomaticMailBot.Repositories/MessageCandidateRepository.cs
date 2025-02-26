@@ -161,7 +161,7 @@ public sealed class MessageCandidateRepository
             return new DomainError(EventCode.MailCandidateLimitReached.ToInt(), "Mail candidate limit reached");
         }
 
-        applicationDbContext.DiplomaticMailCandidates.Add(new DiplomaticMailCandidate
+        applicationDbContext.DiplomaticMailCandidates.Add(new MessageCandidate
         {
             MessageId = sm.MessageId,
             Preview = messagePreview,

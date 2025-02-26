@@ -40,10 +40,10 @@ public sealed class MessageOutboxRepository
 
         var mailsToSend = await applicationDbContext.DiplomaticMailOutbox
             .Include(x => x.SlotInstance)
-            .Include(mailOutbox => mailOutbox.DiplomaticMailCandidate)
+            .Include(mailOutbox => mailOutbox.MessageCandidate)
             .ThenInclude(candidate => candidate!.SlotInstance)
             .ThenInclude(slot => slot!.FromChat)
-            .Include(mailOutbox => mailOutbox.DiplomaticMailCandidate)
+            .Include(mailOutbox => mailOutbox.MessageCandidate)
             .ThenInclude(candidate => candidate!.SlotInstance)
             .ThenInclude(slot => slot!.ToChat)
             .Where(x =>
@@ -60,10 +60,10 @@ public sealed class MessageOutboxRepository
             _logger.LogInformation("Sending mail {MailNumber} of {TotalMails}: {FromChat} -> {ToChat}. Attempts: {Attempts}. Preview: {Preview}",
                 i,
                 mailsToSend.Count,
-                mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.ChatAlias,
-                mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.ChatAlias,
+                mailToSend.MessageCandidate!.SlotInstance!.FromChat!.ChatAlias,
+                mailToSend.MessageCandidate!.SlotInstance!.ToChat!.ChatAlias,
                 mailToSend.Attempts,
-                mailToSend.DiplomaticMailCandidate!.Preview.TryLeft(50));
+                mailToSend.MessageCandidate!.Preview.TryLeft(50));
 
             try
             {
@@ -72,25 +72,25 @@ public sealed class MessageOutboxRepository
                     await processOutboxRecordCallback(
                         new RegisteredChatSm
                         {
-                            Id = mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.Id,
-                            ChatId = mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.ChatId,
-                            ChatTitle = mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.ChatTitle,
-                            ChatAlias = mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.ChatAlias,
-                            CreatedAt = mailToSend.DiplomaticMailCandidate!.SlotInstance!.FromChat!.CreatedAt,
+                            Id = mailToSend.MessageCandidate!.SlotInstance!.FromChat!.Id,
+                            ChatId = mailToSend.MessageCandidate!.SlotInstance!.FromChat!.ChatId,
+                            ChatTitle = mailToSend.MessageCandidate!.SlotInstance!.FromChat!.ChatTitle,
+                            ChatAlias = mailToSend.MessageCandidate!.SlotInstance!.FromChat!.ChatAlias,
+                            CreatedAt = mailToSend.MessageCandidate!.SlotInstance!.FromChat!.CreatedAt,
                         },
                         new RegisteredChatSm
                         {
-                            Id = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.Id,
-                            ChatId = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.ChatId,
-                            ChatTitle = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.ChatTitle,
-                            ChatAlias = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.ChatAlias,
-                            CreatedAt = mailToSend.DiplomaticMailCandidate!.SlotInstance!.ToChat!.CreatedAt,
+                            Id = mailToSend.MessageCandidate!.SlotInstance!.ToChat!.Id,
+                            ChatId = mailToSend.MessageCandidate!.SlotInstance!.ToChat!.ChatId,
+                            ChatTitle = mailToSend.MessageCandidate!.SlotInstance!.ToChat!.ChatTitle,
+                            ChatAlias = mailToSend.MessageCandidate!.SlotInstance!.ToChat!.ChatAlias,
+                            CreatedAt = mailToSend.MessageCandidate!.SlotInstance!.ToChat!.CreatedAt,
                         },
                         new MessageCandidateSm
                         {
-                            MessageId = mailToSend.DiplomaticMailCandidate!.MessageId,
-                            AuthorName = mailToSend.DiplomaticMailCandidate!.AuthorName,
-                            Preview = mailToSend.DiplomaticMailCandidate!.Preview,
+                            MessageId = mailToSend.MessageCandidate!.MessageId,
+                            AuthorName = mailToSend.MessageCandidate!.AuthorName,
+                            Preview = mailToSend.MessageCandidate!.Preview,
                         },
                         cancellationToken);
 

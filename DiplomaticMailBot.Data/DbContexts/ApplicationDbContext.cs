@@ -11,9 +11,9 @@ public sealed class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<DiplomaticMailCandidate> DiplomaticMailCandidates { get; set; } = null!;
-    public DbSet<DiplomaticMailOutbox> DiplomaticMailOutbox { get; set; } = null!;
-    public DbSet<DiplomaticMailPoll> DiplomaticMailPolls { get; set; } = null!;
+    public DbSet<MessageCandidate> DiplomaticMailCandidates { get; set; } = null!;
+    public DbSet<MessageOutbox> DiplomaticMailOutbox { get; set; } = null!;
+    public DbSet<SlotPoll> DiplomaticMailPolls { get; set; } = null!;
     public DbSet<DiplomaticRelation> DiplomaticRelations { get; set; } = null!;
     public DbSet<RegisteredChat> RegisteredChats { get; set; } = null!;
     public DbSet<SlotInstance> SlotInstances { get; set; } = null!;
@@ -33,13 +33,13 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.Entity<SlotInstance>()
             .HasQueryFilter(x => !x.FromChat!.IsDeleted && !x.ToChat!.IsDeleted);
 
-        modelBuilder.Entity<DiplomaticMailCandidate>()
+        modelBuilder.Entity<MessageCandidate>()
             .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
 
-        modelBuilder.Entity<DiplomaticMailOutbox>()
+        modelBuilder.Entity<MessageOutbox>()
             .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
 
-        modelBuilder.Entity<DiplomaticMailPoll>()
+        modelBuilder.Entity<SlotPoll>()
             .HasQueryFilter(x => !x.SlotInstance!.FromChat!.IsDeleted && !x.SlotInstance!.ToChat!.IsDeleted);
     }
 }

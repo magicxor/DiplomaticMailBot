@@ -79,7 +79,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -91,13 +91,13 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         };
         dbContext.DiplomaticMailCandidates.Add(candidate);
 
-        var outboxItem = new DiplomaticMailOutbox
+        var outboxItem = new MessageOutbox
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
-            DiplomaticMailCandidate = candidate,
+            MessageCandidate = candidate,
         };
         dbContext.DiplomaticMailOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -181,7 +181,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -193,13 +193,13 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         };
         dbContext.DiplomaticMailCandidates.Add(candidate);
 
-        var outboxItem = new DiplomaticMailOutbox
+        var outboxItem = new MessageOutbox
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
-            DiplomaticMailCandidate = candidate,
+            MessageCandidate = candidate,
         };
         dbContext.DiplomaticMailOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);

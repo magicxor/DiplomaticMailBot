@@ -64,5 +64,5 @@ public class SlotInstance
     private RegisteredChat? _toChat;
 
     // Relations
-    public virtual ICollection<DiplomaticMailCandidate> DiplomaticMailCandidates { get; set; } = new List<DiplomaticMailCandidate>();
+    public virtual ICollection<MessageCandidate> DiplomaticMailCandidates { get; set; } = new List<MessageCandidate>();
 }

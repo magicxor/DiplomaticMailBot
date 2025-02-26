@@ -94,7 +94,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -210,7 +210,7 @@ public class PollRepositoryTests : IntegrationTestBase
 
         var candidates = new[]
         {
-            new DiplomaticMailCandidate
+            new MessageCandidate
             {
                 MessageId = 789,
                 Preview = "Test message 1",
@@ -220,7 +220,7 @@ public class PollRepositoryTests : IntegrationTestBase
                 CreatedAt = utcNow,
                 SlotInstance = slotInstance,
             },
-            new DiplomaticMailCandidate
+            new MessageCandidate
             {
                 MessageId = 790,
                 Preview = "Test message 2",
@@ -418,7 +418,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidates = new List<DiplomaticMailCandidate>
+        var candidates = new List<MessageCandidate>
         {
             new()
             {
@@ -443,7 +443,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.DiplomaticMailCandidates.AddRange(candidates);
 
-        var poll = new DiplomaticMailPoll
+        var poll = new SlotPoll
         {
             Status = PollStatus.Opened,
             MessageId = 789,
@@ -551,7 +551,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var poll = new DiplomaticMailPoll
+        var poll = new SlotPoll
         {
             Status = PollStatus.Opened,
             MessageId = 789,
@@ -645,7 +645,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var poll = new DiplomaticMailPoll
+        var poll = new SlotPoll
         {
             Status = PollStatus.Opened,
             MessageId = 789,
@@ -733,7 +733,7 @@ public class PollRepositoryTests : IntegrationTestBase
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var poll = new DiplomaticMailPoll
+        var poll = new SlotPoll
         {
             Status = PollStatus.Opened,
             MessageId = 789,
