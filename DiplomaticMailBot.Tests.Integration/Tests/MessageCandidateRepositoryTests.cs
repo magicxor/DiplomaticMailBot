@@ -154,8 +154,8 @@ public class MessageCandidateRepositoryTests : IntegrationTestBase
         {
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime),
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
             Template = slotInstanceTemplate,
         };
         dbContext.SlotInstances.Add(slotInstance);

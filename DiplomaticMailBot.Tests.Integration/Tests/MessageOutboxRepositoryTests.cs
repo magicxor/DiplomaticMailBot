@@ -74,8 +74,8 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -175,8 +175,8 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         {
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
             Template = slotInstanceTemplate,
         };
         dbContext.SlotInstances.Add(slotInstance);

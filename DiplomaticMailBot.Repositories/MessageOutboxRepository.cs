@@ -42,10 +42,10 @@ public sealed class MessageOutboxRepository
             .Include(x => x.SlotInstance)
             .Include(mailOutbox => mailOutbox.MessageCandidate)
             .ThenInclude(candidate => candidate.SlotInstance)
-            .ThenInclude(slot => slot.FromChat)
+            .ThenInclude(slot => slot.SourceChat)
             .Include(mailOutbox => mailOutbox.MessageCandidate)
             .ThenInclude(candidate => candidate.SlotInstance)
-            .ThenInclude(slot => slot.ToChat)
+            .ThenInclude(slot => slot.TargetChat)
             .Where(x =>
                 x.Status == MessageOutboxStatus.Pending
                 && x.SentAt == null
@@ -60,8 +60,8 @@ public sealed class MessageOutboxRepository
             _logger.LogInformation("Sending mail {MailNumber} of {TotalMails}: {FromChat} -> {ToChat}. Attempts: {Attempts}. Preview: {Preview}",
                 i,
                 mailsToSend.Count,
-                mailToSend.MessageCandidate.SlotInstance.FromChat.ChatAlias,
-                mailToSend.MessageCandidate.SlotInstance.ToChat.ChatAlias,
+                mailToSend.MessageCandidate.SlotInstance.SourceChat.ChatAlias,
+                mailToSend.MessageCandidate.SlotInstance.TargetChat.ChatAlias,
                 mailToSend.Attempts,
                 mailToSend.MessageCandidate.Preview.TryLeft(50));
 
@@ -72,19 +72,19 @@ public sealed class MessageOutboxRepository
                     await processOutboxRecordCallback(
                         new RegisteredChatSm
                         {
-                            Id = mailToSend.MessageCandidate.SlotInstance.FromChat.Id,
-                            ChatId = mailToSend.MessageCandidate.SlotInstance.FromChat.ChatId,
-                            ChatTitle = mailToSend.MessageCandidate.SlotInstance.FromChat.ChatTitle,
-                            ChatAlias = mailToSend.MessageCandidate.SlotInstance.FromChat.ChatAlias,
-                            CreatedAt = mailToSend.MessageCandidate.SlotInstance.FromChat.CreatedAt,
+                            Id = mailToSend.MessageCandidate.SlotInstance.SourceChat.Id,
+                            ChatId = mailToSend.MessageCandidate.SlotInstance.SourceChat.ChatId,
+                            ChatTitle = mailToSend.MessageCandidate.SlotInstance.SourceChat.ChatTitle,
+                            ChatAlias = mailToSend.MessageCandidate.SlotInstance.SourceChat.ChatAlias,
+                            CreatedAt = mailToSend.MessageCandidate.SlotInstance.SourceChat.CreatedAt,
                         },
                         new RegisteredChatSm
                         {
-                            Id = mailToSend.MessageCandidate.SlotInstance.ToChat.Id,
-                            ChatId = mailToSend.MessageCandidate.SlotInstance.ToChat.ChatId,
-                            ChatTitle = mailToSend.MessageCandidate.SlotInstance.ToChat.ChatTitle,
-                            ChatAlias = mailToSend.MessageCandidate.SlotInstance.ToChat.ChatAlias,
-                            CreatedAt = mailToSend.MessageCandidate.SlotInstance.ToChat.CreatedAt,
+                            Id = mailToSend.MessageCandidate.SlotInstance.TargetChat.Id,
+                            ChatId = mailToSend.MessageCandidate.SlotInstance.TargetChat.ChatId,
+                            ChatTitle = mailToSend.MessageCandidate.SlotInstance.TargetChat.ChatTitle,
+                            ChatAlias = mailToSend.MessageCandidate.SlotInstance.TargetChat.ChatAlias,
+                            CreatedAt = mailToSend.MessageCandidate.SlotInstance.TargetChat.CreatedAt,
                         },
                         new MessageCandidateSm
                         {

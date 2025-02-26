@@ -89,8 +89,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow,
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -203,8 +203,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow,
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -331,8 +331,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow,
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -413,8 +413,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Voting,
             Date = dateNow,
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -546,8 +546,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow.AddDays(-1), // Yesterday
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -640,8 +640,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow, // Today
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
@@ -728,8 +728,8 @@ public class PollRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = dateNow,
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 

@@ -101,8 +101,8 @@ public sealed class MessageCandidateRepository
                                         .FirstOrDefaultAsync(x => x.TemplateId == sm.SlotTemplateId
                                                                   && x.Status == SlotInstanceStatus.Collecting
                                                                   && x.Date == sm.NextVoteSlotDate
-                                                                  && x.FromChatId == sourceChat.Id
-                                                                  && x.ToChatId == targetChat.Id
+                                                                  && x.SourceChatId == sourceChat.Id
+                                                                  && x.TargetChatId == targetChat.Id
                                                                   && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == x.Id)
                                                                   && !applicationDbContext.MessageOutbox.Any(obx => obx.SlotInstanceId == x.Id),
                                             cancellationToken);
@@ -120,8 +120,8 @@ public sealed class MessageCandidateRepository
                 Status = SlotInstanceStatus.Collecting,
                 Date = sm.NextVoteSlotDate,
                 TemplateId = sm.SlotTemplateId,
-                FromChat = sourceChat,
-                ToChat = targetChat,
+                SourceChat = sourceChat,
+                TargetChat = targetChat,
             };
             applicationDbContext.SlotInstances.Add(slotInstance);
             await applicationDbContext.SaveChangesAsync(cancellationToken);
@@ -200,7 +200,7 @@ public sealed class MessageCandidateRepository
         var candidates = await applicationDbContext.MessageCandidates
                             .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
                                                     && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
-                                                    && mailCandidate.SlotInstance.FromChat.ChatId == sourceChatId
+                                                    && mailCandidate.SlotInstance.SourceChat.ChatId == sourceChatId
                                                     && applicationDbContext
                                                         .SlotInstances
                                                         .Any(slot => slot.Id == mailCandidate.SlotInstanceId
