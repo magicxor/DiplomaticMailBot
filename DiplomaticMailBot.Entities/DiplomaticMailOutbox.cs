@@ -27,9 +27,11 @@ public class DiplomaticMailOutbox
     public DateTime? SentAt { get; set; }
 
     // FK id
+    [Required]
     [ForeignKey(nameof(DiplomaticMailOutbox.SlotInstance))]
     public int SlotInstanceId { get; set; }
 
+    [Required]
     [ForeignKey(nameof(DiplomaticMailOutbox.DiplomaticMailCandidate))]
     public int DiplomaticMailCandidateId { get; set; }
 

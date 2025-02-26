@@ -14,9 +14,11 @@ public class DiplomaticRelation
     public required DateTime CreatedAt { get; set; }
 
     // FK id
+    [Required]
     [ForeignKey(nameof(DiplomaticRelation.SourceChat))]
     public int SourceChatId { get; set; }
 
+    [Required]
     [ForeignKey(nameof(DiplomaticRelation.TargetChat))]
     public int TargetChatId { get; set; }
 
