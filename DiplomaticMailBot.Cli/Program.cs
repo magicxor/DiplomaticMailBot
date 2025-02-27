@@ -29,7 +29,7 @@ public static class Program
     [SuppressMessage("Major Code Smell", "S2139:Exceptions should be either logged or rethrown but not both", Justification = "Entry point")]
     public static void Main(string[] args)
     {
-        // NLog: setup the logger first to catch all errors
+        // NLog: set up the logger first to catch all errors
         LogManager.Configuration = LoggingConfiguration;
         try
         {
@@ -53,7 +53,7 @@ public static class Program
                         .ValidateDataAnnotations();
 
                     services
-                         /* Infrastructure */
+                        /* Infrastructure */
                         .AddScoped<TimeProvider>(_ => TimeProvider.System)
                         .AddScoped<ITelegramBotClient>(s =>
                         {
@@ -70,19 +70,19 @@ public static class Program
                                 .LogTo(msg => LogMessage(logger, msg, null));
                         })
                         .AddScoped<TelegramInfoService>()
-                         /* Repositories */
-                         .AddScoped<RegisteredChatRepository>()
-                         .AddScoped<DiplomaticRelationRepository>()
-                         .AddScoped<MessageOutboxRepository>()
-                         .AddScoped<PollRepository>()
-                         .AddScoped<MessageCandidateRepository>()
-                         .AddScoped<SlotTemplateRepository>()
-                         .AddScoped<SeedRepository>()
-                         /* Domain */
+                        /* Repositories */
+                        .AddScoped<RegisteredChatRepository>()
+                        .AddScoped<DiplomaticRelationRepository>()
+                        .AddScoped<MessageOutboxRepository>()
+                        .AddScoped<PollRepository>()
+                        .AddScoped<MessageCandidateRepository>()
+                        .AddScoped<SlotTemplateRepository>()
+                        .AddScoped<SeedRepository>()
+                        /* Domain */
                         .AddScoped<SlotDateCalculator>()
                         .AddScoped<PreviewGenerator>()
                         .AddScoped<PollOptionParser>()
-                         /* Services */
+                        /* Services */
                         .AddScoped<RegisterChatHandler>()
                         .AddScoped<BreakOffRelationsHandler>()
                         .AddScoped<EstablishRelationsHandler>()
