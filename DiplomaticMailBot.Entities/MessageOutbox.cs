@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
-[Index(nameof(Status), Name = $"{nameof(DiplomaticMailOutbox)}_{nameof(Status)}_IX")]
-[Index(nameof(SlotInstanceId), Name = $"{nameof(DiplomaticMailOutbox)}_{nameof(SlotInstanceId)}_IX", IsUnique = true)]
-public class DiplomaticMailOutbox
+[Table("MessageOutbox")]
+[Index(nameof(Status), Name = $"{nameof(MessageOutbox)}_{nameof(Status)}_IX")]
+[Index(nameof(SlotInstanceId), Name = $"{nameof(MessageOutbox)}_{nameof(SlotInstanceId)}_IX", IsUnique = true)]
+public class MessageOutbox
 {
     [Key]
     public int Id { get; set; }
@@ -28,12 +29,12 @@ public class DiplomaticMailOutbox
 
     // FK id
     [Required]
-    [ForeignKey(nameof(DiplomaticMailOutbox.SlotInstance))]
+    [ForeignKey(nameof(MessageOutbox.SlotInstance))]
     public int SlotInstanceId { get; set; }
 
     [Required]
-    [ForeignKey(nameof(DiplomaticMailOutbox.DiplomaticMailCandidate))]
-    public int DiplomaticMailCandidateId { get; set; }
+    [ForeignKey(nameof(MessageOutbox.MessageCandidate))]
+    public int MessageCandidateId { get; set; }
 
     // FK models
     [Required]
@@ -47,12 +48,12 @@ public class DiplomaticMailOutbox
     private SlotInstance? _slotInstance;
 
     [Required]
-    public virtual DiplomaticMailCandidate DiplomaticMailCandidate
+    public virtual MessageCandidate MessageCandidate
     {
-        get => _diplomaticMailCandidate
-               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(DiplomaticMailCandidate));
-        set => _diplomaticMailCandidate = value;
+        get => _messageCandidate
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(MessageCandidate));
+        set => _messageCandidate = value;
     }
 
-    private DiplomaticMailCandidate? _diplomaticMailCandidate;
+    private MessageCandidate? _messageCandidate;
 }

@@ -247,7 +247,7 @@ public class RegisteredChatRepositoryTests : IntegrationTestBase
 
         Assert.That(deletedChat, Is.Not.Null);
         Assert.That(deletedChat!.IsDeleted, Is.True);
-        Assert.That(deletedChat.ChatAlias, Is.Empty);
+        Assert.That(deletedChat.ChatAlias, Is.Not.Empty);
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]

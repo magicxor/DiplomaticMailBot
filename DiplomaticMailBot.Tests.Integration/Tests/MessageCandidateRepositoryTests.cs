@@ -3,7 +3,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -16,7 +16,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
+public class MessageCandidateRepositoryTests : IntegrationTestBase
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
 
@@ -81,12 +81,12 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         dbContext.SlotTemplates.Add(slotTemplate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailCandidatesRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailCandidatesRepository>(),
+        var repository = new MessageCandidateRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageCandidateRepository>(),
             dbContextFactory,
             TimeProvider);
 
-        var input = new DiplomaticMailCandidatePutSm
+        var input = new MessageCandidatePutSm
         {
             MessageId = 789,
             Preview = "Test message",
@@ -107,7 +107,7 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         Assert.That(result.LeftToList().First(), Is.True);
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var savedCandidate = await verifyContext.DiplomaticMailCandidates
+        var savedCandidate = await verifyContext.MessageCandidates
             .FirstOrDefaultAsync(x => x.MessageId == input.MessageId, cancellationToken);
 
         Assert.That(savedCandidate, Is.Not.Null);
@@ -154,13 +154,13 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         {
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime),
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
             Template = slotInstanceTemplate,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -170,11 +170,11 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailCandidatesRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailCandidatesRepository>(),
+        var repository = new MessageCandidateRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageCandidateRepository>(),
             dbContextFactory,
             TimeProvider);
 
@@ -185,7 +185,7 @@ public class DiplomaticMailCandidatesRepositoryTests : IntegrationTestBase
         Assert.That(deletedCandidatesCountResult.Match(err => err.Code, deletedCount => deletedCount), Is.EqualTo(1));
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var deletedCandidate = await verifyContext.DiplomaticMailCandidates
+        var deletedCandidate = await verifyContext.MessageCandidates
             .FirstOrDefaultAsync(x => x.MessageId == candidate.MessageId, cancellationToken);
 
         Assert.That(deletedCandidate, Is.Null);

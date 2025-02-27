@@ -1,21 +1,21 @@
 ﻿using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Repositories;
 
-public sealed class DiplomaticMailPollRepository
+public sealed class PollRepository
 {
-    private readonly ILogger<DiplomaticMailPollRepository> _logger;
+    private readonly ILogger<PollRepository> _logger;
     private readonly IDbContextFactory<ApplicationDbContext> _applicationDbContextFactory;
     private readonly TimeProvider _timeProvider;
 
-    public DiplomaticMailPollRepository(
-        ILogger<DiplomaticMailPollRepository> logger,
+    public PollRepository(
+        ILogger<PollRepository> logger,
         IDbContextFactory<ApplicationDbContext> applicationDbContextFactory,
         TimeProvider timeProvider)
     {
@@ -36,11 +36,11 @@ public sealed class DiplomaticMailPollRepository
         _logger.LogInformation("Opening poll for slot instance {SlotInstanceId}", slotInstance.Id);
 
         var relations = await applicationDbContext.DiplomaticRelations
-            .Where(x => (x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId)
-                        || (x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId))
+            .Where(x => (x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId)
+                        || (x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId))
             .ToListAsync(cancellationToken);
-        var outgoingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId);
-        var incomingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId);
+        var outgoingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId);
+        var incomingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId);
 
         if (outgoingRelation is null || incomingRelation is null)
         {
@@ -52,7 +52,7 @@ public sealed class DiplomaticMailPollRepository
         {
             slotInstance.Status = SlotInstanceStatus.Voting;
 
-            var candidates = await applicationDbContext.DiplomaticMailCandidates
+            var candidates = await applicationDbContext.MessageCandidates
                 .Where(x => x.SlotInstanceId == slotInstance.Id)
                 .ToListAsync(cancellationToken);
 
@@ -66,8 +66,8 @@ public sealed class DiplomaticMailPollRepository
             {
                 _logger.LogInformation("One candidate for slot instance {SlotInstanceId}; choosing it", slotInstance.Id);
 
-                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteStartAt, DateTimeKind.Utc);
-                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template!.VoteEndAt, DateTimeKind.Utc);
+                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteStartAt, DateTimeKind.Utc);
+                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteEndAt, DateTimeKind.Utc);
                 if (voteEndsAtDateTime <= voteStartsAtDateTime)
                 {
                     voteEndsAtDateTime = voteEndsAtDateTime.AddDays(1);
@@ -75,37 +75,37 @@ public sealed class DiplomaticMailPollRepository
 
                 var timeLeft = voteEndsAtDateTime - utcNow;
 
-                var diplomaticMailCandidate = candidates.OrderBy(x => x.Id).First();
+                var messageCandidate = candidates.OrderBy(x => x.Id).First();
 
                 await sendMessageCallback(
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.FromChat!.Id,
-                        ChatId = slotInstance.FromChat!.ChatId,
-                        ChatTitle = slotInstance.FromChat!.ChatTitle,
-                        ChatAlias = slotInstance.FromChat!.ChatAlias,
-                        CreatedAt = slotInstance.FromChat!.CreatedAt,
+                        Id = slotInstance.SourceChat.Id,
+                        ChatId = slotInstance.SourceChat.ChatId,
+                        ChatTitle = slotInstance.SourceChat.ChatTitle,
+                        ChatAlias = slotInstance.SourceChat.ChatAlias,
+                        CreatedAt = slotInstance.SourceChat.CreatedAt,
                     },
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.ToChat!.Id,
-                        ChatId = slotInstance.ToChat!.ChatId,
-                        ChatTitle = slotInstance.ToChat!.ChatTitle,
-                        ChatAlias = slotInstance.ToChat!.ChatAlias,
-                        CreatedAt = slotInstance.ToChat!.CreatedAt,
+                        Id = slotInstance.TargetChat.Id,
+                        ChatId = slotInstance.TargetChat.ChatId,
+                        ChatTitle = slotInstance.TargetChat.ChatTitle,
+                        ChatAlias = slotInstance.TargetChat.ChatAlias,
+                        CreatedAt = slotInstance.TargetChat.CreatedAt,
                     },
                     timeLeft,
-                    new DiplomaticMailCandidateSm
+                    new MessageCandidateSm
                     {
-                        MessageId = diplomaticMailCandidate.MessageId,
-                        AuthorName = diplomaticMailCandidate.AuthorName,
-                        Preview = diplomaticMailCandidate.Preview,
+                        MessageId = messageCandidate.MessageId,
+                        AuthorName = messageCandidate.AuthorName,
+                        Preview = messageCandidate.Preview,
                     },
                     cancellationToken);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
+                applicationDbContext.SlotPolls.Add(new SlotPoll
                 {
-                    Status = DiplomaticMailPollStatus.Opened,
+                    Status = PollStatus.Opened,
                     MessageId = candidates.OrderBy(x => x.Id).First().MessageId,
                     CreatedAt = utcNow,
                     SlotInstance = slotInstance,
@@ -118,7 +118,7 @@ public sealed class DiplomaticMailPollRepository
                 var pollOptions = candidates
                     .OrderBy(x => x.CreatedAt)
                     .Take(10)
-                    .Select(x => new DiplomaticMailCandidateSm
+                    .Select(x => new MessageCandidateSm
                     {
                         MessageId = x.MessageId,
                         AuthorName = x.AuthorName,
@@ -129,28 +129,28 @@ public sealed class DiplomaticMailPollRepository
                 var pollMessageId = await sendPollCallback(
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.FromChat!.Id,
-                        ChatId = slotInstance.FromChat!.ChatId,
-                        ChatTitle = slotInstance.FromChat!.ChatTitle,
-                        ChatAlias = slotInstance.FromChat!.ChatAlias,
-                        CreatedAt = slotInstance.FromChat!.CreatedAt,
+                        Id = slotInstance.SourceChat.Id,
+                        ChatId = slotInstance.SourceChat.ChatId,
+                        ChatTitle = slotInstance.SourceChat.ChatTitle,
+                        ChatAlias = slotInstance.SourceChat.ChatAlias,
+                        CreatedAt = slotInstance.SourceChat.CreatedAt,
                     },
                     new RegisteredChatSm
                     {
-                        Id = slotInstance.ToChat!.Id,
-                        ChatId = slotInstance.ToChat!.ChatId,
-                        ChatTitle = slotInstance.ToChat!.ChatTitle,
-                        ChatAlias = slotInstance.ToChat!.ChatAlias,
-                        CreatedAt = slotInstance.ToChat!.CreatedAt,
+                        Id = slotInstance.TargetChat.Id,
+                        ChatId = slotInstance.TargetChat.ChatId,
+                        ChatTitle = slotInstance.TargetChat.ChatTitle,
+                        ChatAlias = slotInstance.TargetChat.ChatAlias,
+                        CreatedAt = slotInstance.TargetChat.CreatedAt,
                     },
                     pollOptions,
                     cancellationToken);
 
                 _logger.LogInformation("Poll for slot instance {SlotInstanceId} will be opened with message ID {PollMessageId}", slotInstance.Id, pollMessageId);
 
-                applicationDbContext.DiplomaticMailPolls.Add(new DiplomaticMailPoll
+                applicationDbContext.SlotPolls.Add(new SlotPoll
                 {
-                    Status = DiplomaticMailPollStatus.Opened,
+                    Status = PollStatus.Opened,
                     MessageId = pollMessageId,
                     CreatedAt = utcNow,
                     SlotInstance = slotInstance,
@@ -181,14 +181,14 @@ public sealed class DiplomaticMailPollRepository
 
         var slotInstancesToOpenPoll = await applicationDbContext.SlotInstances
             .Include(slot => slot.Template)
-            .Include(slot => slot.FromChat)
-            .Include(slot => slot.ToChat)
+            .Include(slot => slot.SourceChat)
+            .Include(slot => slot.TargetChat)
             .Where(slot =>
                 slot.Status == SlotInstanceStatus.Collecting
                 && slot.Date == dateNow
-                && slot.Template!.VoteStartAt <= timeNow
-                && slot.Template!.VoteEndAt >= timeNow
-                && !applicationDbContext.DiplomaticMailPolls.Any(poll => poll.SlotInstanceId == slot.Id))
+                && slot.Template.VoteStartAt <= timeNow
+                && slot.Template.VoteEndAt >= timeNow
+                && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id))
             .ToListAsync(cancellationToken);
         var i = 1;
 
@@ -213,34 +213,34 @@ public sealed class DiplomaticMailPollRepository
 
     private async Task CloseExpiredPollAsync(
         ApplicationDbContext applicationDbContext,
-        DiplomaticMailPoll pollToClose,
+        SlotPoll pollToClose,
         DateTime utcNow,
         StopPollCallback stopPollCallback,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Closing poll {PollId}", pollToClose.Id);
 
-        var slotInstance = pollToClose.SlotInstance!;
+        var slotInstance = pollToClose.SlotInstance;
         var relations = await applicationDbContext.DiplomaticRelations
-            .Where(x => (x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId)
-                        || (x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId))
+            .Where(x => (x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId)
+                        || (x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId))
             .ToListAsync(cancellationToken);
-        var outgoingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.FromChatId && x.TargetChatId == slotInstance.ToChatId);
-        var incomingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.ToChatId && x.TargetChatId == slotInstance.FromChatId);
+        var outgoingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId);
+        var incomingRelation = relations.OrderBy(x => x.Id).FirstOrDefault(x => x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId);
 
-        pollToClose.Status = DiplomaticMailPollStatus.Closed;
+        pollToClose.Status = PollStatus.Closed;
         pollToClose.ClosedAt = utcNow;
-        pollToClose.SlotInstance!.Status = SlotInstanceStatus.Archived;
+        pollToClose.SlotInstance.Status = SlotInstanceStatus.Archived;
 
         if (outgoingRelation is null || incomingRelation is null)
         {
             _logger.LogInformation("Relations for poll {PollId} not found; removing it", pollToClose.Id);
-            applicationDbContext.DiplomaticMailPolls.Remove(pollToClose);
+            applicationDbContext.SlotPolls.Remove(pollToClose);
             applicationDbContext.SlotInstances.Remove(slotInstance);
         }
         else
         {
-            var candidates = await applicationDbContext.DiplomaticMailCandidates
+            var candidates = await applicationDbContext.MessageCandidates
                 .Where(c => c.SlotInstanceId == pollToClose.SlotInstanceId)
                 .ToListAsync(cancellationToken: cancellationToken);
 
@@ -248,7 +248,7 @@ public sealed class DiplomaticMailPollRepository
             {
                 _logger.LogInformation("Poll {PollId} has {CandidatesCount} potential candidates; trying to stop it", pollToClose.Id, candidates.Count);
 
-                var chosenMessageIdResult = await stopPollCallback(pollToClose.SlotInstance.FromChat!.ChatId, pollToClose.MessageId, cancellationToken);
+                var chosenMessageIdResult = await stopPollCallback(pollToClose.SlotInstance.SourceChat.ChatId, pollToClose.MessageId, cancellationToken);
 
                 _logger.LogInformation("Poll {PollId} stopped", pollToClose.Id);
 
@@ -262,11 +262,11 @@ public sealed class DiplomaticMailPollRepository
                     {
                         _logger.LogInformation("Poll {PollId} stopped, chosen message ID: {ChosenMessageId}", pollToClose.Id, chosenMessageId);
 
-                        var chosenCandidate = await applicationDbContext.DiplomaticMailCandidates
+                        var chosenCandidate = await applicationDbContext.MessageCandidates
                             .Where(candidate => candidate.MessageId == chosenMessageId
                                         && candidate.SlotInstanceId == pollToClose.SlotInstanceId
-                                        && candidate.SlotInstance!.FromChatId == pollToClose.SlotInstance.FromChatId
-                                        && candidate.SlotInstance!.ToChatId == pollToClose.SlotInstance.ToChatId)
+                                        && candidate.SlotInstance.SourceChatId == pollToClose.SlotInstance.SourceChatId
+                                        && candidate.SlotInstance.TargetChatId == pollToClose.SlotInstance.TargetChatId)
                             .OrderBy(x => x.Id)
                             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -274,15 +274,15 @@ public sealed class DiplomaticMailPollRepository
                         {
                             _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                            applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                            applicationDbContext.MessageOutbox.Add(new MessageOutbox
                             {
-                                Status = DiplomaticMailOutboxStatus.Pending,
+                                Status = MessageOutboxStatus.Pending,
                                 StatusDetails = null,
                                 Attempts = 0,
                                 CreatedAt = utcNow,
                                 SentAt = null,
                                 SlotInstance = pollToClose.SlotInstance,
-                                DiplomaticMailCandidate = chosenCandidate,
+                                MessageCandidate = chosenCandidate,
                             });
 
                             return true;
@@ -302,15 +302,15 @@ public sealed class DiplomaticMailPollRepository
 
                 _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
-                applicationDbContext.DiplomaticMailOutbox.Add(new DiplomaticMailOutbox
+                applicationDbContext.MessageOutbox.Add(new MessageOutbox
                 {
-                    Status = DiplomaticMailOutboxStatus.Pending,
+                    Status = MessageOutboxStatus.Pending,
                     StatusDetails = null,
                     Attempts = 0,
                     CreatedAt = utcNow,
                     SentAt = null,
                     SlotInstance = pollToClose.SlotInstance,
-                    DiplomaticMailCandidate = chosenCandidate,
+                    MessageCandidate = chosenCandidate,
                 });
             }
         }
@@ -334,13 +334,13 @@ public sealed class DiplomaticMailPollRepository
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var pollsToClose = await applicationDbContext.DiplomaticMailPolls
+        var pollsToClose = await applicationDbContext.SlotPolls
             .Include(poll => poll.SlotInstance)
-            .ThenInclude(slot => slot!.FromChat)
+            .ThenInclude(slot => slot.SourceChat)
             .Where(x =>
-                x.Status == DiplomaticMailPollStatus.Opened
-                && ((x.SlotInstance!.Date == dateNow && x.SlotInstance!.Template!.VoteEndAt < timeNow)
-                    || x.SlotInstance!.Date < dateNow))
+                x.Status == PollStatus.Opened
+                && ((x.SlotInstance.Date == dateNow && x.SlotInstance.Template.VoteEndAt < timeNow)
+                    || x.SlotInstance.Date < dateNow))
             .ToListAsync(cancellationToken);
         var i = 1;
 

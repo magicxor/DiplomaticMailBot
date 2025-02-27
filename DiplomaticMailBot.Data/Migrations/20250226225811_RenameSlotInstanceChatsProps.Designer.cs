@@ -3,6 +3,7 @@ using System;
 using DiplomaticMailBot.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiplomaticMailBot.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250226225811_RenameSlotInstanceChatsProps")]
+    partial class RenameSlotInstanceChatsProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,7 +109,7 @@ namespace DiplomaticMailBot.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("MessageCandidateId")
+                    b.Property<int>("DiplomaticMailCandidateId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("SentAt")
@@ -126,7 +129,7 @@ namespace DiplomaticMailBot.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MessageCandidateId");
+                    b.HasIndex("DiplomaticMailCandidateId");
 
                     b.HasIndex(new[] { "SlotInstanceId" }, "MessageOutbox_SlotInstanceId_IX")
                         .IsUnique();
@@ -299,7 +302,7 @@ namespace DiplomaticMailBot.Data.Migrations
             modelBuilder.Entity("DiplomaticMailBot.Entities.MessageCandidate", b =>
                 {
                     b.HasOne("DiplomaticMailBot.Entities.SlotInstance", "SlotInstance")
-                        .WithMany("MessageCandidates")
+                        .WithMany("DiplomaticMailCandidates")
                         .HasForeignKey("SlotInstanceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -311,7 +314,7 @@ namespace DiplomaticMailBot.Data.Migrations
                 {
                     b.HasOne("DiplomaticMailBot.Entities.MessageCandidate", "MessageCandidate")
                         .WithMany()
-                        .HasForeignKey("MessageCandidateId")
+                        .HasForeignKey("DiplomaticMailCandidateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -377,7 +380,7 @@ namespace DiplomaticMailBot.Data.Migrations
 
             modelBuilder.Entity("DiplomaticMailBot.Entities.SlotInstance", b =>
                 {
-                    b.Navigation("MessageCandidates");
+                    b.Navigation("DiplomaticMailCandidates");
                 });
 
             modelBuilder.Entity("DiplomaticMailBot.Entities.SlotTemplate", b =>

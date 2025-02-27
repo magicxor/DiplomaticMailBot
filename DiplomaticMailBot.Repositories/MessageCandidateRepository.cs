@@ -4,7 +4,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories.Extensions;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Repositories;
 
-public sealed class DiplomaticMailCandidatesRepository
+public sealed class MessageCandidateRepository
 {
-    private readonly ILogger<DiplomaticMailCandidatesRepository> _logger;
+    private readonly ILogger<MessageCandidateRepository> _logger;
     private readonly IDbContextFactory<ApplicationDbContext> _applicationDbContextFactory;
     private readonly TimeProvider _timeProvider;
 
-    public DiplomaticMailCandidatesRepository(
-        ILogger<DiplomaticMailCandidatesRepository> logger,
+    public MessageCandidateRepository(
+        ILogger<MessageCandidateRepository> logger,
         IDbContextFactory<ApplicationDbContext> applicationDbContextFactory,
         TimeProvider timeProvider)
     {
@@ -28,7 +28,7 @@ public sealed class DiplomaticMailCandidatesRepository
         _timeProvider = timeProvider;
     }
 
-    public async Task<Either<bool, Error>> PutAsync(DiplomaticMailCandidatePutSm sm, CancellationToken cancellationToken = default)
+    public async Task<Either<bool, Error>> PutAsync(MessageCandidatePutSm sm, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sm);
         ArgumentOutOfRangeException.ThrowIfZero(sm.MessageId);
@@ -101,10 +101,10 @@ public sealed class DiplomaticMailCandidatesRepository
                                         .FirstOrDefaultAsync(x => x.TemplateId == sm.SlotTemplateId
                                                                   && x.Status == SlotInstanceStatus.Collecting
                                                                   && x.Date == sm.NextVoteSlotDate
-                                                                  && x.FromChatId == sourceChat.Id
-                                                                  && x.ToChatId == targetChat.Id
-                                                                  && !applicationDbContext.DiplomaticMailPolls.Any(poll => poll.SlotInstanceId == x.Id)
-                                                                  && !applicationDbContext.DiplomaticMailOutbox.Any(obx => obx.SlotInstanceId == x.Id),
+                                                                  && x.SourceChatId == sourceChat.Id
+                                                                  && x.TargetChatId == targetChat.Id
+                                                                  && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == x.Id)
+                                                                  && !applicationDbContext.MessageOutbox.Any(obx => obx.SlotInstanceId == x.Id),
                                             cancellationToken);
 
         if (slotInstance is null)
@@ -120,8 +120,8 @@ public sealed class DiplomaticMailCandidatesRepository
                 Status = SlotInstanceStatus.Collecting,
                 Date = sm.NextVoteSlotDate,
                 TemplateId = sm.SlotTemplateId,
-                FromChat = sourceChat,
-                ToChat = targetChat,
+                SourceChat = sourceChat,
+                TargetChat = targetChat,
             };
             applicationDbContext.SlotInstances.Add(slotInstance);
             await applicationDbContext.SaveChangesAsync(cancellationToken);
@@ -141,7 +141,7 @@ public sealed class DiplomaticMailCandidatesRepository
         var authorNameLong = sm.AuthorName.TryLeft(128);
         var messagePreview = sm.Preview.TryLeft(128);
 
-        if (await applicationDbContext.DiplomaticMailCandidates
+        if (await applicationDbContext.MessageCandidates
                 .AnyAsync(candidate => candidate.MessageId == sm.MessageId
                                && candidate.SlotInstanceId == slotInstance.Id,
                     cancellationToken))
@@ -154,14 +154,14 @@ public sealed class DiplomaticMailCandidatesRepository
             return new DomainError(EventCode.MailCandidateAlreadyExists.ToInt(), "Mail candidate already exists");
         }
 
-        if (await applicationDbContext.DiplomaticMailCandidates
+        if (await applicationDbContext.MessageCandidates
                 .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= 10)
         {
             _logger.LogInformation("Mail candidate limit reached: SlotInstanceId={SlotInstanceId}", slotInstance.Id);
             return new DomainError(EventCode.MailCandidateLimitReached.ToInt(), "Mail candidate limit reached");
         }
 
-        applicationDbContext.DiplomaticMailCandidates.Add(new DiplomaticMailCandidate
+        applicationDbContext.MessageCandidates.Add(new MessageCandidate
         {
             MessageId = sm.MessageId,
             Preview = messagePreview,
@@ -197,16 +197,16 @@ public sealed class DiplomaticMailCandidatesRepository
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var candidates = await applicationDbContext.DiplomaticMailCandidates
+        var candidates = await applicationDbContext.MessageCandidates
                             .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
                                                     && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
-                                                    && mailCandidate.SlotInstance!.FromChat!.ChatId == sourceChatId
+                                                    && mailCandidate.SlotInstance.SourceChat.ChatId == sourceChatId
                                                     && applicationDbContext
                                                         .SlotInstances
                                                         .Any(slot => slot.Id == mailCandidate.SlotInstanceId
                                                                               && slot.Status == SlotInstanceStatus.Collecting
-                                                                              && !applicationDbContext.DiplomaticMailPolls.Any(poll => poll.SlotInstanceId == slot.Id)
-                                                                              && !applicationDbContext.DiplomaticMailOutbox.Any(outbox => outbox.SlotInstanceId == slot.Id)))
+                                                                              && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id)
+                                                                              && !applicationDbContext.MessageOutbox.Any(outbox => outbox.SlotInstanceId == slot.Id)))
                             .ToListAsync(cancellationToken: cancellationToken);
 
         if (candidates.Count == 0)
@@ -226,7 +226,7 @@ public sealed class DiplomaticMailCandidatesRepository
                 messageToWithdrawId,
                 commandSenderId);
 
-            applicationDbContext.DiplomaticMailCandidates.RemoveRange(candidates);
+            applicationDbContext.MessageCandidates.RemoveRange(candidates);
             await applicationDbContext.SaveChangesAsync(cancellationToken);
 
             return candidates.Count;

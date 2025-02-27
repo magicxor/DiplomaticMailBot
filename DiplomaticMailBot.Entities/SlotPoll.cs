@@ -4,35 +4,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
-[Index(nameof(MessageId), nameof(SlotInstanceId), Name = $"{nameof(DiplomaticMailCandidate)}_Unique_IX", IsUnique = true)]
-public class DiplomaticMailCandidate
+[Table("SlotPolls")]
+[Index(nameof(SlotInstanceId), Name = $"{nameof(SlotPoll)}_{nameof(SlotInstanceId)}_Unique_IX", IsUnique = true)]
+public class SlotPoll
 {
     [Key]
     public int Id { get; set; }
 
     [Required]
+    [MaxLength(32)]
+    public required string Status { get; set; }
+
+    [Required]
     public required int MessageId { get; set; }
-
-    [Required]
-    [MaxLength(128)]
-    public required string Preview { get; set; }
-
-    [Required]
-    public required long SubmitterId { get; set; }
-
-    [Required]
-    public required long AuthorId { get; set; }
-
-    [Required]
-    [MaxLength(128)]
-    public required string AuthorName { get; set; }
 
     [Required]
     public required DateTime CreatedAt { get; set; }
 
+    public DateTime? ClosedAt { get; set; }
+
     // FK id
     [Required]
-    [ForeignKey(nameof(DiplomaticMailCandidate.SlotInstance))]
+    [ForeignKey(nameof(SlotPoll.SlotInstance))]
     public int SlotInstanceId { get; set; }
 
     // FK models

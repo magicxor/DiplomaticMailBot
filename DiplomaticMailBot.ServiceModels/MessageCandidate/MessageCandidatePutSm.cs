@@ -1,6 +1,6 @@
-﻿namespace DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+﻿namespace DiplomaticMailBot.ServiceModels.MessageCandidate;
 
-public sealed class DiplomaticMailCandidatePutSm
+public sealed class MessageCandidatePutSm
 {
     public required int SlotTemplateId { get; set; }
     public required DateOnly NextVoteSlotDate { get; set; }

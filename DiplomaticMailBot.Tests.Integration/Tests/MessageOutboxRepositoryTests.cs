@@ -2,7 +2,7 @@ using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.DiplomaticMailCandidate;
+using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Exceptions;
@@ -17,7 +17,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
+public class MessageOutboxRepositoryTests : IntegrationTestBase
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
     private TimeProvider _timeProvider;
@@ -74,12 +74,12 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
             Template = slotTemplate,
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -89,25 +89,25 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
 
-        var outboxItem = new DiplomaticMailOutbox
+        var outboxItem = new MessageOutbox
         {
-            Status = DiplomaticMailOutboxStatus.Pending,
+            Status = MessageOutboxStatus.Pending,
             Attempts = 0,
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
-            DiplomaticMailCandidate = candidate,
+            MessageCandidate = candidate,
         };
-        dbContext.DiplomaticMailOutbox.Add(outboxItem);
+        dbContext.MessageOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailOutboxRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailOutboxRepository>(),
+        var repository = new MessageOutboxRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageOutboxRepository>(),
             dbContextFactory,
             _timeProvider);
 
-        var processedMails = new List<(RegisteredChatSm source, RegisteredChatSm target, DiplomaticMailCandidateSm candidate)>();
+        var processedMails = new List<(RegisteredChatSm source, RegisteredChatSm target, MessageCandidateSm candidate)>();
 
         // Act
         await repository.SendPendingMailsAsync(
@@ -128,11 +128,11 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
         Assert.That(processed.candidate.Preview, Is.EqualTo(candidate.Preview));
 
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var updatedOutboxItem = await verifyContext.DiplomaticMailOutbox
+        var updatedOutboxItem = await verifyContext.MessageOutbox
             .FirstOrDefaultAsync(x => x.Id == outboxItem.Id, cancellationToken);
 
         Assert.That(updatedOutboxItem, Is.Not.Null);
-        Assert.That(updatedOutboxItem!.Status, Is.EqualTo(DiplomaticMailOutboxStatus.Sent));
+        Assert.That(updatedOutboxItem!.Status, Is.EqualTo(MessageOutboxStatus.Sent));
         Assert.That(updatedOutboxItem.Attempts, Is.EqualTo(1));
         Assert.That(updatedOutboxItem.SentAt, Is.Not.Null);
     }
@@ -175,13 +175,13 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
         {
             Status = SlotInstanceStatus.Collecting,
             Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
-            FromChat = sourceChat,
-            ToChat = targetChat,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
             Template = slotInstanceTemplate,
         };
         dbContext.SlotInstances.Add(slotInstance);
 
-        var candidate = new DiplomaticMailCandidate
+        var candidate = new MessageCandidate
         {
             MessageId = 789,
             Preview = "Test message",
@@ -191,21 +191,21 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
-        dbContext.DiplomaticMailCandidates.Add(candidate);
+        dbContext.MessageCandidates.Add(candidate);
 
-        var outboxItem = new DiplomaticMailOutbox
+        var outboxItem = new MessageOutbox
         {
-            Status = DiplomaticMailOutboxStatus.Pending,
+            Status = MessageOutboxStatus.Pending,
             Attempts = 0,
             CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
-            DiplomaticMailCandidate = candidate,
+            MessageCandidate = candidate,
         };
-        dbContext.DiplomaticMailOutbox.Add(outboxItem);
+        dbContext.MessageOutbox.Add(outboxItem);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var repository = new DiplomaticMailOutboxRepository(
-            NullLoggerFactory.Instance.CreateLogger<DiplomaticMailOutboxRepository>(),
+        var repository = new MessageOutboxRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageOutboxRepository>(),
             dbContextFactory,
             _timeProvider);
 
@@ -216,11 +216,11 @@ public class DiplomaticMailOutboxRepositoryTests : IntegrationTestBase
 
         // Assert
         await using var verifyContext = dbContextFactory.CreateDbContext();
-        var updatedOutboxItem = await verifyContext.DiplomaticMailOutbox
+        var updatedOutboxItem = await verifyContext.MessageOutbox
             .FirstOrDefaultAsync(x => x.Id == outboxItem.Id, cancellationToken);
 
         Assert.That(updatedOutboxItem, Is.Not.Null);
-        Assert.That(updatedOutboxItem!.Status, Is.EqualTo(DiplomaticMailOutboxStatus.Pending));
+        Assert.That(updatedOutboxItem!.Status, Is.EqualTo(MessageOutboxStatus.Pending));
         Assert.That(updatedOutboxItem.Attempts, Is.EqualTo(1));
         Assert.That(updatedOutboxItem.SentAt, Is.Null);
     }

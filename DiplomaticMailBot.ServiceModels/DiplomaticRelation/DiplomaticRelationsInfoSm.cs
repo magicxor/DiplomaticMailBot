@@ -1,6 +1,6 @@
 ﻿namespace DiplomaticMailBot.ServiceModels.DiplomaticRelation;
 
-public sealed class RelationsInfoSm
+public sealed class DiplomaticRelationsInfoSm
 {
     public required bool IsOutgoingRelationPresent { get; set; }
     public required bool IsIncomingRelationPresent { get; set; }

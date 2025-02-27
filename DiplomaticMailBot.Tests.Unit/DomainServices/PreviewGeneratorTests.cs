@@ -33,7 +33,7 @@ public sealed class PreviewGeneratorTests
         // Arrange
         var message = new Message
         {
-            Photo = new[] { new PhotoSize() },
+            Photo = [new PhotoSize()],
             Caption = "Beautiful sunset",
         };
 
@@ -50,7 +50,7 @@ public sealed class PreviewGeneratorTests
         // Arrange
         var message = new Message
         {
-            Photo = new[] { new PhotoSize() },
+            Photo = [new PhotoSize()],
         };
 
         // Act

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("RegisteredChats")]
 [Index(nameof(ChatId), Name = $"{nameof(RegisteredChat)}_{nameof(ChatId)}_Unique_IX", IsUnique = true)]
 [Index(nameof(ChatAlias), Name = $"{nameof(RegisteredChat)}_{nameof(ChatAlias)}_Unique_IX", IsUnique = true)]
 [Index(nameof(IsDeleted))]
@@ -37,9 +38,9 @@ public class RegisteredChat
     [InverseProperty(nameof(DiplomaticRelation.TargetChat))]
     public virtual ICollection<DiplomaticRelation> IncomingDiplomaticRelations { get; set; } = new List<DiplomaticRelation>();
 
-    [InverseProperty(nameof(SlotInstance.FromChat))]
+    [InverseProperty(nameof(SlotInstance.SourceChat))]
     public virtual ICollection<SlotInstance> SlotInstancesSource { get; set; } = new List<SlotInstance>();
 
-    [InverseProperty(nameof(SlotInstance.ToChat))]
+    [InverseProperty(nameof(SlotInstance.TargetChat))]
     public virtual ICollection<SlotInstance> SlotInstancesTarget { get; set; } = new List<SlotInstance>();
 }

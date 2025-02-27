@@ -73,9 +73,9 @@ public static class Program
                          /* Repositories */
                          .AddScoped<RegisteredChatRepository>()
                          .AddScoped<DiplomaticRelationRepository>()
-                         .AddScoped<DiplomaticMailOutboxRepository>()
-                         .AddScoped<DiplomaticMailPollRepository>()
-                         .AddScoped<DiplomaticMailCandidatesRepository>()
+                         .AddScoped<MessageOutboxRepository>()
+                         .AddScoped<PollRepository>()
+                         .AddScoped<MessageCandidateRepository>()
                          .AddScoped<SlotTemplateRepository>()
                          .AddScoped<SeedRepository>()
                          /* Domain */

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("DiplomaticRelations")]
 [Index(nameof(SourceChatId), nameof(TargetChatId), Name = $"{nameof(DiplomaticRelation)}_Unique_IX", IsUnique = true)]
 public class DiplomaticRelation
 {

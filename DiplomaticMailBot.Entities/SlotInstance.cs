@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
 
+[Table("SlotInstances")]
 [Index(nameof(Status))]
-[Index(nameof(Date), nameof(TemplateId), nameof(FromChatId), nameof(ToChatId), Name = $"{nameof(SlotInstance)}_Unique_IX", IsUnique = true)]
+[Index(nameof(Date), nameof(TemplateId), nameof(SourceChatId), nameof(TargetChatId), Name = $"{nameof(SlotInstance)}_Unique_IX", IsUnique = true)]
 public class SlotInstance
 {
     [Key]
@@ -24,12 +25,14 @@ public class SlotInstance
     public int TemplateId { get; set; }
 
     [Required]
-    [ForeignKey(nameof(SlotInstance.FromChat))]
-    public int FromChatId { get; set; }
+    [ForeignKey(nameof(SlotInstance.SourceChat))]
+    [Column("SourceChatId")]
+    public int SourceChatId { get; set; }
 
     [Required]
-    [ForeignKey(nameof(SlotInstance.ToChat))]
-    public int ToChatId { get; set; }
+    [ForeignKey(nameof(SlotInstance.TargetChat))]
+    [Column("TargetChatId")]
+    public int TargetChatId { get; set; }
 
     // FK models
     [Required]
@@ -43,25 +46,25 @@ public class SlotInstance
     private SlotTemplate? _template;
 
     [Required]
-    public virtual RegisteredChat FromChat
+    public virtual RegisteredChat SourceChat
     {
-        get => _fromChat
-               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(FromChat));
-        set => _fromChat = value;
+        get => _sourceChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(SourceChat));
+        set => _sourceChat = value;
     }
 
-    private RegisteredChat? _fromChat;
+    private RegisteredChat? _sourceChat;
 
     [Required]
-    public virtual RegisteredChat ToChat
+    public virtual RegisteredChat TargetChat
     {
-        get => _toChat
-               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(ToChat));
-        set => _toChat = value;
+        get => _targetChat
+               ?? throw new InvalidOperationException("Uninitialized property: " + nameof(TargetChat));
+        set => _targetChat = value;
     }
 
-    private RegisteredChat? _toChat;
+    private RegisteredChat? _targetChat;
 
     // Relations
-    public virtual ICollection<DiplomaticMailCandidate> DiplomaticMailCandidates { get; set; } = new List<DiplomaticMailCandidate>();
+    public virtual ICollection<MessageCandidate> MessageCandidates { get; set; } = new List<MessageCandidate>();
 }
