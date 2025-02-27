@@ -45,12 +45,26 @@ public sealed class ScheduledProcessingService
     public async Task OpenPendingPollsAsync(CancellationToken stoppingToken = default)
     {
         await _pollRepository.OpenPendingPollsAsync(
-            async (sourceChat, targetChat, timeLeft, mailCandidate, cancellationToken) => await _telegramBotClient.SendMessage(
-                sourceChat.ChatId,
-                $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
-                ParseMode.Html,
-                cancellationToken: cancellationToken),
-            async (sourceChat, targetChat, options, cancellationToken) =>
+            sendMessageCallback: async (sourceChat, targetChat, timeLeft, mailCandidate, cancellationToken) =>
+            {
+                _logger.LogInformation("Sending message instead of poll in chat {ChatId}", sourceChat.ChatId);
+
+                var message = await _telegramBotClient.SendMessage(
+                    sourceChat.ChatId,
+                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
+                    ParseMode.Html,
+                    cancellationToken: cancellationToken);
+
+                try
+                {
+                    await _telegramBotClient.PinChatMessage(message.Chat.Id, message.MessageId, cancellationToken: cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error pinning message");
+                }
+            },
+            sendPollCallback: async (sourceChat, targetChat, options, cancellationToken) =>
             {
                 var inputPollOptions = options
                     .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, 20, 100)))
@@ -64,6 +78,15 @@ public sealed class ScheduledProcessingService
                     pollQuestion,
                     inputPollOptions,
                     cancellationToken: cancellationToken);
+
+                try
+                {
+                    await _telegramBotClient.PinChatMessage(poll.Chat.Id, poll.MessageId, cancellationToken: cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error pinning poll message");
+                }
 
                 var detailedPollOptions = options
                     .Select(candidate =>
@@ -90,7 +113,7 @@ public sealed class ScheduledProcessingService
 
                 return poll.MessageId;
             },
-            stoppingToken);
+            cancellationToken: stoppingToken);
     }
 
     public async Task CloseExpiredPollsAsync(CancellationToken stoppingToken = default)
