@@ -14,6 +14,7 @@
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="Moq" />
+        <PackageReference Include="NetArchTest.Rules" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit.Analyzers" />
         <PackageReference Include="NUnit3TestAdapter" />
@@ -24,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\DiplomaticMailBot.Cli\DiplomaticMailBot.Cli.csproj" />
       <ProjectReference Include="..\DiplomaticMailBot.Common\DiplomaticMailBot.Common.csproj" />
       <ProjectReference Include="..\DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj" />
       <ProjectReference Include="..\DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj" />
