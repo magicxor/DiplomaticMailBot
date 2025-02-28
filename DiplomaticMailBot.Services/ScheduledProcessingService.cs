@@ -57,7 +57,7 @@ public sealed class ScheduledProcessingService
 
                 try
                 {
-                    await _telegramBotClient.PinChatMessage(message.Chat.Id, message.MessageId, cancellationToken: cancellationToken);
+                    await _telegramBotClient.PinChatMessage(message.Chat.Id, message.MessageId, disableNotification: true, cancellationToken: cancellationToken);
                 }
                 catch (Exception e)
                 {
@@ -81,7 +81,7 @@ public sealed class ScheduledProcessingService
 
                 try
                 {
-                    await _telegramBotClient.PinChatMessage(poll.Chat.Id, poll.MessageId, cancellationToken: cancellationToken);
+                    await _telegramBotClient.PinChatMessage(poll.Chat.Id, poll.MessageId, disableNotification: true, cancellationToken: cancellationToken);
                 }
                 catch (Exception e)
                 {
