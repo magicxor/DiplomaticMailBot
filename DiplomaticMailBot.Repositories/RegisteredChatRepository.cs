@@ -122,12 +122,18 @@ public sealed class RegisteredChatRepository
                 registeredChatCreateOrUpdateRequestSm.ChatAlias,
                 registeredChatCreateOrUpdateRequestSm.ChatTitle);
 
+            var defaultSlotTemplateId = await applicationDbContext.SlotTemplates
+                .OrderBy(x => x.Id)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
             registeredChat = new RegisteredChat
             {
                 ChatId = registeredChatCreateOrUpdateRequestSm.ChatId,
                 ChatTitle = registeredChatCreateOrUpdateRequestSm.ChatTitle,
                 ChatAlias = registeredChatCreateOrUpdateRequestSm.ChatAlias,
                 CreatedAt = utcNow,
+                SlotTemplateId = defaultSlotTemplateId,
             };
 
             applicationDbContext.RegisteredChats.Add(registeredChat);
