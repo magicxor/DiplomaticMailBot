@@ -7,7 +7,6 @@ using DiplomaticMailBot.Tests.Integration.Services;
 using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 

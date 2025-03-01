@@ -2,7 +2,6 @@
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
-using DiplomaticMailBot.Common.Utils;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;

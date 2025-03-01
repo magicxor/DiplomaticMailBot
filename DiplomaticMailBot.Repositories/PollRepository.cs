@@ -1,4 +1,3 @@
-using System.Globalization;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Utils;
 using DiplomaticMailBot.Data.DbContexts;
