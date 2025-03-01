@@ -66,7 +66,7 @@ public sealed class ScheduledProcessingService
 
                 var message = await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
+                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
 
@@ -172,7 +172,7 @@ public sealed class ScheduledProcessingService
 
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} отправлено!",
+                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} отправлено!",
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
