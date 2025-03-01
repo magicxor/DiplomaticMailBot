@@ -144,6 +144,15 @@ public sealed class ScheduledProcessingService
                         .ThenBy(x => x.Text)
                         .FirstOrDefault();
 
+                    try
+                    {
+                        await _telegramBotClient.UnpinChatMessage(chatId, messageId, cancellationToken: cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Error unpining poll message");
+                    }
+
                     return _pollOptionParser.GetMessageId(chosenOption?.Text ?? string.Empty);
                 }
                 catch (Exception e)
