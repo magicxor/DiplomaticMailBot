@@ -91,6 +91,15 @@ public class RegisteredChatRepositoryTests
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        await dbContext.SlotTemplates.AddAsync(new SlotTemplate
+        {
+            VoteStartAt = new TimeOnly(14, 00),
+            VoteEndAt = new TimeOnly(16, 00),
+            Number = 1,
+        }, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,

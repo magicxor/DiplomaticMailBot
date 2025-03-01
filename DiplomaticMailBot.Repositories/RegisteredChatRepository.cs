@@ -126,8 +126,8 @@ public sealed class RegisteredChatRepository
                 registeredChatCreateOrUpdateRequestSm.ChatTitle);
 
             var defaultSlotTemplateId = await applicationDbContext.SlotTemplates
-                .OrderBy(x => x.Id)
-                .Select(x => x.Id)
+                .OrderBy(slotTemplate => slotTemplate.Id)
+                .Select(slotTemplate => slotTemplate.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             registeredChat = new RegisteredChat
