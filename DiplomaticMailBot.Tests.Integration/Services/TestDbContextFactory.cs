@@ -1,6 +1,9 @@
 ﻿using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Data.Utils;
+using DiplomaticMailBot.Tests.Integration.Utils;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Tests.Integration.Services;
 
@@ -17,7 +20,13 @@ public class TestDbContextFactory : IDbContextFactory<ApplicationDbContext>
     public ApplicationDbContext CreateDbContext()
     {
         var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(_connectionString, sqlOptions => sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+            .UseNpgsql(_connectionString, ContextConfiguration.NpgsqlOptionsAction)
+            .LogTo((eventId, logLevel) => eventId.Id == 20101 || logLevel >= LogLevel.Information,
+                eventData =>
+                {
+                    TestLogUtils.WriteProgressMessage(eventData.ToString());
+                    TestLogUtils.WriteConsoleMessage(eventData.ToString());
+                })
             .Options;
         return new ApplicationDbContext(dbContextOptions);
     }

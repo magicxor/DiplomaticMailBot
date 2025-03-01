@@ -1,8 +1,11 @@
-﻿using DiplomaticMailBot.Common.Enums;
+using DiplomaticMailBot.Common.Enums;
+using DiplomaticMailBot.Common.Utils;
 using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Data.EfFunctions;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -24,12 +27,126 @@ public sealed class PollRepository
         _timeProvider = timeProvider;
     }
 
+    private sealed class MutualRelations
+    {
+        public required DiplomaticRelation Outgoing { get; set; }
+        public required DiplomaticRelation Incoming { get; set; }
+    }
+
+    public async Task SendVoteApproachingRemindersAsync(
+        SendVoteApproachingReminderCallback sendReminderCallback,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(sendReminderCallback);
+
+        _logger.LogDebug("Finding potential slots that haven't been utilized yet");
+
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var today = DateOnly.FromDateTime(utcNow);
+        var tomorrow = today.AddDays(1);
+        var maxTimeBeforeNotice = TimeSpan.FromHours(4);
+
+        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        /* find those diplomatic relations that are mutual */
+        var joined = applicationDbContext.DiplomaticRelations
+            .AsExpandableEFCore()
+            .Join(applicationDbContext.DiplomaticRelations,
+                outgoing => new { SourceChatId = outgoing.SourceChatId, TargetChatId = outgoing.TargetChatId },
+                incoming => new { SourceChatId = incoming.TargetChatId, TargetChatId = incoming.SourceChatId },
+                (outgoing, incoming) => new MutualRelations { Outgoing = outgoing, Incoming = incoming });
+
+        var relations = await joined
+            .Select(relation => relation.Outgoing)
+            .Union(joined.Select(relation => relation.Incoming))
+            .Include(relation => relation.SourceChat)
+            .ThenInclude(sourceChat => sourceChat.SlotTemplate)
+            .Include(relation => relation.TargetChat)
+            .Where(relation => relation.SourceChat.SlotTemplate != null
+                               /* vote start time is near for this chat */
+                               && ((DateTimeExpr.FromParts.Invoke(today, relation.SourceChat.SlotTemplate.VoteStartAt) > utcNow
+                                    && DateTimeExpr.FromParts.Invoke(today, relation.SourceChat.SlotTemplate.VoteStartAt) - utcNow < maxTimeBeforeNotice)
+                                   || (DateTimeExpr.FromParts.Invoke(tomorrow, relation.SourceChat.SlotTemplate.VoteStartAt) > utcNow
+                                       && DateTimeExpr.FromParts.Invoke(tomorrow, relation.SourceChat.SlotTemplate.VoteStartAt) - utcNow < maxTimeBeforeNotice)))
+            .Where(relation =>
+                /* there are no upcoming SlotInstances for this source->target relation */
+                !applicationDbContext.SlotInstances.Any(slot =>
+                    slot.SourceChatId == relation.SourceChatId
+                    && slot.TargetChatId == relation.TargetChatId
+                    && ((slot.Date == today
+                         && DateTimeExpr.FromParts.Invoke(today, slot.Template.VoteStartAt) > utcNow)
+                        || (slot.Date == tomorrow
+                            && DateTimeExpr.FromParts.Invoke(tomorrow, slot.Template.VoteStartAt) > utcNow))
+                    )
+                )
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        _logger.LogDebug("Found {Amount} potential slots", relations.Count);
+        var i = 1;
+
+        foreach (var relation in relations)
+        {
+            _logger.LogInformation("Sending reminder for relation {SourceChatId} -> {TargetChatId} (processing {RelationNumber} of {RelationsCount} relations)", relation.SourceChatId, relation.TargetChatId, i, relations.Count);
+
+            var slotTemplate = relation.SourceChat.SlotTemplate;
+            if (slotTemplate == null)
+            {
+                continue;
+            }
+
+            try
+            {
+                /* creating a slot instance, so that the reminder is not sent again */
+                var voteStartAt = slotTemplate.VoteStartAt;
+                var nextSlotDate = SlotDateUtils.GetNearestVoteStartDate(utcNow, voteStartAt);
+                var newSlotInstance = new SlotInstance
+                {
+                    Status = SlotInstanceStatus.Collecting,
+                    Date = nextSlotDate,
+                    Template = slotTemplate,
+                    SourceChat = relation.SourceChat,
+                    TargetChat = relation.TargetChat,
+                };
+                applicationDbContext.SlotInstances.Add(newSlotInstance);
+                await applicationDbContext.SaveChangesAsync(cancellationToken);
+
+                var timeLeft = new DateTime(nextSlotDate, voteStartAt, DateTimeKind.Utc) - utcNow;
+
+                await sendReminderCallback(
+                    new RegisteredChatSm
+                    {
+                        Id = relation.SourceChat.Id,
+                        ChatId = relation.SourceChat.ChatId,
+                        ChatTitle = relation.SourceChat.ChatTitle,
+                        ChatAlias = relation.SourceChat.ChatAlias,
+                        CreatedAt = relation.SourceChat.CreatedAt,
+                    },
+                    new RegisteredChatSm
+                    {
+                        Id = relation.TargetChat.Id,
+                        ChatId = relation.TargetChat.ChatId,
+                        ChatTitle = relation.TargetChat.ChatTitle,
+                        ChatAlias = relation.TargetChat.ChatAlias,
+                        CreatedAt = relation.TargetChat.CreatedAt,
+                    },
+                    timeLeft,
+                    cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error creating new slot instance for relation {SourceChatId} -> {TargetChatId}", relation.SourceChatId, relation.TargetChatId);
+            }
+
+            i++;
+        }
+    }
+
     private async Task OpenPendingPollAsync(
         ApplicationDbContext applicationDbContext,
         SlotInstance slotInstance,
         DateTime utcNow,
-        DateOnly dateNow,
-        SendMessageCallback sendMessageCallback,
+        DateOnly today,
+        SendChosenCandidateInfoMessageCallback sendMessageCallback,
         SendPollCallback sendPollCallback,
         CancellationToken cancellationToken = default)
     {
@@ -66,8 +183,8 @@ public sealed class PollRepository
             {
                 _logger.LogInformation("One candidate for slot instance {SlotInstanceId}; choosing it", slotInstance.Id);
 
-                var voteStartsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteStartAt, DateTimeKind.Utc);
-                var voteEndsAtDateTime = new DateTime(dateNow, slotInstance.Template.VoteEndAt, DateTimeKind.Utc);
+                var voteStartsAtDateTime = new DateTime(today, slotInstance.Template.VoteStartAt, DateTimeKind.Utc);
+                var voteEndsAtDateTime = new DateTime(today, slotInstance.Template.VoteEndAt, DateTimeKind.Utc);
                 if (voteEndsAtDateTime <= voteStartsAtDateTime)
                 {
                     voteEndsAtDateTime = voteEndsAtDateTime.AddDays(1);
@@ -160,11 +277,11 @@ public sealed class PollRepository
 
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Poll for slot instance {SlotInstanceId} opened", slotInstance.Id);
+        _logger.LogInformation("Done processing poll for slot instance {SlotInstanceId}", slotInstance.Id);
     }
 
     public async Task OpenPendingPollsAsync(
-        SendMessageCallback sendMessageCallback,
+        SendChosenCandidateInfoMessageCallback sendMessageCallback,
         SendPollCallback sendPollCallback,
         CancellationToken cancellationToken = default)
     {
@@ -174,7 +291,7 @@ public sealed class PollRepository
         _logger.LogDebug("Opening pending polls");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
-        var dateNow = DateOnly.FromDateTime(utcNow);
+        var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -185,7 +302,7 @@ public sealed class PollRepository
             .Include(slot => slot.TargetChat)
             .Where(slot =>
                 slot.Status == SlotInstanceStatus.Collecting
-                && slot.Date == dateNow
+                && slot.Date == today
                 && slot.Template.VoteStartAt <= timeNow
                 && slot.Template.VoteEndAt >= timeNow
                 && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id))
@@ -198,7 +315,7 @@ public sealed class PollRepository
 
             try
             {
-                await OpenPendingPollAsync(applicationDbContext, slotInstance, utcNow, dateNow, sendMessageCallback, sendPollCallback, cancellationToken);
+                await OpenPendingPollAsync(applicationDbContext, slotInstance, utcNow, today, sendMessageCallback, sendPollCallback, cancellationToken);
             }
             catch (Exception e)
             {
@@ -208,7 +325,7 @@ public sealed class PollRepository
             i++;
         }
 
-        _logger.LogDebug("{Amount} pending polls opened", i - 1);
+        _logger.LogDebug("{Amount} pending polls processed", i - 1);
     }
 
     private async Task CloseExpiredPollAsync(
@@ -317,7 +434,7 @@ public sealed class PollRepository
 
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Poll {PollId} closed", pollToClose.Id);
+        _logger.LogInformation("Poll {PollId} processed", pollToClose.Id);
     }
 
     public async Task CloseExpiredPollsAsync(
@@ -329,7 +446,7 @@ public sealed class PollRepository
         _logger.LogDebug("Closing expired polls");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
-        var dateNow = DateOnly.FromDateTime(utcNow);
+        var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -339,8 +456,8 @@ public sealed class PollRepository
             .ThenInclude(slot => slot.SourceChat)
             .Where(x =>
                 x.Status == PollStatus.Opened
-                && ((x.SlotInstance.Date == dateNow && x.SlotInstance.Template.VoteEndAt < timeNow)
-                    || x.SlotInstance.Date < dateNow))
+                && ((x.SlotInstance.Date == today && x.SlotInstance.Template.VoteEndAt < timeNow)
+                    || x.SlotInstance.Date < today))
             .ToListAsync(cancellationToken);
         var i = 1;
 
@@ -360,6 +477,6 @@ public sealed class PollRepository
             i++;
         }
 
-        _logger.LogDebug("{Amount} expired polls closed", i - 1);
+        _logger.LogDebug("{Amount} expired polls processed", i - 1);
     }
 }

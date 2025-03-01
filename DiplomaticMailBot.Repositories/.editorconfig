@@ -1,0 +1,56 @@
+[*.cs]
+# CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings.
+# Reason: Entity Framework Core does not support some of the overloads of string.StartsWith(string) that take a StringComparison parameter.
+dotnet_diagnostic.CA1310.severity = none
+
+# RCS1155: Use StringComparison when comparing strings.
+# Reason: comparison without StringComparison is needed for Entity Framework sometimes
+dotnet_diagnostic.RCS1155.severity = none
+
+# CA1304: The behavior of 'string.ToLower()' could vary based on the current user's locale settings.
+# Reason: Entity Framework doesn't translate ToLowerInvariant() and locale to SQL
+dotnet_diagnostic.CA1304.severity = none
+
+# CA1305 : The behavior of 'int?.ToString()' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument.
+dotnet_diagnostic.CA1305.severity = none
+
+# CA1862: Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'
+dotnet_diagnostic.CA1862.severity = none
+
+# CA1860: Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
+# Reason: Entity Framework Core may not support Count
+dotnet_diagnostic.CA1860.severity = none
+
+# CA1847: Use 'string.Contains(char)' instead of 'string.Contains(string)' when searching for a single character
+# Reason: Entity Framework Core does not support some of the overloads of string.Contains
+dotnet_diagnostic.CA1847.severity = none
+
+# S6610: "StartsWith" overloads that take a "char" should be used
+# Reason: Entity Framework Core does not support some of the overloads of string.StartsWith
+dotnet_diagnostic.S6610.severity = none
+
+# CA1311: Specify a culture or use an invariant version to avoid implicit dependency on current culture
+# Reason: Entity Framework doesn't translate ToLowerInvariant() and locale to SQL
+dotnet_diagnostic.CA1311.severity = none
+
+# MA0011: Use an overload of 'ToString' that has a 'System.IFormatProvider' parameter
+dotnet_diagnostic.MA0011.severity = none
+
+# RCS1046: Asynchronous method name should end with 'Async'
+dotnet_diagnostic.RCS1046.severity = error
+
+# RCS1047: Non-asynchronous method name should not end with 'Async'
+dotnet_diagnostic.RCS1047.severity = error
+
+# RCS1229: Use async/await when necessary
+dotnet_diagnostic.RCS1229.severity = error
+
+# S1244: Do not check floating point equality with exact values, use a range instead
+dotnet_diagnostic.S1244.severity = suggestion
+
+# S1155: Use '.Any()' to test whether this 'IEnumerable<int>' is empty or not.
+dotnet_diagnostic.S1155.severity = suggestion
+
+# Simplify LINQ expression (use 'MinBy')
+# Reason: this is not supported by Entity Framework
+resharper_simplify_linq_expression_use_min_by_and_max_by_highlighting = none

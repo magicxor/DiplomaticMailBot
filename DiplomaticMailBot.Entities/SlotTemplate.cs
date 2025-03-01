@@ -20,4 +20,6 @@ public class SlotTemplate
 
     // Relations
     public virtual ICollection<SlotInstance> SlotInstances { get; set; } = new List<SlotInstance>();
+
+    public virtual ICollection<RegisteredChat> Chats { get; set; } = new List<RegisteredChat>();
 }

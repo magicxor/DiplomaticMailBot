@@ -27,7 +27,7 @@ public sealed class SeedRepository
         _logger.LogInformation("Migrations applied");
     }
 
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task SeedDefaultSlotTemplateAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Seeding default slot template");
 
@@ -52,5 +52,37 @@ public sealed class SeedRepository
             slotTemplate.VoteStartAt,
             slotTemplate.VoteEndAt,
             slotTemplate.Number);
+    }
+
+    public async Task SeedChatSlotTemplatesAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Seeding chat slot templates");
+
+        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        var defaultSlotTemplate = await applicationDbContext.SlotTemplates
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (defaultSlotTemplate == null)
+        {
+            _logger.LogWarning("Default slot template not found");
+            return;
+        }
+
+        var rowsUpdated = await applicationDbContext.RegisteredChats
+            .Where(x => x.SlotTemplateId == null)
+            .ExecuteUpdateAsync(calls =>
+                calls.SetProperty(
+                    chat => chat.SlotTemplateId,
+                    defaultSlotTemplate.Id),
+                cancellationToken);
+
+        _logger.LogInformation("Updated {RowsUpdated} chats that had no slot template", rowsUpdated);
+    }
+
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    {
+        await SeedDefaultSlotTemplateAsync(cancellationToken);
+        await SeedChatSlotTemplatesAsync(cancellationToken);
     }
 }

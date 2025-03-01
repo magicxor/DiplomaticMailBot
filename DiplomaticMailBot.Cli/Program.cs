@@ -3,6 +3,7 @@ using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Data.Utils;
 using DiplomaticMailBot.Domain;
 using DiplomaticMailBot.Repositories;
 using DiplomaticMailBot.Services;
@@ -64,9 +65,7 @@ public static class Program
                         {
                             var logger = serviceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
                             options
-                                .UseNpgsql(
-                                    hostContext.Configuration.GetConnectionString("DefaultConnection"),
-                                    sqlOptions => sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+                                .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection"), ContextConfiguration.NpgsqlOptionsAction)
                                 .LogTo(msg => LogMessage(logger, msg, null));
                         })
                         .AddScoped<TelegramInfoService>()
@@ -79,7 +78,6 @@ public static class Program
                         .AddScoped<SlotTemplateRepository>()
                         .AddScoped<SeedRepository>()
                         /* Domain */
-                        .AddScoped<SlotDateCalculator>()
                         .AddScoped<PreviewGenerator>()
                         .AddScoped<PollOptionParser>()
                         /* Services */

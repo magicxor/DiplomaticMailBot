@@ -85,6 +85,6 @@ public sealed class PreviewGenerator
     public string GetMessageLinkHtml(long chatId, int messageId, string caption)
     {
         var url = GetMessageLinkUrl(chatId, messageId);
-        return $"""<a href="{url}">{caption}</a>""";
+        return $"""<a href="{url}">{caption.EscapeSpecialTelegramHtmlCharacters()}</a>""";
     }
 }

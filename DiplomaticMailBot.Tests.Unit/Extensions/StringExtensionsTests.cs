@@ -6,6 +6,14 @@ namespace DiplomaticMailBot.Tests.Unit.Extensions;
 [Parallelizable(scope: ParallelScope.All)]
 public sealed class StringExtensionsTests
 {
+    [Test]
+    public void TryLeft_WhenNull_ShouldReturnNull()
+    {
+        string? source = null;
+        var result = source.TryLeft(1);
+        Assert.That(result, Is.Null);
+    }
+
     [TestCase("", 0, "")]
     [TestCase("", 1, "")]
     [TestCase("a", 0, "")]
@@ -29,6 +37,14 @@ public sealed class StringExtensionsTests
     public void TryLeft_WhenMaxLengthIsLessThanZero_ShouldThrowArgumentOutOfRangeException(string source, int maxLength)
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => source.TryLeft(maxLength));
+    }
+
+    [Test]
+    public void TryRight_WhenNull_ShouldReturnNull()
+    {
+        string? source = null;
+        var result = source.TryRight(1);
+        Assert.That(result, Is.Null);
     }
 
     [TestCase("", 0, "")]

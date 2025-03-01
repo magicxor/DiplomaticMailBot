@@ -1,4 +1,5 @@
 using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
@@ -7,6 +8,7 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
@@ -15,6 +17,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 public class SeedRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
+    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -28,9 +31,15 @@ public class SeedRepositoryTests
         await _contextManager.StopIfNotNullAsync();
     }
 
+    [SetUp]
+    public void SetUp()
+    {
+        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
+    }
+
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
-    public async Task SeedAsync_WhenNoTemplates_CreatesDefaultTemplate(CancellationToken cancellationToken)
+    public async Task SeedDefaultSlotTemplateAsync_WhenNoTemplates_CreatesDefaultTemplate(CancellationToken cancellationToken)
     {
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
@@ -41,7 +50,7 @@ public class SeedRepositoryTests
             dbContextFactory);
 
         // Act
-        await repository.SeedAsync(cancellationToken);
+        await repository.SeedDefaultSlotTemplateAsync(cancellationToken);
 
         // Assert
         await using var verifyContext = dbContextFactory.CreateDbContext();
@@ -56,7 +65,7 @@ public class SeedRepositoryTests
 
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
-    public async Task SeedAsync_WhenTemplatesExist_DoesNotCreateTemplate(CancellationToken cancellationToken)
+    public async Task SeedDefaultSlotTemplateAsync_WhenTemplatesExist_DoesNotCreateTemplate(CancellationToken cancellationToken)
     {
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
@@ -64,7 +73,7 @@ public class SeedRepositoryTests
 
         // Seed existing template
         await using var dbContext = dbContextFactory.CreateDbContext();
-        dbContext.SlotTemplates.Add(new DiplomaticMailBot.Entities.SlotTemplate
+        dbContext.SlotTemplates.Add(new SlotTemplate
         {
             VoteStartAt = new TimeOnly(10, 00),
             VoteEndAt = new TimeOnly(12, 00),
@@ -77,7 +86,7 @@ public class SeedRepositoryTests
             dbContextFactory);
 
         // Act
-        await repository.SeedAsync(cancellationToken);
+        await repository.SeedDefaultSlotTemplateAsync(cancellationToken);
 
         // Assert
         await using var verifyContext = dbContextFactory.CreateDbContext();
@@ -109,5 +118,164 @@ public class SeedRepositoryTests
         await using var verifyContext = dbContextFactory.CreateDbContext();
         var canConnect = await verifyContext.Database.CanConnectAsync(cancellationToken);
         Assert.That(canConnect, Is.True);
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SeedChatSlotTemplatesAsync_WhenNoDefaultTemplate_DoesNotUpdateChats(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        // Seed chat without template
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        dbContext.RegisteredChats.Add(new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Chat 1",
+            ChatAlias = "chat1",
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+        });
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new SeedRepository(
+            NullLoggerFactory.Instance.CreateLogger<SeedRepository>(),
+            dbContextFactory);
+
+        // Act
+        await repository.SeedChatSlotTemplatesAsync(cancellationToken);
+
+        // Assert
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var chat = await verifyContext.RegisteredChats.FirstAsync(cancellationToken);
+        Assert.That(chat.SlotTemplateId, Is.Null);
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SeedChatSlotTemplatesAsync_WhenDefaultTemplateExists_UpdatesChatsWithoutTemplate(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        // Seed default template and chats
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var template = new SlotTemplate
+        {
+            VoteStartAt = new TimeOnly(14, 00),
+            VoteEndAt = new TimeOnly(16, 00),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(template);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        await dbContext.RegisteredChats.AddRangeAsync(
+            new RegisteredChat
+            {
+                ChatId = 123,
+                ChatTitle = "Chat 1",
+                ChatAlias = "chat1",
+                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            },
+            new RegisteredChat
+            {
+                ChatId = 124,
+                ChatTitle = "Chat 2",
+                ChatAlias = "chat2",
+                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                SlotTemplateId = template.Id,
+            },
+            new RegisteredChat
+            {
+                ChatId = 125,
+                ChatTitle = "Chat 3",
+                ChatAlias = "chat3",
+                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            }
+        );
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new SeedRepository(
+            NullLoggerFactory.Instance.CreateLogger<SeedRepository>(),
+            dbContextFactory);
+
+        // Act
+        await repository.SeedChatSlotTemplatesAsync(cancellationToken);
+
+        // Assert
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var chats = await verifyContext.RegisteredChats
+            .OrderBy(x => x.ChatId)
+            .ToListAsync(cancellationToken);
+
+        Assert.That(chats, Has.Count.EqualTo(3));
+        Assert.Multiple(() =>
+        {
+            Assert.That(chats[0].SlotTemplateId, Is.EqualTo(template.Id), "First chat should be updated");
+            Assert.That(chats[1].SlotTemplateId, Is.EqualTo(template.Id), "Second chat should remain unchanged");
+            Assert.That(chats[2].SlotTemplateId, Is.EqualTo(template.Id), "Third chat should be updated");
+        });
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SeedChatSlotTemplatesAsync_WhenAllChatsHaveTemplate_UpdatesNothing(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        // Seed default template and chats
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var template = new SlotTemplate
+        {
+            VoteStartAt = new TimeOnly(14, 00),
+            VoteEndAt = new TimeOnly(16, 00),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(template);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        await dbContext.RegisteredChats.AddRangeAsync(
+            new RegisteredChat
+            {
+                ChatId = 123,
+                ChatTitle = "Chat 1",
+                ChatAlias = "chat1",
+                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                SlotTemplateId = template.Id,
+            },
+            new RegisteredChat
+            {
+                ChatId = 456,
+                ChatTitle = "Chat 2",
+                ChatAlias = "chat2",
+                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                SlotTemplateId = template.Id,
+            }
+        );
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new SeedRepository(
+            NullLoggerFactory.Instance.CreateLogger<SeedRepository>(),
+            dbContextFactory);
+
+        // Act
+        await repository.SeedChatSlotTemplatesAsync(cancellationToken);
+
+        // Assert
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var chats = await verifyContext.RegisteredChats
+            .OrderBy(x => x.ChatId)
+            .ToListAsync(cancellationToken);
+
+        Assert.That(chats, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(chats[0].SlotTemplateId, Is.EqualTo(template.Id), "First chat should remain unchanged");
+            Assert.That(chats[1].SlotTemplateId, Is.EqualTo(template.Id), "Second chat should remain unchanged");
+        });
     }
 }

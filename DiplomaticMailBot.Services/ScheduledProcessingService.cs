@@ -42,6 +42,21 @@ public sealed class ScheduledProcessingService
         _previewGenerator = previewGenerator;
     }
 
+    public async Task SendVoteApproachingRemindersAsync(CancellationToken stoppingToken = default)
+    {
+        await _pollRepository.SendVoteApproachingRemindersAsync(
+            sendReminderCallback: async (sourceChat, targetChat, timeLeft, cancellationToken) =>
+            {
+                _logger.LogInformation("Sending reminder about approaching vote start in chat {ChatId}", sourceChat.ChatId);
+                await _telegramBotClient.SendMessage(
+                    sourceChat.ChatId,
+                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(2048),
+                    ParseMode.Html,
+                    cancellationToken: cancellationToken);
+            },
+            cancellationToken: stoppingToken);
+    }
+
     public async Task OpenPendingPollsAsync(CancellationToken stoppingToken = default)
     {
         await _pollRepository.OpenPendingPollsAsync(
@@ -51,7 +66,7 @@ public sealed class ScheduledProcessingService
 
                 var message = await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
+                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
 
@@ -128,6 +143,7 @@ public sealed class ScheduledProcessingService
                         .OrderByDescending(x => x.VoterCount)
                         .ThenBy(x => x.Text)
                         .FirstOrDefault();
+
                     return _pollOptionParser.GetMessageId(chosenOption?.Text ?? string.Empty);
                 }
                 catch (Exception e)
@@ -156,7 +172,7 @@ public sealed class ScheduledProcessingService
 
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)} отправлено!",
+                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} отправлено!",
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
@@ -165,6 +181,15 @@ public sealed class ScheduledProcessingService
 
     public async Task ExecuteAsync(CancellationToken stoppingToken = default)
     {
+        try
+        {
+            await SendVoteApproachingRemindersAsync(stoppingToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error sending vote approaching reminders");
+        }
+
         try
         {
             await OpenPendingPollsAsync(stoppingToken);

@@ -33,7 +33,7 @@ public sealed class MessageOutboxRepository
         _logger.LogDebug("Sending pending mails");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
-        var dateNow = DateOnly.FromDateTime(utcNow);
+        var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -50,8 +50,8 @@ public sealed class MessageOutboxRepository
                 x.Status == MessageOutboxStatus.Pending
                 && x.SentAt == null
                 && x.Attempts < 3
-                && ((x.SlotInstance.Date == dateNow && x.SlotInstance.Template.VoteEndAt < timeNow)
-                    || x.SlotInstance.Date < dateNow))
+                && ((x.SlotInstance.Date == today && x.SlotInstance.Template.VoteEndAt < timeNow)
+                    || x.SlotInstance.Date < today))
             .ToListAsync(cancellationToken);
         var i = 1;
 

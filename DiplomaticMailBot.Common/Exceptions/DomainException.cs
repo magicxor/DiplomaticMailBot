@@ -25,7 +25,7 @@ public sealed class DomainException : ErrorException
     {
         if (error is ManyExceptions manyExceptions)
         {
-            return manyExceptions.Append(this);
+            return new ManyExceptions(new Seq<ErrorException>([this, ..manyExceptions.Errors]));
         }
         else
         {

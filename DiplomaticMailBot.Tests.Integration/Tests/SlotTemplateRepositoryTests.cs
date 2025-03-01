@@ -48,7 +48,7 @@ public class SlotTemplateRepositoryTests
 
         // Act
         var slotTemplateRepository = new SlotTemplateRepository(NullLoggerFactory.Instance.CreateLogger<SlotTemplateRepository>(), dbContextFactory);
-        var slotTemplate = await slotTemplateRepository.GetAsync(cancellationToken);
+        var slotTemplate = await slotTemplateRepository.GetDefaultTemplateAsync(cancellationToken);
 
         // Assert
         AssertThrow.IsNotNull(slotTemplate);

@@ -5,6 +5,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.ServiceModels.SlotTemplate;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,24 @@ public sealed class RegisteredChatRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<SlotTemplateSm?> GetChatSlotTemplateByTelegramChatIdAsync(long telegramChatId, CancellationToken cancellationToken = default)
+    {
+        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await applicationDbContext.RegisteredChats
+            .Include(chat => chat.SlotTemplate)
+            .Where(chat => chat.ChatId == telegramChatId && chat.SlotTemplate != null)
+            .Select(chat => chat.SlotTemplate!)
+            .Select(template => new SlotTemplateSm
+            {
+                Id = template.Id,
+                VoteStartAt = template.VoteStartAt,
+                VoteEndAt = template.VoteEndAt,
+                Number = template.Number,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<Either<RegisteredChatCreateOrUpdateResultSm, Error>> CreateOrUpdateAsync(RegisteredChatCreateOrUpdateRequestSm registeredChatCreateOrUpdateRequestSm, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(registeredChatCreateOrUpdateRequestSm);
@@ -57,7 +76,10 @@ public sealed class RegisteredChatRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var isAliasTaken = await applicationDbContext.RegisteredChats
-            .AnyAsync(x => x.ChatAlias == registeredChatCreateOrUpdateRequestSm.ChatAlias, cancellationToken);
+            .AnyAsync(x =>
+                x.ChatAlias == registeredChatCreateOrUpdateRequestSm.ChatAlias
+                && x.ChatId != registeredChatCreateOrUpdateRequestSm.ChatId,
+                cancellationToken);
 
         if (isAliasTaken)
         {
@@ -103,12 +125,18 @@ public sealed class RegisteredChatRepository
                 registeredChatCreateOrUpdateRequestSm.ChatAlias,
                 registeredChatCreateOrUpdateRequestSm.ChatTitle);
 
+            var defaultSlotTemplateId = await applicationDbContext.SlotTemplates
+                .OrderBy(slotTemplate => slotTemplate.Id)
+                .Select(slotTemplate => slotTemplate.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
             registeredChat = new RegisteredChat
             {
                 ChatId = registeredChatCreateOrUpdateRequestSm.ChatId,
                 ChatTitle = registeredChatCreateOrUpdateRequestSm.ChatTitle,
                 ChatAlias = registeredChatCreateOrUpdateRequestSm.ChatAlias,
                 CreatedAt = utcNow,
+                SlotTemplateId = defaultSlotTemplateId,
             };
 
             applicationDbContext.RegisteredChats.Add(registeredChat);
