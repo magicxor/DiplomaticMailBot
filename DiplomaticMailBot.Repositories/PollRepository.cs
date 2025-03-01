@@ -39,7 +39,7 @@ public sealed class PollRepository
     {
         ArgumentNullException.ThrowIfNull(sendReminderCallback);
 
-        _logger.LogDebug("Finding potential slots");
+        _logger.LogDebug("Finding potential slots that haven't been utilized yet");
 
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var today = DateOnly.FromDateTime(utcNow);
@@ -56,7 +56,7 @@ public sealed class PollRepository
                 incoming => new { SourceChatId = incoming.TargetChatId, TargetChatId = incoming.SourceChatId },
                 (outgoing, incoming) => new MutualRelations { Outgoing = outgoing, Incoming = incoming });
 
-        var mutualRelations = await joined
+        var relations = await joined
             .Select(relation => relation.Outgoing)
             .Union(joined.Select(relation => relation.Incoming))
             .Include(relation => relation.SourceChat)
@@ -81,8 +81,13 @@ public sealed class PollRepository
                 )
             .ToListAsync(cancellationToken: cancellationToken);
 
-        foreach (var relation in mutualRelations)
+        _logger.LogDebug("Found {Amount} potential slots", relations.Count);
+        var i = 1;
+
+        foreach (var relation in relations)
         {
+            _logger.LogInformation("Sending reminder for relation {SourceChatId} -> {TargetChatId} (processing {RelationNumber} of {RelationsCount} relations)", relation.SourceChatId, relation.TargetChatId, i, relations.Count);
+
             var slotTemplate = relation.SourceChat.SlotTemplate;
             if (slotTemplate == null)
             {
@@ -131,6 +136,8 @@ public sealed class PollRepository
             {
                 _logger.LogError(e, "Error creating new slot instance for relation {SourceChatId} -> {TargetChatId}", relation.SourceChatId, relation.TargetChatId);
             }
+
+            i++;
         }
     }
 
@@ -270,7 +277,7 @@ public sealed class PollRepository
 
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Poll for slot instance {SlotInstanceId} opened", slotInstance.Id);
+        _logger.LogInformation("Done processing poll for slot instance {SlotInstanceId}", slotInstance.Id);
     }
 
     public async Task OpenPendingPollsAsync(
@@ -318,7 +325,7 @@ public sealed class PollRepository
             i++;
         }
 
-        _logger.LogDebug("{Amount} pending polls opened", i - 1);
+        _logger.LogDebug("{Amount} pending polls processed", i - 1);
     }
 
     private async Task CloseExpiredPollAsync(
@@ -427,7 +434,7 @@ public sealed class PollRepository
 
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Poll {PollId} closed", pollToClose.Id);
+        _logger.LogInformation("Poll {PollId} processed", pollToClose.Id);
     }
 
     public async Task CloseExpiredPollsAsync(
@@ -470,6 +477,6 @@ public sealed class PollRepository
             i++;
         }
 
-        _logger.LogDebug("{Amount} expired polls closed", i - 1);
+        _logger.LogDebug("{Amount} expired polls processed", i - 1);
     }
 }
