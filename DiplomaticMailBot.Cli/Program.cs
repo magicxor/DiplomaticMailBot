@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using DiplomaticMailBot.Cli.Enums;
+using DiplomaticMailBot.Cli.Utils;
 using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
@@ -53,13 +55,20 @@ public static class Program
                         .Bind(hostContext.Configuration.GetSection("Bot"))
                         .ValidateDataAnnotations();
 
+                    services.AddHttpClient(nameof(HttpClientTypes.Telegram))
+                        .AddPolicyHandler(HttpPolicyProvider.TelegramCombinedPolicy)
+                        .AddDefaultLogger();
+
                     services
                         /* Infrastructure */
                         .AddScoped<TimeProvider>(_ => TimeProvider.System)
                         .AddScoped<ITelegramBotClient>(s =>
                         {
                             var botConfig = s.GetRequiredService<IOptions<BotConfiguration>>();
-                            return new TelegramBotClient(botConfig.Value.TelegramBotApiKey);
+                            return new TelegramBotClient(
+                                botConfig.Value.TelegramBotApiKey,
+                                s.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(HttpClientTypes.Telegram))
+                            );
                         })
                         .AddDbContextFactory<ApplicationDbContext>((serviceProvider, options) =>
                         {
