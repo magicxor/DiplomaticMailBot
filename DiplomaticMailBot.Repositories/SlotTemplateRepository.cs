@@ -18,7 +18,7 @@ public sealed class SlotTemplateRepository
         _applicationDbContextFactory = applicationDbContextFactory;
     }
 
-    public async Task<SlotTemplateSm?> GetAsync(CancellationToken cancellationToken = default)
+    public async Task<SlotTemplateSm?> GetDefaultTemplateAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Getting default slot template");
 

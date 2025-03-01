@@ -1,4 +1,5 @@
 ﻿using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Data.Utils;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ public class TestDbContextFactory : IDbContextFactory<ApplicationDbContext>
     public ApplicationDbContext CreateDbContext()
     {
         var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(_connectionString, sqlOptions => sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+            .UseNpgsql(_connectionString, ContextConfiguration.NpgsqlOptionsAction)
             .Options;
         return new ApplicationDbContext(dbContextOptions);
     }

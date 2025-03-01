@@ -7,6 +7,7 @@ using DiplomaticMailBot.Tests.Integration.Services;
 using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
@@ -48,7 +49,7 @@ public class SlotTemplateRepositoryTests
 
         // Act
         var slotTemplateRepository = new SlotTemplateRepository(NullLoggerFactory.Instance.CreateLogger<SlotTemplateRepository>(), dbContextFactory);
-        var slotTemplate = await slotTemplateRepository.GetAsync(cancellationToken);
+        var slotTemplate = await slotTemplateRepository.GetDefaultTemplateAsync(cancellationToken);
 
         // Assert
         AssertThrow.IsNotNull(slotTemplate);

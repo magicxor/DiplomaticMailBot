@@ -1,4 +1,5 @@
 using DiplomaticMailBot.Data.DbContexts;
+using DiplomaticMailBot.Data.Utils;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Services;
 using JetBrains.Annotations;
@@ -22,7 +23,7 @@ public static class TestDbUtils
     private static ApplicationDbContext CreateApplicationDbContext(string connectionString)
     {
         var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(connectionString, sqlOptions => sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
+            .UseNpgsql(connectionString, ContextConfiguration.NpgsqlOptionsAction)
             .Options;
         return new ApplicationDbContext(dbContextOptions);
     }

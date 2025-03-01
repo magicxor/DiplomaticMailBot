@@ -1,4 +1,5 @@
-﻿using DiplomaticMailBot.Data.Utils;
+﻿using DiplomaticMailBot.Data.Extensions;
+using DiplomaticMailBot.Data.Utils;
 using DiplomaticMailBot.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,8 @@ public sealed class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ContextConfigurationUtils.SetValueConverters(modelBuilder);
+        modelBuilder.AddEfFunctions();
+
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<RegisteredChat>()

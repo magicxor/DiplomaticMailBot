@@ -42,6 +42,20 @@ public sealed class ScheduledProcessingService
         _previewGenerator = previewGenerator;
     }
 
+    public async Task SendVoteApproachingRemindersAsync(CancellationToken stoppingToken = default)
+    {
+        await _pollRepository.SendVoteApproachingRemindersAsync(
+            sendReminderCallback: async (sourceChat, targetChat, timeLeft, cancellationToken) =>
+            {
+                _logger.LogInformation("Sending reminder about approaching vote start in chat {ChatId}", sourceChat.ChatId);
+                await _telegramBotClient.SendMessage(
+                    sourceChat.ChatId,
+                    $"Вы можете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}. Для этого ответьте на предлагаемое сообщение командой {BotCommands.PutMessage} {targetChat.ChatAlias}. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.",
+                    cancellationToken: cancellationToken);
+            },
+            cancellationToken: stoppingToken);
+    }
+
     public async Task OpenPendingPollsAsync(CancellationToken stoppingToken = default)
     {
         await _pollRepository.OpenPendingPollsAsync(
@@ -128,6 +142,7 @@ public sealed class ScheduledProcessingService
                         .OrderByDescending(x => x.VoterCount)
                         .ThenBy(x => x.Text)
                         .FirstOrDefault();
+
                     return _pollOptionParser.GetMessageId(chosenOption?.Text ?? string.Empty);
                 }
                 catch (Exception e)
@@ -165,6 +180,15 @@ public sealed class ScheduledProcessingService
 
     public async Task ExecuteAsync(CancellationToken stoppingToken = default)
     {
+        try
+        {
+            await SendVoteApproachingRemindersAsync(stoppingToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error sending vote approaching reminders");
+        }
+
         try
         {
             await OpenPendingPollsAsync(stoppingToken);

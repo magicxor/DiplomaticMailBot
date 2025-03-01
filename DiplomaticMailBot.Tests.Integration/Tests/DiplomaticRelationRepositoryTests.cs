@@ -10,27 +10,33 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticRelationRepositoryTests : IntegrationTestBase
+public class DiplomaticRelationRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private TimeProvider _timeProvider;
+    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
     {
         _contextManager = await TestDbUtils.CreateNewRandomDbContextManagerAsync();
-        _timeProvider = TimeProvider;
     }
 
     [OneTimeTearDown]
     public async Task OneTimeTearDownAsync()
     {
         await _contextManager.StopIfNotNullAsync();
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -48,14 +54,14 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -98,14 +104,14 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -113,7 +119,7 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
         {
             SourceChat = sourceChat,
             TargetChat = targetChat,
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.DiplomaticRelations.Add(existingRelation);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -147,14 +153,14 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -162,7 +168,7 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
         {
             SourceChat = sourceChat,
             TargetChat = targetChat,
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.DiplomaticRelations.Add(existingRelation);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -203,14 +209,14 @@ public class DiplomaticRelationRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
         await dbContext.SaveChangesAsync(cancellationToken);

@@ -31,6 +31,13 @@ public class RegisteredChat
     [Required]
     public bool IsDeleted { get; set; }
 
+    // FK id
+    [ForeignKey(nameof(RegisteredChat.SlotTemplate))]
+    public int? SlotTemplateId { get; set; }
+
+    // FK models
+    public virtual SlotTemplate? SlotTemplate { get; set; }
+
     // Relations
     [InverseProperty(nameof(DiplomaticRelation.SourceChat))]
     public virtual ICollection<DiplomaticRelation> OutgoingDiplomaticRelations { get; set; } = new List<DiplomaticRelation>();

@@ -12,27 +12,33 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class MessageOutboxRepositoryTests : IntegrationTestBase
+public class MessageOutboxRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private TimeProvider _timeProvider;
+    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
     {
         _contextManager = await TestDbUtils.CreateNewRandomDbContextManagerAsync();
-        _timeProvider = TimeProvider;
     }
 
     [OneTimeTearDown]
     public async Task OneTimeTearDownAsync()
     {
         await _contextManager.StopIfNotNullAsync();
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -50,14 +56,14 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -72,7 +78,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         var slotInstance = new SlotInstance
         {
             Status = SlotInstanceStatus.Collecting,
-            Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
+            Date = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
             Template = slotTemplate,
             SourceChat = sourceChat,
             TargetChat = targetChat,
@@ -86,7 +92,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             SubmitterId = 101,
             AuthorId = 102,
             AuthorName = "Test Author",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
         dbContext.MessageCandidates.Add(candidate);
@@ -95,7 +101,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };
@@ -152,14 +158,14 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -174,7 +180,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         var slotInstance = new SlotInstance
         {
             Status = SlotInstanceStatus.Collecting,
-            Date = DateOnly.FromDateTime(TimeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
+            Date = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
             SourceChat = sourceChat,
             TargetChat = targetChat,
             Template = slotInstanceTemplate,
@@ -188,7 +194,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
             SubmitterId = 101,
             AuthorId = 102,
             AuthorName = "Test Author",
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
         dbContext.MessageCandidates.Add(candidate);
@@ -197,7 +203,7 @@ public class MessageOutboxRepositoryTests : IntegrationTestBase
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
-            CreatedAt = TimeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };

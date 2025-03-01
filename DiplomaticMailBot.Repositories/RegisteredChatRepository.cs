@@ -2,9 +2,11 @@
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
+using DiplomaticMailBot.Common.Utils;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.ServiceModels.SlotTemplate;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +45,24 @@ public sealed class RegisteredChatRepository
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<SlotTemplateSm?> GetChatSlotTemplateByTelegramChatIdAsync(long telegramChatId, CancellationToken cancellationToken = default)
+    {
+        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await applicationDbContext.RegisteredChats
+            .Include(chat => chat.SlotTemplate)
+            .Where(chat => chat.ChatId == telegramChatId && chat.SlotTemplate != null)
+            .Select(chat => chat.SlotTemplate!)
+            .Select(template => new SlotTemplateSm
+            {
+                Id = template.Id,
+                VoteStartAt = template.VoteStartAt,
+                VoteEndAt = template.VoteEndAt,
+                Number = template.Number,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Either<RegisteredChatCreateOrUpdateResultSm, Error>> CreateOrUpdateAsync(RegisteredChatCreateOrUpdateRequestSm registeredChatCreateOrUpdateRequestSm, CancellationToken cancellationToken = default)

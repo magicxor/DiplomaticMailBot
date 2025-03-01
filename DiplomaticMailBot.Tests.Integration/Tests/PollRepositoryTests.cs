@@ -9,21 +9,21 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class PollRepositoryTests : IntegrationTestBase
+public class PollRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private TimeProvider _timeProvider;
+    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
     {
         _contextManager = await TestDbUtils.CreateNewRandomDbContextManagerAsync();
-        _timeProvider = TimeProvider;
     }
 
     [OneTimeTearDown]
@@ -32,12 +32,18 @@ public class PollRepositoryTests : IntegrationTestBase
         await _contextManager.StopIfNotNullAsync();
     }
 
+    [SetUp]
+    public void SetUp()
+    {
+        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
+    }
+
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
     public async Task OpenPendingPollsAsync_WithSingleCandidate_SendsMessageAndCreatesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -151,7 +157,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task OpenPendingPollsAsync_WithMultipleCandidates_SendsPollAndCreatesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -279,7 +285,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task OpenPendingPollsAsync_WithNoCandidates_RemovesSlotInstance(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -361,7 +367,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task CloseExpiredPollsAsync_WhenPollExpiredToday_ClosesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -494,7 +500,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task CloseExpiredPollsAsync_WhenPollFromPastDate_ClosesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -588,7 +594,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task CloseExpiredPollsAsync_WhenPollNotExpired_DoesNotClosePoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -690,7 +696,7 @@ public class PollRepositoryTests : IntegrationTestBase
     public async Task CloseExpiredPollsAsync_WhenRelationsRemoved_RemovesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = TimeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -767,5 +773,441 @@ public class PollRepositoryTests : IntegrationTestBase
             .FirstOrDefaultAsync(x => x.Id == poll.Id, cancellationToken);
 
         Assert.That(verifyPoll, Is.Null);
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsInNextFourHours_SendsReminder(CancellationToken cancellationToken)
+    {
+        // Arrange
+        _timeProvider.SetUtcNow(new DateTime(2025, 02, 27, 12, 03, 00, DateTimeKind.Utc));
+        var voteStartTime = new TimeOnly(16, 00);
+        var voteEndTime = new TimeOnly(18, 00);
+
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = voteStartTime,
+            VoteEndAt = voteEndTime,
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+        sourceChat.SlotTemplate = slotTemplate;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var reminderCallbackCalled = false;
+        RegisteredChat? reminderSourceChat = null;
+        RegisteredChat? reminderTargetChat = null;
+        var reminderTimeLeft = TimeSpan.Zero;
+
+        // Act
+        await repository.SendVoteApproachingRemindersAsync(
+            async (source, target, timeLeft, ct) =>
+            {
+                reminderCallbackCalled = true;
+                reminderSourceChat = await dbContext.RegisteredChats.FirstOrDefaultAsync(x => x.Id == source.Id, ct);
+                reminderTargetChat = await dbContext.RegisteredChats.FirstOrDefaultAsync(x => x.Id == target.Id, ct);
+                reminderTimeLeft = timeLeft;
+                await Task.CompletedTask;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(reminderCallbackCalled, Is.True);
+        Assert.That(reminderSourceChat, Is.Not.Null);
+        Assert.That(reminderTargetChat, Is.Not.Null);
+        Assert.That(reminderSourceChat!.ChatId, Is.EqualTo(sourceChat.ChatId));
+        Assert.That(reminderTargetChat!.ChatId, Is.EqualTo(targetChat.ChatId));
+        Assert.That(reminderTimeLeft, Is.EqualTo(voteStartTime - timeNow));
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var slotInstance = await verifyContext.SlotInstances
+            .FirstOrDefaultAsync(x => x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id, cancellationToken);
+
+        Assert.That(slotInstance, Is.Not.Null);
+        Assert.That(slotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
+        Assert.That(slotInstance.Date, Is.EqualTo(dateNow));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsTomorrowInNextFourHours_SendsReminder(CancellationToken cancellationToken)
+    {
+        // Arrange
+        _timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 23, 03, 00, DateTimeKind.Utc));
+        var voteStartTime = new TimeOnly(01, 00);
+        var voteEndTime = new TimeOnly(05, 00);
+
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+        var tomorrow = dateNow.AddDays(1);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = voteStartTime,
+            VoteEndAt = voteEndTime,
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+        sourceChat.SlotTemplate = slotTemplate;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var reminderCallbackCalled = false;
+        RegisteredChat? reminderSourceChat = null;
+        RegisteredChat? reminderTargetChat = null;
+        var reminderTimeLeft = TimeSpan.Zero;
+
+        // Act
+        await repository.SendVoteApproachingRemindersAsync(
+            async (source, target, timeLeft, ct) =>
+            {
+                reminderCallbackCalled = true;
+                reminderSourceChat = await dbContext.RegisteredChats.FirstOrDefaultAsync(x => x.Id == source.Id, ct);
+                reminderTargetChat = await dbContext.RegisteredChats.FirstOrDefaultAsync(x => x.Id == target.Id, ct);
+                reminderTimeLeft = timeLeft;
+                await Task.CompletedTask;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(reminderCallbackCalled, Is.True);
+        Assert.That(reminderSourceChat, Is.Not.Null);
+        Assert.That(reminderTargetChat, Is.Not.Null);
+        Assert.That(reminderSourceChat!.ChatId, Is.EqualTo(sourceChat.ChatId));
+        Assert.That(reminderTargetChat!.ChatId, Is.EqualTo(targetChat.ChatId));
+        Assert.That(reminderTimeLeft, Is.EqualTo(voteStartTime - timeNow));
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var slotInstance = await verifyContext.SlotInstances
+            .FirstOrDefaultAsync(x => x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id, cancellationToken);
+
+        Assert.That(slotInstance, Is.Not.Null);
+        Assert.That(slotInstance!.Status, Is.EqualTo(SlotInstanceStatus.Collecting));
+        Assert.That(slotInstance.Date, Is.EqualTo(tomorrow));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsAfterFourHours_DoesNotSendReminder(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(5), // Vote starts in 5 hours (outside 4-hour window)
+            VoteEndAt = timeNow.AddHours(7),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+        sourceChat.SlotTemplate = slotTemplate;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var reminderCallbackCalled = false;
+
+        // Act
+        await repository.SendVoteApproachingRemindersAsync(
+            async (source, target, timeLeft, ct) =>
+            {
+                reminderCallbackCalled = true;
+                await Task.CompletedTask;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(reminderCallbackCalled, Is.False);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var slotInstance = await verifyContext.SlotInstances
+            .FirstOrDefaultAsync(x => x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id, cancellationToken);
+
+        Assert.That(slotInstance, Is.Null);
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SendVoteApproachingRemindersAsync_WhenSlotInstanceAlreadyExists_DoesNotSendReminder(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        var dateNow = DateOnly.FromDateTime(utcNow);
+        var timeNow = TimeOnly.FromDateTime(utcNow);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = timeNow.AddHours(2), // Vote starts in 2 hours (within 4-hour window)
+            VoteEndAt = timeNow.AddHours(4),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+        sourceChat.SlotTemplate = slotTemplate;
+
+        // Add existing slot instance
+        var existingSlotInstance = new SlotInstance
+        {
+            Status = SlotInstanceStatus.Collecting,
+            Date = dateNow,
+            Template = slotTemplate,
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+        };
+        dbContext.SlotInstances.Add(existingSlotInstance);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var reminderCallbackCalled = false;
+
+        // Act
+        await repository.SendVoteApproachingRemindersAsync(
+            async (source, target, timeLeft, ct) =>
+            {
+                reminderCallbackCalled = true;
+                await Task.CompletedTask;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(reminderCallbackCalled, Is.False);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var slotInstances = await verifyContext.SlotInstances
+            .Where(x => x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id)
+            .ToListAsync(cancellationToken);
+
+        Assert.That(slotInstances, Has.Count.EqualTo(1));
+        Assert.That(slotInstances[0].Id, Is.EqualTo(existingSlotInstance.Id));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task SendVoteApproachingRemindersAsync_WhenNoSlotTemplate_DoesNotSendReminder(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = utcNow,
+            SlotTemplate = null, // No slot template
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = utcNow,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = utcNow,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = utcNow,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync(outgoingRelation, incomingRelation);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new PollRepository(
+            NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
+            dbContextFactory,
+            _timeProvider);
+
+        var reminderCallbackCalled = false;
+
+        // Act
+        await repository.SendVoteApproachingRemindersAsync(
+            async (source, target, timeLeft, ct) =>
+            {
+                reminderCallbackCalled = true;
+                await Task.CompletedTask;
+            },
+            cancellationToken);
+
+        // Assert
+        Assert.That(reminderCallbackCalled, Is.False);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var slotInstance = await verifyContext.SlotInstances
+            .FirstOrDefaultAsync(x => x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id, cancellationToken);
+
+        Assert.That(slotInstance, Is.Null);
     }
 }
