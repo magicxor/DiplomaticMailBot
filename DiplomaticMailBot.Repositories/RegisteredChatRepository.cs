@@ -76,7 +76,10 @@ public sealed class RegisteredChatRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var isAliasTaken = await applicationDbContext.RegisteredChats
-            .AnyAsync(x => x.ChatAlias == registeredChatCreateOrUpdateRequestSm.ChatAlias, cancellationToken);
+            .AnyAsync(x =>
+                x.ChatAlias == registeredChatCreateOrUpdateRequestSm.ChatAlias
+                && x.ChatId != registeredChatCreateOrUpdateRequestSm.ChatId,
+                cancellationToken);
 
         if (isAliasTaken)
         {
