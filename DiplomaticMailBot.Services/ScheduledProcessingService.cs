@@ -50,7 +50,8 @@ public sealed class ScheduledProcessingService
                 _logger.LogInformation("Sending reminder about approaching vote start in chat {ChatId}", sourceChat.ChatId);
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Вы можете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}. Для этого ответьте на предлагаемое сообщение командой {BotCommands.PutMessage} {targetChat.ChatAlias}. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.",
+                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(2048),
+                    ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
             cancellationToken: stoppingToken);
