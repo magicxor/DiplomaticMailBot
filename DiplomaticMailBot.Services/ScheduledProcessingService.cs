@@ -76,7 +76,7 @@ public sealed class ScheduledProcessingService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error pinning message");
+                    _logger.LogError(e, "Error pinning message {MessageId} in chat {ChatId}", message.MessageId, message.Chat.Id);
                 }
             },
             sendPollCallback: async (sourceChat, targetChat, options, cancellationToken) =>
@@ -100,7 +100,7 @@ public sealed class ScheduledProcessingService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error pinning poll message");
+                    _logger.LogError(e, "Error pinning poll message {MessageId} in chat {ChatId}", poll.MessageId, poll.Chat.Id);
                 }
 
                 var detailedPollOptions = options
@@ -173,11 +173,20 @@ public sealed class ScheduledProcessingService
                     $"Послание из чата {_previewGenerator.GetChatDisplayString(sourceChat.ChatAlias, sourceChat.ChatTitle)}:",
                     cancellationToken: cancellationToken);
 
-                await _telegramBotClient.CopyMessage(
+                var copiedMessageId = await _telegramBotClient.CopyMessage(
                     targetChat.ChatId,
                     sourceChat.ChatId,
                     mailCandidate.MessageId,
                     cancellationToken: cancellationToken);
+
+                try
+                {
+                    await _telegramBotClient.PinChatMessage(targetChat.ChatId, copiedMessageId, disableNotification: true, cancellationToken: cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error pinning message {MessageId} in chat {ChatId}", copiedMessageId.Id, targetChat.ChatId);
+                }
 
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
