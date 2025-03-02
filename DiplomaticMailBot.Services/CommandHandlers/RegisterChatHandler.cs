@@ -53,6 +53,7 @@ public sealed partial class RegisterChatHandler
                             _previewGenerator.GetChatDisplayString(chat.ChatAlias, chat.ChatTitle))
                         )))
             : "Нет зарегистрированных чатов";
+        registeredChatsString = registeredChatsString.TryLeft(Defaults.NormalMessageMaxChars);
 
         await _telegramBotClient.SendMessage(userCommand.Chat.Id, registeredChatsString, replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken);
     }

@@ -45,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiplomaticMailBot.Tests.Common", "DiplomaticMailBot.Tests.Common\DiplomaticMailBot.Tests.Common.csproj", "{854760CD-B366-4CF0-A362-0B2D06FAE010}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{2A06635F-533D-4E47-A48B-067D57545CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A06635F-533D-4E47-A48B-067D57545CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{854760CD-B366-4CF0-A362-0B2D06FAE010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{854760CD-B366-4CF0-A362-0B2D06FAE010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{854760CD-B366-4CF0-A362-0B2D06FAE010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{854760CD-B366-4CF0-A362-0B2D06FAE010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,5 +117,6 @@ Global
 		{7367CE87-AC40-41DF-820E-FEAF84AD6381} = {9AA1A326-965D-4987-A4D3-14E05E64D532}
 		{B1397B67-AF69-42F0-93CD-AB68BC42B9BC} = {6632809C-C146-47A4-A291-53280125EE35}
 		{2A06635F-533D-4E47-A48B-067D57545CCC} = {48E78D3C-877A-4421-839C-923B28EA61AD}
+		{854760CD-B366-4CF0-A362-0B2D06FAE010} = {9AA1A326-965D-4987-A4D3-14E05E64D532}
 	EndGlobalSection
 EndGlobal

@@ -4,7 +4,7 @@ using DiplomaticMailBot.Tests.Integration.Services;
 namespace DiplomaticMailBot.Tests.Integration;
 
 [SetUpFixture]
-public class GlobalSetUp
+public sealed class GlobalSetUp
 {
     private static DbContainerManager? GlobalDbContainerManager { get; set; }
 

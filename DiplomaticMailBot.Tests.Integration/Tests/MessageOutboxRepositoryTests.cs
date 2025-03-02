@@ -4,6 +4,7 @@ using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
 using DiplomaticMailBot.ServiceModels.MessageCandidate;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Exceptions;
 using DiplomaticMailBot.Tests.Integration.Extensions;
@@ -12,16 +13,14 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class MessageOutboxRepositoryTests
+public sealed class MessageOutboxRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -35,12 +34,6 @@ public class MessageOutboxRepositoryTests
         await _contextManager.StopIfNotNullAsync();
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
-    }
-
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
     public async Task SendPendingMailsAsync_WhenMailsExist_ProcessesAndUpdatesThem(CancellationToken cancellationToken)
@@ -48,6 +41,7 @@ public class MessageOutboxRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -56,14 +50,14 @@ public class MessageOutboxRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -78,7 +72,7 @@ public class MessageOutboxRepositoryTests
         var slotInstance = new SlotInstance
         {
             Status = SlotInstanceStatus.Collecting,
-            Date = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
+            Date = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)), // Past date to ensure it's ready to send
             Template = slotTemplate,
             SourceChat = sourceChat,
             TargetChat = targetChat,
@@ -92,7 +86,7 @@ public class MessageOutboxRepositoryTests
             SubmitterId = 101,
             AuthorId = 102,
             AuthorName = "Test Author",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
         dbContext.MessageCandidates.Add(candidate);
@@ -101,7 +95,7 @@ public class MessageOutboxRepositoryTests
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };
@@ -111,7 +105,7 @@ public class MessageOutboxRepositoryTests
         var repository = new MessageOutboxRepository(
             NullLoggerFactory.Instance.CreateLogger<MessageOutboxRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var processedMails = new List<(RegisteredChatSm source, RegisteredChatSm target, MessageCandidateSm candidate)>();
 
@@ -150,6 +144,7 @@ public class MessageOutboxRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -158,14 +153,14 @@ public class MessageOutboxRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -180,7 +175,7 @@ public class MessageOutboxRepositoryTests
         var slotInstance = new SlotInstance
         {
             Status = SlotInstanceStatus.Collecting,
-            Date = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
+            Date = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime.AddDays(-1)),
             SourceChat = sourceChat,
             TargetChat = targetChat,
             Template = slotInstanceTemplate,
@@ -194,7 +189,7 @@ public class MessageOutboxRepositoryTests
             SubmitterId = 101,
             AuthorId = 102,
             AuthorName = "Test Author",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
         };
         dbContext.MessageCandidates.Add(candidate);
@@ -203,7 +198,7 @@ public class MessageOutboxRepositoryTests
         {
             Status = MessageOutboxStatus.Pending,
             Attempts = 0,
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             SlotInstance = slotInstance,
             MessageCandidate = candidate,
         };
@@ -213,7 +208,7 @@ public class MessageOutboxRepositoryTests
         var repository = new MessageOutboxRepository(
             NullLoggerFactory.Instance.CreateLogger<MessageOutboxRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         await repository.SendPendingMailsAsync(

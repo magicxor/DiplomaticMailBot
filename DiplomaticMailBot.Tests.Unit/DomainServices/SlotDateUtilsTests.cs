@@ -1,29 +1,19 @@
 using DiplomaticMailBot.Common.Utils;
-using Microsoft.Extensions.Time.Testing;
+using DiplomaticMailBot.Tests.Common;
 
 namespace DiplomaticMailBot.Tests.Unit.DomainServices;
 
 [TestFixture]
+[Parallelizable(scope: ParallelScope.All)]
 public sealed class SlotDateUtilsTests
 {
-    private const string LocalTimeZoneId = "Etc/GMT-11";
-
-    private FakeTimeProvider _timeProvider;
-
-    [SetUp]
-    public void Setup()
-    {
-        _timeProvider = new FakeTimeProvider();
-    }
-
     [Test]
     public void GetNextAvailableSlotDate_WhenCurrentTimeBeforeVoteStart_ReturnsToday()
     {
         // Arrange
         var currentTime = new DateTime(2025, 02, 23, 10, 00, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(11, 00); // 11:00
 
         // Act
@@ -38,9 +28,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 02, 23, 11, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(11, 00); // 11:00
 
         // Act
@@ -55,9 +44,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 02, 23, 23, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(01, 00); // 11:00
 
         // Act
@@ -72,9 +60,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 2, 23, 11, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(11, 0); // 11:00
         var voteEndsAt = new TimeOnly(12, 0); // 12:00
 
@@ -90,9 +77,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 2, 23, 10, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(11, 0); // 11:00
         var voteEndsAt = new TimeOnly(12, 0); // 12:00
 
@@ -108,9 +94,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 2, 23, 12, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(11, 0); // 11:00
         var voteEndsAt = new TimeOnly(12, 0); // 12:00
 
@@ -126,9 +111,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange
         var currentTime = new DateTime(2025, 2, 23, 23, 30, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        _timeProvider.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById(LocalTimeZoneId));
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(23, 0); // 23:00
         var voteEndsAt = new TimeOnly(1, 0); // 01:00 next day
 
@@ -156,8 +140,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is before vote end time
         var currentTime = new DateTime(2025, 03, 01, 10, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteEndsAt = new TimeOnly(11, 00);
 
         // Act
@@ -172,8 +156,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is after vote end time
         var currentTime = new DateTime(2025, 03, 01, 12, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteEndsAt = new TimeOnly(11, 00);
 
         // Act
@@ -200,8 +184,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is before vote start
         var currentTime = new DateTime(2025, 03, 01, 8, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(9, 0);
 
         // Act
@@ -216,8 +200,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is after today's vote start, so nearest vote start will be tomorrow
         var currentTime = new DateTime(2025, 03, 01, 10, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteStartsAt = new TimeOnly(9, 0); // already passed
         var expectedDateTime = new DateTime(2025, 03, 02, 9, 0, 0, DateTimeKind.Utc);
 
@@ -245,8 +229,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is before vote end
         var currentTime = new DateTime(2025, 03, 01, 8, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteEndsAt = new TimeOnly(9, 0);
 
         // Act
@@ -261,8 +245,8 @@ public sealed class SlotDateUtilsTests
     {
         // Arrange: current time is after today's vote end, so vote end is tomorrow
         var currentTime = new DateTime(2025, 03, 01, 10, 0, 0, DateTimeKind.Utc);
-        _timeProvider.SetUtcNow(currentTime);
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(currentTime);
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var voteEndsAt = new TimeOnly(9, 0); // vote end today already passed
         var expectedDateTime = new DateTime(2025, 03, 02, 9, 0, 0, DateTimeKind.Utc);
 

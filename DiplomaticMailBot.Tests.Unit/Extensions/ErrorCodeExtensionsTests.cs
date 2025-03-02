@@ -1,11 +1,12 @@
-using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Common.Enums;
+using DiplomaticMailBot.Common.Extensions;
 using Microsoft.Extensions.Logging;
 
-namespace DiplomaticMailBot.Tests.Unit;
+namespace DiplomaticMailBot.Tests.Unit.Extensions;
 
 [TestFixture]
-public class ErrorCodeExtensionsTests
+[Parallelizable(scope: ParallelScope.All)]
+public sealed class ErrorCodeExtensionsTests
 {
     [Test]
     public void ToInt_GivenValidEventCode_ReturnsCorrectIntegerValue()

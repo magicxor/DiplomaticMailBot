@@ -36,7 +36,7 @@ public sealed class StringExtensionsTests
     [TestCase("a", -2)]
     public void TryLeft_WhenMaxLengthIsLessThanZero_ShouldThrowArgumentOutOfRangeException(string source, int maxLength)
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => source.TryLeft(maxLength));
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = source.TryLeft(maxLength));
     }
 
     [Test]
@@ -69,7 +69,7 @@ public sealed class StringExtensionsTests
     [TestCase("a", -2)]
     public void TryRight_WhenMaxLengthIsLessThanZero_ShouldThrowArgumentOutOfRangeException(string source, int maxLength)
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => source.TryRight(maxLength));
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = source.TryRight(maxLength));
     }
 
     [TestCase(null, null, true)]
@@ -122,7 +122,7 @@ public sealed class StringExtensionsTests
     public void EscapeSpecialTelegramMdCharacters_WhenNull_ShouldThrowArgumentNullException()
     {
         string? value = null;
-        Assert.Throws<ArgumentNullException>(() => value!.EscapeSpecialTelegramMdCharacters());
+        Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramMdCharacters());
     }
 
     [Test]
@@ -138,7 +138,7 @@ public sealed class StringExtensionsTests
     public void EscapeSpecialTelegramHtmlCharacters_WhenNull_ShouldThrowArgumentNullException()
     {
         string? value = null;
-        Assert.Throws<ArgumentNullException>(() => value!.EscapeSpecialTelegramHtmlCharacters());
+        Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramHtmlCharacters());
     }
 
     [Test]

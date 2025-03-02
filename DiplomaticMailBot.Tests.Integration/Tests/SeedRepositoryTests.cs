@@ -1,6 +1,7 @@
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
+using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -8,16 +9,14 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class SeedRepositoryTests
+public sealed class SeedRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -29,12 +28,6 @@ public class SeedRepositoryTests
     public async Task OneTimeTearDownAsync()
     {
         await _contextManager.StopIfNotNullAsync();
-    }
-
-    [SetUp]
-    public void SetUp()
-    {
-        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -125,6 +118,7 @@ public class SeedRepositoryTests
     public async Task SeedChatSlotTemplatesAsync_WhenNoDefaultTemplate_DoesNotUpdateChats(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -135,7 +129,7 @@ public class SeedRepositoryTests
             ChatId = 123,
             ChatTitle = "Chat 1",
             ChatAlias = "chat1",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         });
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -157,6 +151,7 @@ public class SeedRepositoryTests
     public async Task SeedChatSlotTemplatesAsync_WhenDefaultTemplateExists_UpdatesChatsWithoutTemplate(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -177,14 +172,14 @@ public class SeedRepositoryTests
                 ChatId = 123,
                 ChatTitle = "Chat 1",
                 ChatAlias = "chat1",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             },
             new RegisteredChat
             {
                 ChatId = 124,
                 ChatTitle = "Chat 2",
                 ChatAlias = "chat2",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
                 SlotTemplateId = template.Id,
             },
             new RegisteredChat
@@ -192,7 +187,7 @@ public class SeedRepositoryTests
                 ChatId = 125,
                 ChatTitle = "Chat 3",
                 ChatAlias = "chat3",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             }
         );
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -224,6 +219,7 @@ public class SeedRepositoryTests
     public async Task SeedChatSlotTemplatesAsync_WhenAllChatsHaveTemplate_UpdatesNothing(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -244,7 +240,7 @@ public class SeedRepositoryTests
                 ChatId = 123,
                 ChatTitle = "Chat 1",
                 ChatAlias = "chat1",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
                 SlotTemplateId = template.Id,
             },
             new RegisteredChat
@@ -252,7 +248,7 @@ public class SeedRepositoryTests
                 ChatId = 456,
                 ChatTitle = "Chat 2",
                 ChatAlias = "chat2",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
                 SlotTemplateId = template.Id,
             }
         );

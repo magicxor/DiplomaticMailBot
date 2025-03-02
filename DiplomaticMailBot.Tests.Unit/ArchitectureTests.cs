@@ -12,7 +12,8 @@ using System.Reflection;
 namespace DiplomaticMailBot.Tests.Unit;
 
 [TestFixture]
-public class ArchitectureTests
+[Parallelizable(scope: ParallelScope.All)]
+public sealed class ArchitectureTests
 {
     private static readonly Assembly CliAssembly = typeof(ICliRef).Assembly;
     private static readonly Assembly CommonAssembly = typeof(ICommonRef).Assembly;

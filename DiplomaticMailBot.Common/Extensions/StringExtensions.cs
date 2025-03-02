@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 
 namespace DiplomaticMailBot.Common.Extensions;
 
@@ -12,6 +13,7 @@ public static class StringExtensions
     /// </summary>
     /// <param name="src">source string</param>
     /// <returns>True if the string is null or empty, false otherwise.</returns>
+    [Pure]
     public static bool IsNotNullOrEmpty(this string? src)
     {
         return !string.IsNullOrEmpty(src);
@@ -24,6 +26,7 @@ public static class StringExtensions
     /// <param name="maxLength">maximum length of the string</param>
     /// <returns>Leftmost maxLength characters from the string.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when maxLength is less than 0.</exception>
+    [Pure]
     [return: NotNullIfNotNull(nameof(src))]
     public static string? TryLeft(this string? src, int maxLength)
     {
@@ -47,6 +50,7 @@ public static class StringExtensions
     /// <param name="maxLength">maximum length of the string</param>
     /// <returns>Rightmost maxLength characters from the string.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when maxLength is less than 0.</exception>
+    [Pure]
     [return: NotNullIfNotNull(nameof(src))]
     public static string? TryRight(this string? src, int maxLength)
     {
@@ -69,11 +73,13 @@ public static class StringExtensions
     /// <param name="src">source string</param>
     /// <param name="target">target string</param>
     /// <returns>True if the strings are equal, false otherwise.</returns>
+    [Pure]
     public static bool EqualsIgnoreCase(this string? src, string? target)
     {
         return string.Equals(src, target, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Pure]
     public static IReadOnlyCollection<string> GetNonEmpty(params string?[] values)
     {
         return values
@@ -82,6 +88,7 @@ public static class StringExtensions
             .ToList();
     }
 
+    [Pure]
     public static string EscapeSpecialTelegramMdCharacters(this string src)
     {
         ArgumentNullException.ThrowIfNull(src);
@@ -96,6 +103,7 @@ public static class StringExtensions
         return src;
     }
 
+    [Pure]
     public static string EscapeSpecialTelegramHtmlCharacters(this string src)
     {
         ArgumentNullException.ThrowIfNull(src);
@@ -106,6 +114,7 @@ public static class StringExtensions
             .Replace(">", "&gt;", StringComparison.Ordinal);
     }
 
+    [Pure]
     public static string CutToLastClosingLinkTag(this string src)
     {
         if (string.IsNullOrWhiteSpace(src))

@@ -12,7 +12,7 @@ namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class SlotTemplateRepositoryTests
+public sealed class SlotTemplateRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
 
