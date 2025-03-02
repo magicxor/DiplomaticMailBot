@@ -4,6 +4,12 @@ on:
 
 name: run tests
 
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+  checks: write
+
 jobs:
   call_reusable_run_tests:
     name: run tests
