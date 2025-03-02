@@ -4,6 +4,7 @@ using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -11,16 +12,14 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class RegisteredChatRepositoryTests
+public sealed class RegisteredChatRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -34,17 +33,12 @@ public class RegisteredChatRepositoryTests
         await _contextManager.StopIfNotNullAsync();
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
-    }
-
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
     public async Task ListRegisteredChatsAsync_ReturnsAllChats(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -57,14 +51,14 @@ public class RegisteredChatRepositoryTests
                 ChatId = 123,
                 ChatTitle = "Chat 1",
                 ChatAlias = "chat1",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             },
             new RegisteredChat
             {
                 ChatId = 456,
                 ChatTitle = "Chat 2",
                 ChatAlias = "chat2",
-                CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+                CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             },
         };
         await dbContext.RegisteredChats.AddRangeAsync(chats);
@@ -73,7 +67,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.ListRegisteredChatsAsync(cancellationToken);
@@ -88,6 +82,7 @@ public class RegisteredChatRepositoryTests
     public async Task CreateOrUpdateAsync_WhenNewChat_CreatesChat(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -103,7 +98,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var request = new RegisteredChatCreateOrUpdateRequestSm
         {
@@ -137,6 +132,7 @@ public class RegisteredChatRepositoryTests
     public async Task CreateOrUpdateAsync_WhenExistingChat_UpdatesChat(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -147,7 +143,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Old Title",
             ChatAlias = "old",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime.AddDays(-31), // Past the update cooldown
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime.AddDays(-31), // Past the update cooldown
         };
         dbContext.RegisteredChats.Add(existingChat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -155,7 +151,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var request = new RegisteredChatCreateOrUpdateRequestSm
         {
@@ -187,6 +183,7 @@ public class RegisteredChatRepositoryTests
     public async Task CreateOrUpdateAsync_WhenAliasTaken_ReturnsError(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -197,7 +194,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Existing Chat",
             ChatAlias = "taken",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.RegisteredChats.Add(existingChat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -205,7 +202,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var request = new RegisteredChatCreateOrUpdateRequestSm
         {
@@ -228,6 +225,7 @@ public class RegisteredChatRepositoryTests
     public async Task DeleteAsync_WhenValidInput_DeletesChat(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -238,7 +236,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Test Chat",
             ChatAlias = "test",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.RegisteredChats.Add(chat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -246,7 +244,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.DeleteAsync(chat.ChatId, chat.ChatAlias, cancellationToken);
@@ -270,13 +268,14 @@ public class RegisteredChatRepositoryTests
     public async Task DeleteAsync_WhenChatNotFound_ReturnsError(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.DeleteAsync(123, "test", cancellationToken);
@@ -292,6 +291,7 @@ public class RegisteredChatRepositoryTests
     public async Task DeleteAsync_WhenAliasMismatch_ReturnsError(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -302,7 +302,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Test Chat",
             ChatAlias = "test",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.RegisteredChats.Add(chat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -310,7 +310,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.DeleteAsync(chat.ChatId, "wrong_alias", cancellationToken);
@@ -326,6 +326,7 @@ public class RegisteredChatRepositoryTests
     public async Task GetChatSlotTemplateByTelegramChatIdAsync_WhenChatExistsWithTemplate_ReturnsTemplate(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -345,7 +346,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Test Chat",
             ChatAlias = "test",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             SlotTemplateId = template.Id,
             SlotTemplate = template,
         };
@@ -355,7 +356,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.GetChatSlotTemplateByTelegramChatIdAsync(chat.ChatId, cancellationToken);
@@ -373,6 +374,7 @@ public class RegisteredChatRepositoryTests
     public async Task GetChatSlotTemplateByTelegramChatIdAsync_WhenChatExistsWithoutTemplate_ReturnsNull(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -383,7 +385,7 @@ public class RegisteredChatRepositoryTests
             ChatId = 123,
             ChatTitle = "Test Chat",
             ChatAlias = "test",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.RegisteredChats.Add(chat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -391,7 +393,7 @@ public class RegisteredChatRepositoryTests
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.GetChatSlotTemplateByTelegramChatIdAsync(chat.ChatId, cancellationToken);
@@ -405,13 +407,14 @@ public class RegisteredChatRepositoryTests
     public async Task GetChatSlotTemplateByTelegramChatIdAsync_WhenChatDoesNotExist_ReturnsNull(CancellationToken cancellationToken)
     {
         // Arrange
+        var timeProvider = FakeTimeProviderFactory.Create();
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
         var repository = new RegisteredChatRepository(
             NullLoggerFactory.Instance.CreateLogger<RegisteredChatRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.GetChatSlotTemplateByTelegramChatIdAsync(123, cancellationToken);

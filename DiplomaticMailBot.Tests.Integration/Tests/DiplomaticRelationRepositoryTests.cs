@@ -3,6 +3,7 @@ using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
+using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -10,16 +11,14 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class DiplomaticRelationRepositoryTests
+public sealed class DiplomaticRelationRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -33,12 +32,6 @@ public class DiplomaticRelationRepositoryTests
         await _contextManager.StopIfNotNullAsync();
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
-    }
-
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
     public async Task EstablishRelationsAsync_WhenValidInput_CreatesRelation(CancellationToken cancellationToken)
@@ -46,6 +39,7 @@ public class DiplomaticRelationRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -54,14 +48,14 @@ public class DiplomaticRelationRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -69,7 +63,7 @@ public class DiplomaticRelationRepositoryTests
         var repository = new DiplomaticRelationRepository(
             NullLoggerFactory.Instance.CreateLogger<DiplomaticRelationRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.EstablishRelationsAsync(sourceChat.ChatId, targetChat.ChatAlias, cancellationToken);
@@ -96,6 +90,7 @@ public class DiplomaticRelationRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -104,14 +99,14 @@ public class DiplomaticRelationRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -119,7 +114,7 @@ public class DiplomaticRelationRepositoryTests
         {
             SourceChat = sourceChat,
             TargetChat = targetChat,
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.DiplomaticRelations.Add(existingRelation);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -127,7 +122,7 @@ public class DiplomaticRelationRepositoryTests
         var repository = new DiplomaticRelationRepository(
             NullLoggerFactory.Instance.CreateLogger<DiplomaticRelationRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.EstablishRelationsAsync(sourceChat.ChatId, targetChat.ChatAlias, cancellationToken);
@@ -145,6 +140,7 @@ public class DiplomaticRelationRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -153,14 +149,14 @@ public class DiplomaticRelationRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
 
@@ -168,7 +164,7 @@ public class DiplomaticRelationRepositoryTests
         {
             SourceChat = sourceChat,
             TargetChat = targetChat,
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         dbContext.DiplomaticRelations.Add(existingRelation);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -176,7 +172,7 @@ public class DiplomaticRelationRepositoryTests
         var repository = new DiplomaticRelationRepository(
             NullLoggerFactory.Instance.CreateLogger<DiplomaticRelationRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.BreakOffRelationsAsync(sourceChat.ChatId, targetChat.ChatAlias, cancellationToken);
@@ -201,6 +197,7 @@ public class DiplomaticRelationRepositoryTests
         // Arrange
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
 
         // Seed
         await using var dbContext = dbContextFactory.CreateDbContext();
@@ -209,14 +206,14 @@ public class DiplomaticRelationRepositoryTests
             ChatId = 123,
             ChatTitle = "Source Chat",
             ChatAlias = "source",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var targetChat = new RegisteredChat
         {
             ChatId = 456,
             ChatTitle = "Target Chat",
             ChatAlias = "target",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         await dbContext.RegisteredChats.AddRangeAsync(sourceChat, targetChat);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -224,7 +221,7 @@ public class DiplomaticRelationRepositoryTests
         var repository = new DiplomaticRelationRepository(
             NullLoggerFactory.Instance.CreateLogger<DiplomaticRelationRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         var result = await repository.BreakOffRelationsAsync(sourceChat.ChatId, targetChat.ChatAlias, cancellationToken);

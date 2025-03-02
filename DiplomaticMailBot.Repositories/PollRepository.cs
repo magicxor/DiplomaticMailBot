@@ -1,4 +1,5 @@
 using DiplomaticMailBot.Common.Enums;
+using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Common.Utils;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Data.EfFunctions;
@@ -234,12 +235,12 @@ public sealed class PollRepository
 
                 var pollOptions = candidates
                     .OrderBy(x => x.CreatedAt)
-                    .Take(10)
+                    .Take(Defaults.MaxPollOptionCount)
                     .Select(x => new MessageCandidateSm
                     {
                         MessageId = x.MessageId,
                         AuthorName = x.AuthorName,
-                        Preview = x.Preview,
+                        Preview = x.Preview.TryLeft(Defaults.PollOptionMaxChars),
                     })
                     .ToList();
 

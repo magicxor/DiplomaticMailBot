@@ -6,7 +6,7 @@ using Testcontainers.PostgreSql;
 
 namespace DiplomaticMailBot.Tests.Integration.Services;
 
-public class DbContainerManager
+public sealed class DbContainerManager
 {
     private IContainer? _container;
 

@@ -50,7 +50,7 @@ public sealed class ScheduledProcessingService
                 _logger.LogInformation("Sending reminder about approaching vote start in chat {ChatId}", sourceChat.ChatId);
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(2048),
+                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(Defaults.NormalMessageMaxChars),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
@@ -66,7 +66,7 @@ public sealed class ScheduledProcessingService
 
                 var message = await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(2048),
+                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(Defaults.NormalMessageMaxChars),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
 
@@ -82,9 +82,9 @@ public sealed class ScheduledProcessingService
             sendPollCallback: async (sourceChat, targetChat, options, cancellationToken) =>
             {
                 var inputPollOptions = options
-                    .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, 20, 100)))
+                    .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, 20, Defaults.PollOptionMaxChars)))
                     .ToList();
-                var pollQuestion = $"Какое послание отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}?".TryLeft(300);
+                var pollQuestion = $"Какое послание отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}?".TryLeft(Defaults.PollMessageMaxChars);
 
                 _logger.LogInformation("Opening poll in chat {ChatId} with question: {PollQuestion}", sourceChat.ChatId, pollQuestion);
 
@@ -113,11 +113,11 @@ public sealed class ScheduledProcessingService
                                 candidate.AuthorName,
                                 candidate.Preview,
                                 20,
-                                100)))
+                                Defaults.PollOptionMaxChars)))
                     .ToList();
                 var detailedPollOptionsStr = string.Join("\n\n", detailedPollOptions);
                 var detailedPollOptionsInfoMessageText = $"Ссылки на посты из голосования:\n\n{detailedPollOptionsStr}"
-                    .TryLeft(2048)
+                    .TryLeft(Defaults.NormalMessageMaxChars)
                     .CutToLastClosingLinkTag();
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
@@ -157,6 +157,7 @@ public sealed class ScheduledProcessingService
                 }
                 catch (Exception e)
                 {
+                    _logger.LogError(e, "Error closing poll {MessageId} in chat {ChatId}", messageId, chatId);
                     return new DomainError(EventCode.ErrorClosingPoll.ToInt(), e.Message, true, false);
                 }
             },

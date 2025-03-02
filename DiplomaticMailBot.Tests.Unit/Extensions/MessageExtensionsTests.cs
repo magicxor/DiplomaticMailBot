@@ -4,6 +4,7 @@ using DiplomaticMailBot.TelegramInterop.Extensions;
 namespace DiplomaticMailBot.Tests.Unit.Extensions;
 
 [TestFixture]
+[Parallelizable(scope: ParallelScope.All)]
 public sealed class MessageExtensionsTests
 {
     [Test]

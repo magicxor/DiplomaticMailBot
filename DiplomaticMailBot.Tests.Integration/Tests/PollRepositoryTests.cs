@@ -2,6 +2,7 @@ using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Entities;
 using DiplomaticMailBot.Repositories;
+using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;
 using DiplomaticMailBot.Tests.Integration.Services;
@@ -9,16 +10,14 @@ using DiplomaticMailBot.Tests.Integration.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace DiplomaticMailBot.Tests.Integration.Tests;
 
 [TestFixture]
 [Parallelizable(scope: ParallelScope.Fixtures)]
-public class PollRepositoryTests
+public sealed class PollRepositoryTests
 {
     private RespawnableContextManager<ApplicationDbContext>? _contextManager;
-    private FakeTimeProvider _timeProvider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUpAsync()
@@ -32,18 +31,13 @@ public class PollRepositoryTests
         await _contextManager.StopIfNotNullAsync();
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-        _timeProvider = new FakeTimeProvider(new DateTimeOffset(1999, 2, 25, 16, 40, 39, TimeSpan.Zero));
-    }
-
     [CancelAfter(TestDefaults.TestTimeout)]
     [Test]
     public async Task OpenPendingPollsAsync_WithSingleCandidate_SendsMessageAndCreatesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -116,7 +110,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var messageCallbackCalled = false;
         var pollCallbackCalled = false;
@@ -157,7 +151,8 @@ public class PollRepositoryTests
     public async Task OpenPendingPollsAsync_WithMultipleCandidates_SendsPollAndCreatesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -243,7 +238,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var messageCallbackCalled = false;
         var pollCallbackCalled = false;
@@ -285,7 +280,8 @@ public class PollRepositoryTests
     public async Task OpenPendingPollsAsync_WithNoCandidates_RemovesSlotInstance(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -346,7 +342,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         await repository.OpenPendingPollsAsync(
@@ -367,7 +363,8 @@ public class PollRepositoryTests
     public async Task CloseExpiredPollsAsync_WhenPollExpiredToday_ClosesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -462,7 +459,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var stopPollCallbackCalled = false;
         var stopPollCallbackChatId = 0L;
@@ -500,7 +497,8 @@ public class PollRepositoryTests
     public async Task CloseExpiredPollsAsync_WhenPollFromPastDate_ClosesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -570,7 +568,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         // Act
         await repository.CloseExpiredPollsAsync(
@@ -594,7 +592,8 @@ public class PollRepositoryTests
     public async Task CloseExpiredPollsAsync_WhenPollNotExpired_DoesNotClosePoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -664,7 +663,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var stopPollCallbackCalled = false;
 
@@ -696,7 +695,8 @@ public class PollRepositoryTests
     public async Task CloseExpiredPollsAsync_WhenRelationsRemoved_RemovesPoll(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -752,7 +752,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var stopPollCallbackCalled = false;
 
@@ -780,11 +780,12 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsInNextFourHours_SendsReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        _timeProvider.SetUtcNow(new DateTime(2025, 02, 27, 12, 03, 00, DateTimeKind.Utc));
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        timeProvider.SetUtcNow(new DateTime(2025, 02, 27, 12, 03, 00, DateTimeKind.Utc));
         var voteStartTime = new TimeOnly(16, 00);
         var voteEndTime = new TimeOnly(18, 00);
 
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -836,7 +837,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
         RegisteredChat? reminderSourceChat = null;
@@ -877,11 +878,12 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsTomorrowInNextFourHours_SendsReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        _timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 23, 03, 00, DateTimeKind.Utc));
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 23, 03, 00, DateTimeKind.Utc));
         var voteStartTime = new TimeOnly(01, 00);
         var voteEndTime = new TimeOnly(05, 00);
 
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -934,7 +936,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
         RegisteredChat? reminderSourceChat = null;
@@ -975,7 +977,8 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsAfterFourHours_DoesNotSendReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -1026,7 +1029,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
 
@@ -1054,7 +1057,8 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenSlotInstanceAlreadyExists_DoesNotSendReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -1117,7 +1121,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
 
@@ -1147,7 +1151,8 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenNoSlotTemplate_DoesNotSendReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -1188,7 +1193,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
 
@@ -1216,11 +1221,12 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenVoteStartsTomorrowAfterFourHours_DoesNotSendReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        _timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 12, 00, 00, DateTimeKind.Utc));
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 12, 00, 00, DateTimeKind.Utc));
         var voteStartTime = new TimeOnly(17, 00);
         var voteEndTime = new TimeOnly(19, 00);
 
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -1268,7 +1274,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
 
@@ -1290,11 +1296,12 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WhenTomorrowSlotInstanceExists_DoesNotSendReminder(CancellationToken cancellationToken)
     {
         // Arrange
-        _timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 21, 00, 00, DateTimeKind.Utc));
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 21, 00, 00, DateTimeKind.Utc));
         var voteStartTime = new TimeOnly(01, 00);
         var voteEndTime = new TimeOnly(03, 00);
 
-        var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
@@ -1356,7 +1363,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminderCallbackCalled = false;
 
@@ -1378,11 +1385,12 @@ public class PollRepositoryTests
     public async Task SendVoteApproachingRemindersAsync_WithMultipleChatsAndRelations_SendsRemindersOnlyForPendingSlots(CancellationToken cancellationToken)
     {
         // Arrange
-        _timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 22, 00, 00, DateTimeKind.Utc));
+        var timeProvider = FakeTimeProviderFactory.Create(new DateTime(1999, 12, 31, 16, 40, 39, DateTimeKind.Utc));
+        timeProvider.SetUtcNow(new DateTime(2025, 02, 25, 22, 00, 00, DateTimeKind.Utc));
         var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
         var dbContextFactory = new TestDbContextFactory(dbConnectionString);
 
-        var dateNow = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var dateNow = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
         var tomorrow = dateNow.AddDays(1);
 
         // Seed
@@ -1394,7 +1402,7 @@ public class PollRepositoryTests
             ChatId = 111,
             ChatTitle = "Chat 1",
             ChatAlias = "chat1",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var slotTemplate1 = new SlotTemplate
         {
@@ -1409,7 +1417,7 @@ public class PollRepositoryTests
             ChatId = 222,
             ChatTitle = "Chat 2",
             ChatAlias = "chat2",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var slotTemplate2 = new SlotTemplate
         {
@@ -1424,7 +1432,7 @@ public class PollRepositoryTests
             ChatId = 333,
             ChatTitle = "Chat 3",
             ChatAlias = "chat3",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var slotTemplate3 = new SlotTemplate
         {
@@ -1439,7 +1447,7 @@ public class PollRepositoryTests
             ChatId = 444,
             ChatTitle = "Chat 4",
             ChatAlias = "chat4",
-            CreatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
         var slotTemplate4 = new SlotTemplate
         {
@@ -1459,14 +1467,14 @@ public class PollRepositoryTests
         // chat3 <-> chat4
         var relations = new[]
         {
-            new DiplomaticRelation { SourceChat = chat1, TargetChat = chat2, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat2, TargetChat = chat1, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat1, TargetChat = chat3, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat1, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat2, TargetChat = chat3, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat2, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat4, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
-            new DiplomaticRelation { SourceChat = chat4, TargetChat = chat3, CreatedAt = _timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat1, TargetChat = chat2, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat2, TargetChat = chat1, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat1, TargetChat = chat3, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat1, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat2, TargetChat = chat3, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat2, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat3, TargetChat = chat4, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
+            new DiplomaticRelation { SourceChat = chat4, TargetChat = chat3, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
         };
         await dbContext.DiplomaticRelations.AddRangeAsync(relations);
 
@@ -1496,7 +1504,7 @@ public class PollRepositoryTests
         var repository = new PollRepository(
             NullLoggerFactory.Instance.CreateLogger<PollRepository>(),
             dbContextFactory,
-            _timeProvider);
+            timeProvider);
 
         var reminders = new List<RelationResult>();
 

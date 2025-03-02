@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Tests.Integration.Services;
 
-public class TestDbContextFactory : IDbContextFactory<ApplicationDbContext>
+public sealed class TestDbContextFactory : IDbContextFactory<ApplicationDbContext>
 {
     private readonly string _connectionString;
 

@@ -3,7 +3,8 @@
 namespace DiplomaticMailBot.Tests.Unit.DbFunctions;
 
 [TestFixture]
-public class EfFuncTests
+[Parallelizable(scope: ParallelScope.All)]
+public sealed class EfFuncTests
 {
     [Test]
     public void DateToChar_ShouldConvertDateToString()
