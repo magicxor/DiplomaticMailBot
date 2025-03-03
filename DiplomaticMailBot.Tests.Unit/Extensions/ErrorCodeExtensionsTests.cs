@@ -14,8 +14,8 @@ public sealed class ErrorCodeExtensionsTests
         // Arrange
         // Using a cast value for EventCode since we don't know the actual enum constants.
         // You can replace these with actual named constants if available.
-        EventCode code = (EventCode)1;
-        int expected = 1;
+        const EventCode code = (EventCode)1;
+        const int expected = 1;
 
         // Act
         int actual = code.ToInt();
@@ -28,8 +28,8 @@ public sealed class ErrorCodeExtensionsTests
     public void ToEventId_GivenValidEventCode_ReturnsEventIdWithCorrectId()
     {
         // Arrange
-        EventCode code = (EventCode)2;
-        int expected = 2;
+        const EventCode code = (EventCode)2;
+        const int expected = 2;
 
         // Act
         EventId eventId = code.ToEventId();

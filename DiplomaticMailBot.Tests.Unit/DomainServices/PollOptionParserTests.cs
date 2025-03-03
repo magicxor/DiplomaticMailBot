@@ -19,7 +19,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithValidInput_ReturnsMessageId()
     {
         // Arrange
-        var pollOptionText = "[123] Test message";
+        const string pollOptionText = "[123] Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);
@@ -48,7 +48,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithoutOpeningBracket_ReturnsError()
     {
         // Arrange
-        var pollOptionText = "123] Test message";
+        const string pollOptionText = "123] Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);
@@ -64,7 +64,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithoutClosingBracket_ReturnsError()
     {
         // Arrange
-        var pollOptionText = "[123 Test message";
+        const string pollOptionText = "[123 Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);
@@ -80,7 +80,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithEmptyBrackets_ReturnsError()
     {
         // Arrange
-        var pollOptionText = "[] Test message";
+        const string pollOptionText = "[] Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);
@@ -96,7 +96,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithSpaceInBrackets_ReturnsError()
     {
         // Arrange
-        var pollOptionText = "[ ] Test message";
+        const string pollOptionText = "[ ] Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);
@@ -112,7 +112,7 @@ public sealed class PollOptionParserTests
     public void GetMessageId_WithNonNumericContent_ReturnsError()
     {
         // Arrange
-        var pollOptionText = "[abc] Test message";
+        const string pollOptionText = "[abc] Test message";
 
         // Act
         var result = _parser.GetMessageId(pollOptionText);

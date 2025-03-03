@@ -9,7 +9,7 @@ public sealed class StringExtensionsTests
     [Test]
     public void TryLeft_WhenNull_ShouldReturnNull()
     {
-        string? source = null;
+        const string? source = null;
         var result = source.TryLeft(1);
         Assert.That(result, Is.Null);
     }
@@ -42,7 +42,7 @@ public sealed class StringExtensionsTests
     [Test]
     public void TryRight_WhenNull_ShouldReturnNull()
     {
-        string? source = null;
+        const string? source = null;
         var result = source.TryRight(1);
         Assert.That(result, Is.Null);
     }
@@ -102,7 +102,7 @@ public sealed class StringExtensionsTests
     [Test]
     public void IsNotNullOrEmpty_WhenNull_ShouldReturnFalse()
     {
-        string? value = null;
+        const string? value = null;
         Assert.That(value.IsNotNullOrEmpty(), Is.False);
     }
 
@@ -121,15 +121,15 @@ public sealed class StringExtensionsTests
     [Test]
     public void EscapeSpecialTelegramMdCharacters_WhenNull_ShouldThrowArgumentNullException()
     {
-        string? value = null;
+        const string? value = null;
         Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramMdCharacters());
     }
 
     [Test]
     public void EscapeSpecialTelegramMdCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
     {
-        var input = "Hello_World*[Test]~`>#+-=|{}.!";
-        var expected = @"Hello\_World\*\[Test\]\~\`\>\#\+\-\=\|\{\}\.\!";
+        const string input = "Hello_World*[Test]~`>#+-=|{}.!";
+        const string expected = @"Hello\_World\*\[Test\]\~\`\>\#\+\-\=\|\{\}\.\!";
         var result = input.EscapeSpecialTelegramMdCharacters();
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -137,15 +137,15 @@ public sealed class StringExtensionsTests
     [Test]
     public void EscapeSpecialTelegramHtmlCharacters_WhenNull_ShouldThrowArgumentNullException()
     {
-        string? value = null;
+        const string? value = null;
         Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramHtmlCharacters());
     }
 
     [Test]
     public void EscapeSpecialTelegramHtmlCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
     {
-        var input = "Hello<World>&Test";
-        var expected = "Hello&lt;World&gt;&amp;Test";
+        const string input = "Hello<World>&Test";
+        const string expected = "Hello&lt;World&gt;&amp;Test";
         var result = input.EscapeSpecialTelegramHtmlCharacters();
         Assert.That(result, Is.EqualTo(expected));
     }
@@ -153,7 +153,7 @@ public sealed class StringExtensionsTests
     [Test]
     public void CutToLastClosingLinkTag_WhenNull_ShouldReturnNull()
     {
-        string? value = null;
+        const string? value = null;
         var result = value!.CutToLastClosingLinkTag();
         Assert.That(result, Is.EqualTo(null));
     }

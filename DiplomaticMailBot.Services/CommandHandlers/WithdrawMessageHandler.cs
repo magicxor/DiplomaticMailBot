@@ -40,7 +40,7 @@ public sealed class WithdrawMessageHandler
                 {
                     return err.Code switch
                     {
-                        (int)EventCode.MailCandidateNotFound => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Я не нашёл сообщения, которое можно снять с голосования. Чтобы я мог отозвать сообщение: \n1) Сообщение должно быть вынесено на голосование \n2) Голосование ещё не должно быть начато \n3) Вы должны быть автором сообщения", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
+                        (int)EventCode.MessageCandidateNotFound => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Я не нашёл сообщения, которое можно снять с голосования. Чтобы я мог отозвать сообщение: \n1) Сообщение должно быть вынесено на голосование \n2) Голосование ещё не должно быть начато \n3) Вы должны быть автором сообщения", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
                         _ => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Не удалось снять сообщение с голосования: непредвиденная ошибка", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
                     };
                 },

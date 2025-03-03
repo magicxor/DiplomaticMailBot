@@ -72,7 +72,7 @@ public sealed class MessageCandidateRepository
         if (sourceChat.IsSameAs(targetChat))
         {
             _logger.LogInformation("Can not send mail to self: SourceChatId={SourceChatId}, TargetChatId={TargetChatId}", sourceChat.Id, targetChat.Id);
-            return new DomainError(EventCode.CanNotSendMailToSelf.ToInt(), "Can not send mail to self");
+            return new DomainError(EventCode.CanNotSendMessageToSelf.ToInt(), "Can not send mail to self");
         }
 
         var relations = await applicationDbContext.DiplomaticRelations
@@ -151,14 +151,14 @@ public sealed class MessageCandidateRepository
                 sourceChat.Id,
                 targetChat.Id,
                 slotInstance.Id);
-            return new DomainError(EventCode.MailCandidateAlreadyExists.ToInt(), "Mail candidate already exists");
+            return new DomainError(EventCode.MessageCandidateAlreadyExists.ToInt(), "Mail candidate already exists");
         }
 
         if (await applicationDbContext.MessageCandidates
-                .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= 10)
+                .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= Defaults.MaxPollOptionCount)
         {
             _logger.LogInformation("Mail candidate limit reached: SlotInstanceId={SlotInstanceId}", slotInstance.Id);
-            return new DomainError(EventCode.MailCandidateLimitReached.ToInt(), "Mail candidate limit reached");
+            return new DomainError(EventCode.MessageCandidateLimitReached.ToInt(), "Mail candidate limit reached");
         }
 
         applicationDbContext.MessageCandidates.Add(new MessageCandidate
@@ -216,7 +216,7 @@ public sealed class MessageCandidateRepository
                 messageToWithdrawId,
                 commandSenderId);
 
-            return new DomainError(EventCode.MailCandidateNotFound.ToInt(), "Mail candidate not found");
+            return new DomainError(EventCode.MessageCandidateNotFound.ToInt(), "Mail candidate not found");
         }
         else
         {

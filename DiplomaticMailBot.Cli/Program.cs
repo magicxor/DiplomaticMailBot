@@ -84,7 +84,6 @@ public static class Program
                         .AddScoped<MessageOutboxRepository>()
                         .AddScoped<PollRepository>()
                         .AddScoped<MessageCandidateRepository>()
-                        .AddScoped<SlotTemplateRepository>()
                         .AddScoped<SeedRepository>()
                         /* Domain */
                         .AddScoped<PreviewGenerator>()

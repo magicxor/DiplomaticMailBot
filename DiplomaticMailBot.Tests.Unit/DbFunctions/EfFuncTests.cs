@@ -1,4 +1,4 @@
-﻿using DiplomaticMailBot.Data.EfFunctions;
+using DiplomaticMailBot.Data.EfFunctions;
 
 namespace DiplomaticMailBot.Tests.Unit.DbFunctions;
 
@@ -11,7 +11,7 @@ public sealed class EfFuncTests
     {
         // Arrange
         var date = new DateOnly(2023, 5, 10);
-        var format = "yyyy-MM-dd";
+        const string format = "yyyy-MM-dd";
 
         // Act
         var result = EfFunc.DateToChar(date, format);
@@ -25,7 +25,7 @@ public sealed class EfFuncTests
     {
         // Arrange
         var time = new TimeOnly(12, 34, 56);
-        var format = "HH:mm:ss";
+        const string format = "HH:mm:ss";
 
         // Act
         var result = EfFunc.TimeToChar(time, format);
