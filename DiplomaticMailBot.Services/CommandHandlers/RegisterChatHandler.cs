@@ -149,8 +149,8 @@ public sealed partial class RegisterChatHandler
                     {
                         return err.Code switch
                         {
-                            (int)EventCode.RegisteredChatNotFound => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Чат не найден", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
-                            (int)EventCode.RegisteredChatAliasMismatch => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Введённый алиас чата не совпадает с реальным алиасом текущего чата", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
+                            (int)EventCode.ChatNotFound => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Чат не найден", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
+                            (int)EventCode.ChatAliasMismatch => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Введённый алиас чата не совпадает с реальным алиасом текущего чата", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
                             _ => await _telegramBotClient.SendMessage(userCommand.Chat.Id, "Не удалось дерегистрировать чат: непредвиденная ошибка", replyParameters: userCommand.ToReplyParameters(), cancellationToken: cancellationToken),
                         };
                     },

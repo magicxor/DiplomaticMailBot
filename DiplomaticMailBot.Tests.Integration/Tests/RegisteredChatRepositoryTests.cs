@@ -283,7 +283,7 @@ public sealed class RegisteredChatRepositoryTests
         // Assert
         Assert.That(result.IsRight, Is.True);
         var error = result.RightToList().First();
-        Assert.That(error.Code, Is.EqualTo(EventCode.RegisteredChatNotFound.ToInt()));
+        Assert.That(error.Code, Is.EqualTo(EventCode.ChatNotFound.ToInt()));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]
@@ -318,7 +318,7 @@ public sealed class RegisteredChatRepositoryTests
         // Assert
         Assert.That(result.IsRight, Is.True);
         var error = result.RightToList().First();
-        Assert.That(error.Code, Is.EqualTo(EventCode.RegisteredChatAliasMismatch.ToInt()));
+        Assert.That(error.Code, Is.EqualTo(EventCode.ChatAliasMismatch.ToInt()));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]

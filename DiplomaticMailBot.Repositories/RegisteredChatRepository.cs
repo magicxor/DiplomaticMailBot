@@ -180,25 +180,25 @@ public sealed class RegisteredChatRepository
 
         if (registeredChat is null)
         {
-            _logger.LogInformation("Registered chat {ChatId} not found", chatId);
-            return new DomainError(EventCode.RegisteredChatNotFound.ToInt(), "Registered chat not found");
+            _logger.LogInformation("Chat {ChatId} not found", chatId);
+            return new DomainError(EventCode.ChatNotFound.ToInt(), "Chat not found");
         }
 
         if (checkAlias && !registeredChat.ChatAlias.EqualsIgnoreCase(chatAlias))
         {
-            _logger.LogInformation("Registered chat {ChatId} alias mismatch; expected: {ExpectedAlias}, actual: {ActualAlias}. Won't delete",
+            _logger.LogInformation("Chat {ChatId} alias mismatch; expected: {ExpectedAlias}, actual: {ActualAlias}. Won't delete",
                 chatId,
                 chatAlias,
                 registeredChat.ChatAlias);
 
-            return new DomainError(EventCode.RegisteredChatAliasMismatch.ToInt(), "Registered chat alias mismatch");
+            return new DomainError(EventCode.ChatAliasMismatch.ToInt(), "Chat alias mismatch");
         }
 
         registeredChat.ChatAlias = Guid.NewGuid().ToString("d", CultureInfo.InvariantCulture);
         registeredChat.IsDeleted = true;
         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Registered chat {ChatId} deleted", chatId);
+        _logger.LogInformation("Chat {ChatId} deleted", chatId);
 
         return true;
     }
