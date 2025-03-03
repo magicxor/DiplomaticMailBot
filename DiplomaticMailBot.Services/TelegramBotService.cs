@@ -14,7 +14,7 @@ public sealed partial class TelegramBotService
 {
     private static readonly ReceiverOptions ReceiverOptions = new()
     {
-        AllowedUpdates = [UpdateType.Message],
+        AllowedUpdates = [UpdateType.Message, UpdateType.MyChatMember],
     };
 
     private readonly ILogger<TelegramBotService> _logger;
@@ -45,6 +45,78 @@ public sealed partial class TelegramBotService
         _withdrawMessageHandler = withdrawMessageHandler;
     }
 
+    private async Task HandleMyChatMemberUpdateAsync(
+        User me,
+        Update update,
+        CancellationToken cancellationToken = default)
+    {
+        var myChatMember = update.MyChatMember;
+        if (myChatMember is null)
+        {
+            _logger.LogTrace("Ignoring update without my_chat_member");
+            return;
+        }
+
+        var chat = myChatMember.Chat;
+
+        _logger.LogDebug("Handling my_chat_member update for chat {ChatId} ({ChatType}, {ChatTitle})", chat.Id, chat.Type, chat.Title);
+
+        if (update.MyChatMember?.NewChatMember.Status is ChatMemberStatus.Kicked or ChatMemberStatus.Left or ChatMemberStatus.Restricted)
+        {
+            await _registerChatHandler.HandleDeregisterExitedChatAsync(me, chat, cancellationToken);
+        }
+    }
+
+    private async Task HandleMessageUpdateAsync(
+        User me,
+        Update update,
+        CancellationToken cancellationToken = default)
+    {
+        var message = update.Message;
+        if (message is null)
+        {
+            _logger.LogTrace("Ignoring update without message");
+            return;
+        }
+
+        var messageText = message.Text;
+        if (string.IsNullOrWhiteSpace(messageText))
+        {
+            _logger.LogTrace("Ignoring update with empty message text");
+            return;
+        }
+
+        var match = CommandRegex().Match(messageText);
+        if (!match.Success)
+        {
+            return;
+        }
+
+        var commandBotUsername = match.Groups["botname"].Value;
+
+        if (!string.IsNullOrWhiteSpace(commandBotUsername)
+            && !string.IsNullOrWhiteSpace(me.Username)
+            && !commandBotUsername.Equals(me.Username, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _logger.LogDebug("Handling command {MessageText}", messageText);
+
+        var handlerTask = messageText switch
+        {
+            _ when messageText.StartsWith(BotCommands.ListChats, StringComparison.Ordinal) => _registerChatHandler.HandleListChatsAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.RegisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleRegisterChatAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.DeregisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleDeregisterChatAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.EstablishRelations, StringComparison.Ordinal) => _establishRelationsHandler.HandleEstablishRelationsAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.BreakOffRelations, StringComparison.Ordinal) => _breakOffRelationsHandler.HandleBreakOffRelationsAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.PutMessage, StringComparison.Ordinal) => _putMessageHandler.HandlePutMessageAsync(me, message, cancellationToken),
+            _ when messageText.StartsWith(BotCommands.WithdrawMessage, StringComparison.Ordinal) => _withdrawMessageHandler.HandleWithdrawMessageAsync(me, message, cancellationToken),
+            _ => Task.CompletedTask,
+        };
+        await handlerTask;
+    }
+
     private async Task HandleUpdateAsync(
         ITelegramBotClient botClient,
         Update update,
@@ -59,49 +131,18 @@ public sealed partial class TelegramBotService
                 return;
             }
 
-            var message = update.Message;
-            if (message is null)
+            switch (update.Type)
             {
-                _logger.LogTrace("Ignoring update without message");
-                return;
+                case UpdateType.MyChatMember:
+                    await HandleMyChatMemberUpdateAsync(me, update, cancellationToken);
+                    break;
+                case UpdateType.Message:
+                    await HandleMessageUpdateAsync(me, update, cancellationToken);
+                    break;
+                default:
+                    _logger.LogDebug("Ignoring update with unknown type: {UpdateType}", update.Type);
+                    break;
             }
-
-            var messageText = message.Text;
-            if (string.IsNullOrWhiteSpace(messageText))
-            {
-                _logger.LogTrace("Ignoring update with empty message text");
-                return;
-            }
-
-            var match = CommandRegex().Match(messageText);
-            if (!match.Success)
-            {
-                return;
-            }
-
-            var commandBotUsername = match.Groups["botname"].Value;
-
-            if (!string.IsNullOrWhiteSpace(commandBotUsername)
-                && !string.IsNullOrWhiteSpace(me.Username)
-                && !commandBotUsername.Equals(me.Username, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            _logger.LogDebug("Handling command {MessageText}", messageText);
-
-            var handlerTask = messageText switch
-            {
-                _ when messageText.StartsWith(BotCommands.ListChats, StringComparison.Ordinal) => _registerChatHandler.HandleListChatsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.RegisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleRegisterChatAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.DeregisterChat, StringComparison.Ordinal) => _registerChatHandler.HandleDeregisterChatAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.EstablishRelations, StringComparison.Ordinal) => _establishRelationsHandler.HandleEstablishRelationsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.BreakOffRelations, StringComparison.Ordinal) => _breakOffRelationsHandler.HandleBreakOffRelationsAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.PutMessage, StringComparison.Ordinal) => _putMessageHandler.HandlePutMessageAsync(me, message, cancellationToken),
-                _ when messageText.StartsWith(BotCommands.WithdrawMessage, StringComparison.Ordinal) => _withdrawMessageHandler.HandleWithdrawMessageAsync(me, message, cancellationToken),
-                _ => Task.CompletedTask,
-            };
-            await handlerTask;
         }
         catch (Exception e)
         {

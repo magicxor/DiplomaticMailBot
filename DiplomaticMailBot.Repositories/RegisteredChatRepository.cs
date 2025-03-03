@@ -162,7 +162,12 @@ public sealed class RegisteredChatRepository
         };
     }
 
-    public async Task<Either<bool, Error>> DeleteAsync(long chatId, string chatAlias, CancellationToken cancellationToken = default)
+    public async Task<Either<bool, Error>> DeleteAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        return await DeleteAsync(chatId, string.Empty, checkAlias: false, cancellationToken);
+    }
+
+    public async Task<Either<bool, Error>> DeleteAsync(long chatId, string chatAlias, bool checkAlias = true, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deleting registered chat {ChatId}", chatId);
 
@@ -179,7 +184,7 @@ public sealed class RegisteredChatRepository
             return new DomainError(EventCode.RegisteredChatNotFound.ToInt(), "Registered chat not found");
         }
 
-        if (!registeredChat.ChatAlias.EqualsIgnoreCase(chatAlias))
+        if (checkAlias && !registeredChat.ChatAlias.EqualsIgnoreCase(chatAlias))
         {
             _logger.LogInformation("Registered chat {ChatId} alias mismatch; expected: {ExpectedAlias}, actual: {ActualAlias}. Won't delete",
                 chatId,

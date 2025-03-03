@@ -56,6 +56,18 @@ public sealed class SlotDateUtilsTests
     }
 
     [Test]
+    public void IsVoteGoingOn_WhenNotUtcKind_ThrowsException()
+    {
+        // Arrange
+        var currentTime = new DateTime(2025, 2, 23, 11, 30, 0, DateTimeKind.Local);
+        var voteStartsAt = new TimeOnly(11, 0); // 11:00
+        var voteEndsAt = new TimeOnly(12, 0); // 12:00
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => SlotDateUtils.IsVoteGoingOn(currentTime, voteStartsAt, voteEndsAt));
+    }
+
+    [Test]
     public void IsVoteGoingOn_WhenCurrentTimeWithinVotingPeriod_ReturnsTrue()
     {
         // Arrange

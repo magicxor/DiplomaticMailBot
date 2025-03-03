@@ -7,6 +7,7 @@ using DiplomaticMailBot.Repositories;
 using DiplomaticMailBot.ServiceModels.RegisteredChat;
 using DiplomaticMailBot.TelegramInterop.Extensions;
 using DiplomaticMailBot.TelegramInterop.Services;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -14,17 +15,20 @@ namespace DiplomaticMailBot.Services.CommandHandlers;
 
 public sealed partial class RegisterChatHandler
 {
+    private readonly ILogger<RegisterChatHandler> _logger;
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly TelegramInfoService _telegramInfoService;
     private readonly RegisteredChatRepository _registeredChatRepository;
     private readonly PreviewGenerator _previewGenerator;
 
     public RegisterChatHandler(
+        ILogger<RegisterChatHandler> logger,
         ITelegramBotClient telegramBotClient,
         TelegramInfoService telegramInfoService,
         RegisteredChatRepository registeredChatRepository,
         PreviewGenerator previewGenerator)
     {
+        _logger = logger;
         _telegramBotClient = telegramBotClient;
         _telegramInfoService = telegramInfoService;
         _registeredChatRepository = registeredChatRepository;
@@ -111,6 +115,19 @@ public sealed partial class RegisterChatHandler
         }
     }
 
+    public async Task HandleDeregisterExitedChatAsync(User bot, Chat chat, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(bot);
+        ArgumentNullException.ThrowIfNull(chat);
+
+        _logger.LogDebug("Deregistering chat {ChatId} ({ChatType}, {ChatTitle}) because the bot was kicked or left or restricted",
+            chat.Id,
+            chat.Type,
+            chat.Title);
+
+        await _registeredChatRepository.DeleteAsync(chat.Id, cancellationToken);
+    }
+
     public async Task HandleDeregisterChatAsync(User bot, Message userCommand, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(bot);
@@ -125,7 +142,7 @@ public sealed partial class RegisterChatHandler
             {
                 var deregisteredChatAlias = match.Groups["alias"].Value.ToLowerInvariant();
 
-                var deleteResult = await _registeredChatRepository.DeleteAsync(userCommand.Chat.Id, deregisteredChatAlias, cancellationToken);
+                var deleteResult = await _registeredChatRepository.DeleteAsync(userCommand.Chat.Id, deregisteredChatAlias, cancellationToken: cancellationToken);
 
                 await deleteResult.MatchAsync(
                     async err =>
