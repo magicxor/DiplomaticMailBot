@@ -1,3 +1,4 @@
+using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Data.Utils;
 using DiplomaticMailBot.Tests.Integration.Constants;
@@ -25,7 +26,7 @@ public static class TestDbUtils
     {
         var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(connectionString, ContextConfiguration.NpgsqlOptionsAction)
-            .LogTo((eventId, logLevel) => eventId.Id == 20101 || logLevel >= LogLevel.Information,
+            .LogTo((eventId, logLevel) => eventId.Id == Defaults.EfExecutedDbCommandEventId || logLevel >= LogLevel.Information,
                 eventData =>
                 {
                     TestLogUtils.WriteProgressMessage(eventData.ToString());

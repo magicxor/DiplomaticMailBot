@@ -11,7 +11,7 @@ public sealed class DomainErrorTests
     public void Constructor_ShouldSetProperties()
     {
         var error = new DomainError(42, "Test message", true, false);
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(error.Code, Is.EqualTo(42));
@@ -25,7 +25,7 @@ public sealed class DomainErrorTests
     public void Constructor_WithDefaults_ShouldSetDefaultValues()
     {
         var error = new DomainError(42, "Test message");
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(error.Code, Is.EqualTo(42));
@@ -61,7 +61,7 @@ public sealed class DomainErrorTests
     {
         var error = new DomainError(42, "Test message", true, false);
         var exception = error.ToErrorException();
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(exception, Is.TypeOf<DomainException>());

@@ -2,6 +2,7 @@ namespace DiplomaticMailBot.Common.Enums;
 
 public static class Defaults
 {
+    public const int EfExecutedDbCommandEventId = 20101;
     public const int StartingEventCode = 99150000;
     public const int NormalMessageMaxChars = 4096;
     public const int PollMessageMaxChars = 300;

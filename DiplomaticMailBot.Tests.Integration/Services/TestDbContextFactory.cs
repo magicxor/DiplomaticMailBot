@@ -1,4 +1,5 @@
-﻿using DiplomaticMailBot.Data.DbContexts;
+﻿using DiplomaticMailBot.Common.Enums;
+using DiplomaticMailBot.Data.DbContexts;
 using DiplomaticMailBot.Data.Utils;
 using DiplomaticMailBot.Tests.Integration.Utils;
 using JetBrains.Annotations;
@@ -21,7 +22,7 @@ public sealed class TestDbContextFactory : IDbContextFactory<ApplicationDbContex
     {
         var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(_connectionString, ContextConfiguration.NpgsqlOptionsAction)
-            .LogTo((eventId, logLevel) => eventId.Id == 20101 || logLevel >= LogLevel.Information,
+            .LogTo((eventId, logLevel) => eventId.Id == Defaults.EfExecutedDbCommandEventId || logLevel >= LogLevel.Information,
                 eventData =>
                 {
                     TestLogUtils.WriteProgressMessage(eventData.ToString());
