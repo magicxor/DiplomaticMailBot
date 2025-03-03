@@ -138,8 +138,8 @@ public sealed class MessageCandidateRepository
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var submitterId = sm.SubmitterId;
         var authorId = sm.AuthorId;
-        var authorNameLong = sm.AuthorName.TryLeft(128);
-        var messagePreview = sm.Preview.TryLeft(128);
+        var authorNameLong = sm.AuthorName.TryLeft(Defaults.DbAuthorNameMaxLength);
+        var messagePreview = sm.Preview.TryLeft(Defaults.DbMessagePreviewMaxLength);
 
         if (await applicationDbContext.MessageCandidates
             .AnyAsync(candidate => candidate.MessageId == sm.MessageId
