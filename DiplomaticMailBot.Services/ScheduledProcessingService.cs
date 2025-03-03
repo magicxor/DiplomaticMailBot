@@ -84,7 +84,7 @@ public sealed class ScheduledProcessingService
                 var inputPollOptions = options
                     .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, Defaults.MaxReasonableAuthorNameLength, Defaults.PollOptionMaxChars)))
                     .ToList();
-                var pollQuestion = $"Какое послание анонимно отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}?".TryLeft(Defaults.PollMessageMaxChars);
+                var pollQuestion = $"Какое послание анонимно отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}? (* Отправка без никнейма, от лица бота)".TryLeft(Defaults.PollMessageMaxChars);
 
                 _logger.LogInformation("Opening poll in chat {ChatId} with question: {PollQuestion}", sourceChat.ChatId, pollQuestion);
 
