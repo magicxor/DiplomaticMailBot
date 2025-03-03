@@ -247,7 +247,7 @@ public sealed class RegisteredChatRepositoryTests
             timeProvider);
 
         // Act
-        var result = await repository.DeleteAsync(chat.ChatId, chat.ChatAlias, cancellationToken);
+        var result = await repository.DeleteAsync(chat.ChatId, chat.ChatAlias, cancellationToken: cancellationToken);
 
         // Assert
         Assert.That(result.IsRight, Is.False);
@@ -278,7 +278,7 @@ public sealed class RegisteredChatRepositoryTests
             timeProvider);
 
         // Act
-        var result = await repository.DeleteAsync(123, "test", cancellationToken);
+        var result = await repository.DeleteAsync(123, "test", cancellationToken: cancellationToken);
 
         // Assert
         Assert.That(result.IsRight, Is.True);
@@ -313,7 +313,7 @@ public sealed class RegisteredChatRepositoryTests
             timeProvider);
 
         // Act
-        var result = await repository.DeleteAsync(chat.ChatId, "wrong_alias", cancellationToken);
+        var result = await repository.DeleteAsync(chat.ChatId, "wrong_alias", cancellationToken: cancellationToken);
 
         // Assert
         Assert.That(result.IsRight, Is.True);
