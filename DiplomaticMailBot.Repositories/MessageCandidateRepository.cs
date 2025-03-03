@@ -51,6 +51,7 @@ public sealed class MessageCandidateRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Where(x => x.ChatId == sm.SourceChatId || x.ChatAlias == sm.TargetChatAlias)
             .ToListAsync(cancellationToken);
 
@@ -76,6 +77,7 @@ public sealed class MessageCandidateRepository
         }
 
         var relations = await applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .Where(x => (x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id) || (x.SourceChatId == targetChat.Id && x.TargetChatId == sourceChat.Id))
             .ToListAsync(cancellationToken);
 
@@ -95,6 +97,7 @@ public sealed class MessageCandidateRepository
         }
 
         var slotInstance = await applicationDbContext.SlotInstances
+            .TagWithCallSite()
             .Include(x => x.Template)
             .OrderByDescending(x => x.Date)
             .ThenByDescending(x => x.Id)
@@ -138,10 +141,11 @@ public sealed class MessageCandidateRepository
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var submitterId = sm.SubmitterId;
         var authorId = sm.AuthorId;
-        var authorNameLong = sm.AuthorName.TryLeft(128);
-        var messagePreview = sm.Preview.TryLeft(128);
+        var authorNameLong = sm.AuthorName.TryLeft(Defaults.DbAuthorNameMaxLength);
+        var messagePreview = sm.Preview.TryLeft(Defaults.DbMessagePreviewMaxLength);
 
         if (await applicationDbContext.MessageCandidates
+            .TagWithCallSite()
             .AnyAsync(candidate => candidate.MessageId == sm.MessageId
                 && candidate.SlotInstanceId == slotInstance.Id,
                 cancellationToken))
@@ -155,6 +159,7 @@ public sealed class MessageCandidateRepository
         }
 
         if (await applicationDbContext.MessageCandidates
+            .TagWithCallSite()
             .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= Defaults.MaxPollOptionCount)
         {
             _logger.LogInformation("Mail candidate limit reached: SlotInstanceId={SlotInstanceId}", slotInstance.Id);
@@ -198,6 +203,7 @@ public sealed class MessageCandidateRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var candidates = await applicationDbContext.MessageCandidates
+            .TagWithCallSite()
             .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
                 && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
                 && mailCandidate.SlotInstance.SourceChat.ChatId == sourceChatId

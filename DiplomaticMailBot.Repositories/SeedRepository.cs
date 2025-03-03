@@ -33,7 +33,7 @@ public sealed class SeedRepository
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        if (await applicationDbContext.SlotTemplates.AnyAsync(cancellationToken: cancellationToken))
+        if (await applicationDbContext.SlotTemplates.TagWithCallSite().AnyAsync(cancellationToken: cancellationToken))
         {
             _logger.LogDebug("Default slot template already seeded");
             return;
@@ -60,6 +60,7 @@ public sealed class SeedRepository
 
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
         var defaultSlotTemplate = await applicationDbContext.SlotTemplates
+            .TagWithCallSite()
             .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -70,6 +71,7 @@ public sealed class SeedRepository
         }
 
         var rowsUpdated = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Where(x => x.SlotTemplateId == null)
             .ExecuteUpdateAsync(calls =>
                 calls.SetProperty(

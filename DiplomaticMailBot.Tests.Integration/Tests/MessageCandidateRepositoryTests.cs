@@ -114,9 +114,94 @@ public sealed class MessageCandidateRepositoryTests
             .FirstOrDefaultAsync(x => x.MessageId == input.MessageId, cancellationToken);
 
         Assert.That(savedCandidate, Is.Not.Null);
-        Assert.That(savedCandidate!.Preview, Is.EqualTo(input.Preview.TryLeft(128)));
+        Assert.That(savedCandidate!.Preview, Is.EqualTo(input.Preview.TryLeft(Defaults.DbMessagePreviewMaxLength)));
         Assert.That(savedCandidate.AuthorId, Is.EqualTo(input.AuthorId));
-        Assert.That(savedCandidate.AuthorName, Is.EqualTo(input.AuthorName));
+        Assert.That(savedCandidate.AuthorName, Is.EqualTo(input.AuthorName.TryLeft(Defaults.DbAuthorNameMaxLength)));
+    }
+
+    [CancelAfter(TestDefaults.TestTimeout)]
+    [Test]
+    public async Task PutAsync_WhenVeryLongInput_ReturnsTrueAndSavesCandidate(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var dbConnectionString = await _contextManager!.CreateRespawnedDbConnectionStringAsync();
+        var dbContextFactory = new TestDbContextFactory(dbConnectionString);
+        var timeProvider = FakeTimeProviderFactory.Create();
+
+        // Seed
+        await using var dbContext = dbContextFactory.CreateDbContext();
+        var sourceChat = new RegisteredChat
+        {
+            ChatId = 123,
+            ChatTitle = "Source Chat",
+            ChatAlias = "source",
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
+        };
+        var targetChat = new RegisteredChat
+        {
+            ChatId = 456,
+            ChatTitle = "Target Chat",
+            ChatAlias = "target",
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
+        };
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
+
+        var outgoingRelation = new DiplomaticRelation
+        {
+            SourceChat = sourceChat,
+            TargetChat = targetChat,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
+        };
+        var incomingRelation = new DiplomaticRelation
+        {
+            SourceChat = targetChat,
+            TargetChat = sourceChat,
+            CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
+        };
+        await dbContext.DiplomaticRelations.AddRangeAsync([outgoingRelation, incomingRelation], cancellationToken);
+
+        var slotTemplate = new SlotTemplate
+        {
+            VoteStartAt = new TimeOnly(16, 00),
+            VoteEndAt = new TimeOnly(18, 00),
+            Number = 1,
+        };
+        dbContext.SlotTemplates.Add(slotTemplate);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var repository = new MessageCandidateRepository(
+            NullLoggerFactory.Instance.CreateLogger<MessageCandidateRepository>(),
+            dbContextFactory,
+            timeProvider);
+
+        var input = new MessageCandidatePutSm
+        {
+            MessageId = 789,
+            Preview = new string('a', 20000),
+            SubmitterId = 101,
+            AuthorId = 102,
+            AuthorName = new string('b', 20000),
+            SourceChatId = sourceChat.ChatId,
+            TargetChatAlias = targetChat.ChatAlias,
+            SlotTemplateId = slotTemplate.Id,
+            NextVoteSlotDate = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime),
+        };
+
+        // Act
+        var result = await repository.PutAsync(input, cancellationToken);
+
+        // Assert
+        Assert.That(result.IsRight, Is.False);
+        Assert.That(result.LeftToList().First(), Is.True);
+
+        await using var verifyContext = dbContextFactory.CreateDbContext();
+        var savedCandidate = await verifyContext.MessageCandidates
+            .FirstOrDefaultAsync(x => x.MessageId == input.MessageId, cancellationToken);
+
+        Assert.That(savedCandidate, Is.Not.Null);
+        Assert.That(savedCandidate!.Preview, Is.EqualTo(input.Preview.TryLeft(Defaults.DbMessagePreviewMaxLength)));
+        Assert.That(savedCandidate.AuthorId, Is.EqualTo(input.AuthorId));
+        Assert.That(savedCandidate.AuthorName, Is.EqualTo(input.AuthorName.TryLeft(Defaults.DbAuthorNameMaxLength)));
     }
 
     [CancelAfter(TestDefaults.TestTimeout)]

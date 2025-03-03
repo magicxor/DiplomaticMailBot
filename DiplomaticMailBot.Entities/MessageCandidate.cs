@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DiplomaticMailBot.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
@@ -15,7 +16,7 @@ public class MessageCandidate
     public required int MessageId { get; set; }
 
     [Required]
-    [MaxLength(128)]
+    [MaxLength(Defaults.DbMessagePreviewMaxLength)]
     public required string Preview { get; set; }
 
     [Required]
@@ -25,7 +26,7 @@ public class MessageCandidate
     public required long AuthorId { get; set; }
 
     [Required]
-    [MaxLength(128)]
+    [MaxLength(Defaults.DbAuthorNameMaxLength)]
     public required string AuthorName { get; set; }
 
     [Required]

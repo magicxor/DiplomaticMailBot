@@ -9,4 +9,8 @@ public static class Defaults
     public const int PollOptionMaxChars = 100;
     public const int MaxPollOptionCount = 10;
     public const int MaxReasonableAuthorNameLength = 20;
+    public const int DbMessagePreviewMaxLength = 128;
+    public const int DbAuthorNameMaxLength = 128;
+    public const int DbChatTitleMaxLength = 128;
+    public const int DbChatAliasMaxLength = 128;
 }

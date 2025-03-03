@@ -38,6 +38,7 @@ public sealed class DiplomaticRelationRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Where(x => x.ChatId == sourceChatId || x.ChatAlias == targetChatAlias)
             .ToListAsync(cancellationToken);
 
@@ -63,6 +64,7 @@ public sealed class DiplomaticRelationRepository
         }
 
         var relations = await applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .Where(x => (x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id) || (x.SourceChatId == targetChat.Id && x.TargetChatId == sourceChat.Id))
             .ToListAsync(cancellationToken);
 
@@ -110,6 +112,7 @@ public sealed class DiplomaticRelationRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Where(x => x.ChatId == sourceChatId || x.ChatAlias == targetChatAlias)
             .ToListAsync(cancellationToken);
 
@@ -135,6 +138,7 @@ public sealed class DiplomaticRelationRepository
         }
 
         var relations = await applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .Where(x => (x.SourceChatId == sourceChat.Id && x.TargetChatId == targetChat.Id) || (x.SourceChatId == targetChat.Id && x.TargetChatId == sourceChat.Id))
             .ToListAsync(cancellationToken);
 

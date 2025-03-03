@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DiplomaticMailBot.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiplomaticMailBot.Entities;
@@ -17,11 +18,11 @@ public class RegisteredChat
     public required long ChatId { get; set; }
 
     [Required]
-    [MaxLength(128)]
+    [MaxLength(Defaults.DbChatTitleMaxLength)]
     public required string ChatTitle { get; set; }
 
-    [Required(AllowEmptyStrings = true)]
-    [MaxLength(128)]
+    [Required]
+    [MaxLength(Defaults.DbChatAliasMaxLength)]
     public required string ChatAlias { get; set; }
 
     public DateTime? CreatedAt { get; set; }
