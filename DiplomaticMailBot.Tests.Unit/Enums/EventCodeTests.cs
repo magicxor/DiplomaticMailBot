@@ -1,3 +1,4 @@
+using System.Globalization;
 using DiplomaticMailBot.Common.Enums;
 
 namespace DiplomaticMailBot.Tests.Unit.Enums;
@@ -30,7 +31,7 @@ public sealed class EventCodeTests
                     .Where(name => (int)Enum.Parse(enumType, name) == d.Value)
                     .ToList();
 
-                return $"Value {d.Value} appears {d.Count} times in: {string.Join(", ", namesWithValue)}";
+                return $"Value {d.Value.ToString(CultureInfo.InvariantCulture)} appears {d.Count.ToString(CultureInfo.InvariantCulture)} times in: {string.Join(", ", namesWithValue)}";
             }));
 
             Assert.Fail($"Found duplicate values in EventCode enum:{Environment.NewLine}{duplicatesInfo}");

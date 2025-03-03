@@ -8,7 +8,7 @@ public sealed class PreviewGenerator
 {
     public string GetPollOptionPreview(int messageId, string authorName, string messagePreview, int authorNameMaxLength, int totalMaxLength)
     {
-        return $"[{messageId}] ({authorName.TryLeft(authorNameMaxLength)}): {messagePreview}"
+        return $"[{messageId.ToString(CultureInfo.InvariantCulture)}] ({authorName.TryLeft(authorNameMaxLength)}): {messagePreview}"
             .Replace("\r", string.Empty, StringComparison.Ordinal)
             .Replace('\n', ' ')
             .TryLeft(totalMaxLength);
@@ -59,7 +59,7 @@ public sealed class PreviewGenerator
     public string GetMessageLinkUrl(long chatId, int messageId)
     {
         var chatIdString = chatId.ToString(CultureInfo.InvariantCulture)[4..];
-        return $"https://t.me/c/{chatIdString}/{messageId}";
+        return $"https://t.me/c/{chatIdString}/{messageId.ToString(CultureInfo.InvariantCulture)}";
     }
 
     public string GetMessageLinkMarkdown(long chatId, int messageId)

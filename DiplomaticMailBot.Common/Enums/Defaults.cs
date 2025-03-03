@@ -8,4 +8,5 @@ public static class Defaults
     public const int PollMessageMaxChars = 300;
     public const int PollOptionMaxChars = 100;
     public const int MaxPollOptionCount = 10;
+    public const int MaxReasonableAuthorNameLength = 20;
 }

@@ -82,7 +82,7 @@ public sealed class ScheduledProcessingService
             sendPollCallback: async (sourceChat, targetChat, options, cancellationToken) =>
             {
                 var inputPollOptions = options
-                    .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, 20, Defaults.PollOptionMaxChars)))
+                    .Select(candidate => new InputPollOption(_previewGenerator.GetPollOptionPreview(candidate.MessageId, candidate.AuthorName, candidate.Preview, Defaults.MaxReasonableAuthorNameLength, Defaults.PollOptionMaxChars)))
                     .ToList();
                 var pollQuestion = $"Какое послание отправляем в {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle)}?".TryLeft(Defaults.PollMessageMaxChars);
 
@@ -112,7 +112,7 @@ public sealed class ScheduledProcessingService
                                 candidate.MessageId,
                                 candidate.AuthorName,
                                 candidate.Preview,
-                                20,
+                                Defaults.MaxReasonableAuthorNameLength,
                                 Defaults.PollOptionMaxChars)))
                     .ToList();
                 var detailedPollOptionsStr = string.Join("\n\n", detailedPollOptions);

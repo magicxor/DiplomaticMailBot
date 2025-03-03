@@ -1,3 +1,4 @@
+using System.Globalization;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Data.DbContexts;
@@ -742,7 +743,7 @@ public sealed class MessageCandidateRepositoryTests
             var candidate = new MessageCandidate
             {
                 MessageId = i,
-                Preview = $"Test message {i}",
+                Preview = $"Test message {i.ToString(CultureInfo.InvariantCulture)}",
                 SubmitterId = 101,
                 AuthorId = 102,
                 AuthorName = "Test Author",

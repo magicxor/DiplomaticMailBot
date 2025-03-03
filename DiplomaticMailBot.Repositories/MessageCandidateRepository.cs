@@ -41,7 +41,7 @@ public sealed class MessageCandidateRepository
 
         _logger.LogInformation("Putting the message to a vote: MessageId={MessageId}, Preview={Preview}, AuthorName={AuthorName}, SourceChatId={SourceChatId}, TargetChatAlias={TargetChatAlias}, SlotTemplateId={SlotTemplateId}, NextVoteSlotDate={NextVoteSlotDate}",
             sm.MessageId,
-            sm.Preview.TryLeft(50),
+            sm.Preview,
             sm.AuthorName,
             sm.SourceChatId,
             sm.TargetChatAlias,
