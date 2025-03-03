@@ -33,8 +33,8 @@ public sealed class RegisteredChatRepository
     {
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        return await applicationDbContext
-            .RegisteredChats
+        return await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Select(x => new RegisteredChatSm
             {
                 Id = x.Id,
@@ -51,6 +51,7 @@ public sealed class RegisteredChatRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         return await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .Include(chat => chat.SlotTemplate)
             .Where(chat => chat.ChatId == telegramChatId && chat.SlotTemplate != null)
             .Select(chat => chat.SlotTemplate!)
@@ -76,6 +77,7 @@ public sealed class RegisteredChatRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var isAliasTaken = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .AnyAsync(x =>
                 x.ChatAlias == registeredChatCreateOrUpdateRequestSm.ChatAlias
                 && x.ChatId != registeredChatCreateOrUpdateRequestSm.ChatId,
@@ -88,6 +90,7 @@ public sealed class RegisteredChatRepository
         }
 
         var registeredChat = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .IgnoreQueryFilters()
             .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(x => x.ChatId == registeredChatCreateOrUpdateRequestSm.ChatId, cancellationToken);
@@ -126,6 +129,7 @@ public sealed class RegisteredChatRepository
                 registeredChatCreateOrUpdateRequestSm.ChatTitle);
 
             var defaultSlotTemplateId = await applicationDbContext.SlotTemplates
+                .TagWithCallSite()
                 .OrderBy(slotTemplate => slotTemplate.Id)
                 .Select(slotTemplate => slotTemplate.Id)
                 .FirstOrDefaultAsync(cancellationToken);
@@ -165,6 +169,7 @@ public sealed class RegisteredChatRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var registeredChat = await applicationDbContext.RegisteredChats
+            .TagWithCallSite()
             .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(x => x.ChatId == chatId, cancellationToken);
 

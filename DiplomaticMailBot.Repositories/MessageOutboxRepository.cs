@@ -39,6 +39,7 @@ public sealed class MessageOutboxRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var mailsToSend = await applicationDbContext.MessageOutbox
+            .TagWithCallSite()
             .Include(x => x.SlotInstance)
             .Include(mailOutbox => mailOutbox.MessageCandidate)
             .ThenInclude(candidate => candidate.SlotInstance)

@@ -51,6 +51,7 @@ public sealed class PollRepository
 
         /* find those diplomatic relations that are mutual */
         var joined = applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .AsExpandableEFCore()
             .Join(applicationDbContext.DiplomaticRelations,
                 outgoing => new { SourceChatId = outgoing.SourceChatId, TargetChatId = outgoing.TargetChatId },
@@ -154,6 +155,7 @@ public sealed class PollRepository
         _logger.LogInformation("Opening poll for slot instance {SlotInstanceId}", slotInstance.Id);
 
         var relations = await applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .Where(x => (x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId)
                         || (x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId))
             .ToListAsync(cancellationToken);
@@ -171,6 +173,7 @@ public sealed class PollRepository
             slotInstance.Status = SlotInstanceStatus.Voting;
 
             var candidates = await applicationDbContext.MessageCandidates
+                .TagWithCallSite()
                 .Where(x => x.SlotInstanceId == slotInstance.Id)
                 .ToListAsync(cancellationToken);
 
@@ -298,6 +301,7 @@ public sealed class PollRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var slotInstancesToOpenPoll = await applicationDbContext.SlotInstances
+            .TagWithCallSite()
             .Include(slot => slot.Template)
             .Include(slot => slot.SourceChat)
             .Include(slot => slot.TargetChat)
@@ -340,6 +344,7 @@ public sealed class PollRepository
 
         var slotInstance = pollToClose.SlotInstance;
         var relations = await applicationDbContext.DiplomaticRelations
+            .TagWithCallSite()
             .Where(x => (x.SourceChatId == slotInstance.SourceChatId && x.TargetChatId == slotInstance.TargetChatId)
                         || (x.SourceChatId == slotInstance.TargetChatId && x.TargetChatId == slotInstance.SourceChatId))
             .ToListAsync(cancellationToken);
@@ -359,6 +364,7 @@ public sealed class PollRepository
         else
         {
             var candidates = await applicationDbContext.MessageCandidates
+                .TagWithCallSite()
                 .Where(c => c.SlotInstanceId == pollToClose.SlotInstanceId)
                 .ToListAsync(cancellationToken: cancellationToken);
 
@@ -381,6 +387,7 @@ public sealed class PollRepository
                         _logger.LogInformation("Poll {PollId} stopped, chosen message ID: {ChosenMessageId}", pollToClose.Id, chosenMessageId);
 
                         var chosenCandidate = await applicationDbContext.MessageCandidates
+                            .TagWithCallSite()
                             .Where(candidate => candidate.MessageId == chosenMessageId
                                         && candidate.SlotInstanceId == pollToClose.SlotInstanceId
                                         && candidate.SlotInstance.SourceChatId == pollToClose.SlotInstance.SourceChatId
@@ -453,6 +460,7 @@ public sealed class PollRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var pollsToClose = await applicationDbContext.SlotPolls
+            .TagWithCallSite()
             .Include(poll => poll.SlotInstance)
             .ThenInclude(slot => slot.SourceChat)
             .Where(x =>
