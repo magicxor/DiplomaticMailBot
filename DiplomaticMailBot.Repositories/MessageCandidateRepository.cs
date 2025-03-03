@@ -71,8 +71,8 @@ public sealed class MessageCandidateRepository
 
         if (sourceChat.IsSameAs(targetChat))
         {
-            _logger.LogInformation("Can not send mail to self: SourceChatId={SourceChatId}, TargetChatId={TargetChatId}", sourceChat.Id, targetChat.Id);
-            return new DomainError(EventCode.CanNotSendMessageToSelf.ToInt(), "Can not send mail to self");
+            _logger.LogInformation("Can not send a message to self: SourceChatId={SourceChatId}, TargetChatId={TargetChatId}", sourceChat.Id, targetChat.Id);
+            return new DomainError(EventCode.CanNotSendMessageToSelf.ToInt(), "Can not send a message to self");
         }
 
         var relations = await applicationDbContext.DiplomaticRelations
