@@ -390,7 +390,7 @@ public sealed class PollRepository
 
                         if (chosenCandidate is not null)
                         {
-                            _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
+                            _logger.LogInformation("Adding message outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
                             applicationDbContext.MessageOutbox.Add(new MessageOutbox
                             {
@@ -418,7 +418,7 @@ public sealed class PollRepository
 
                 var chosenCandidate = candidates.OrderBy(x => x.Id).First();
 
-                _logger.LogInformation("Adding diplomatic mail outbox record for candidate {CandidateId}", chosenCandidate.Id);
+                _logger.LogInformation("Adding message outbox record for candidate {CandidateId}", chosenCandidate.Id);
 
                 applicationDbContext.MessageOutbox.Add(new MessageOutbox
                 {

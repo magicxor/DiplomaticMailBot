@@ -31,6 +31,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DiplomaticMailBot.Data\DiplomaticMailBot.Data.csproj" />
+      <ProjectReference Include="..\DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj" />
       <ProjectReference Include="..\DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj" />
       <ProjectReference Include="..\DiplomaticMailBot.Tests.Common\DiplomaticMailBot.Tests.Common.csproj" />
     </ItemGroup>

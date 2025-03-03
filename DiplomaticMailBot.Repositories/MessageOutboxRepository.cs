@@ -57,7 +57,7 @@ public sealed class MessageOutboxRepository
 
         foreach (var mailToSend in mailsToSend)
         {
-            _logger.LogInformation("Sending mail {MailNumber} of {TotalMails}: {SourceChat} -> {TargetChat}. Attempts: {Attempts}. Preview: {Preview}",
+            _logger.LogInformation("Sending message {MailNumber} of {TotalMails}: {SourceChat} -> {TargetChat}. Attempts: {Attempts}. Preview: {Preview}",
                 i,
                 mailsToSend.Count,
                 mailToSend.MessageCandidate.SlotInstance.SourceChat.ChatAlias,
