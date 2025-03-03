@@ -290,6 +290,9 @@ dotnet_diagnostic.SA1313.severity = none
 # SA1211: Using alias directive for 'SendPollCallback' should appear before using alias directive for 'StopPollCallback'
 dotnet_diagnostic.SA1211.severity = none
 
+# MA0031: Replace 'Count() > 1' with 'Skip(1).Any()'
+dotnet_diagnostic.MA0031.severity = none
+
 # The relationship defined by this property contributes to a dependency loop
 resharper_entity_framework_model_validation_circular_dependency_highlighting = none
 
