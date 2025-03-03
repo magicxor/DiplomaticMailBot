@@ -18,7 +18,7 @@ public sealed class ErrorCodeExtensionsTests
         const int expected = 1;
 
         // Act
-        int actual = code.ToInt();
+        var actual = code.ToInt();
 
         // Assert
         Assert.That(actual, Is.EqualTo(expected));
@@ -32,7 +32,7 @@ public sealed class ErrorCodeExtensionsTests
         const int expected = 2;
 
         // Act
-        EventId eventId = code.ToEventId();
+        var eventId = code.ToEventId();
 
         // Assert
         Assert.Multiple(() =>
@@ -51,14 +51,14 @@ public sealed class ErrorCodeExtensionsTests
     public void ExtensionMethods_WorkForVariousIntegerValues(int intValue)
     {
         // Arrange
-        EventCode code = (EventCode)intValue;
+        var code = (EventCode)intValue;
 
         // Act & Assert
         // Test ToInt extension
         Assert.That(code.ToInt(), Is.EqualTo(intValue));
 
         // Test ToEventId extension
-        EventId eventId = code.ToEventId();
+        var eventId = code.ToEventId();
         Assert.Multiple(() =>
         {
             Assert.That(eventId.Id, Is.EqualTo(intValue));

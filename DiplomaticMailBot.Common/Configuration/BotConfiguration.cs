@@ -6,7 +6,7 @@ public sealed class BotConfiguration
 {
     [Required]
     [MinLength(8)]
-    [RegularExpression(@".*:.*")]
+    [RegularExpression(".*:.*")]
     public string TelegramBotApiKey { get; set; } = string.Empty;
 
     [Required]

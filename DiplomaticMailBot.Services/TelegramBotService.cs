@@ -117,14 +117,14 @@ public sealed partial class TelegramBotService
         if (exception is ApiRequestException apiRequestException)
         {
             _logger.LogError(exception,
-                @"Telegram API Error. ErrorCode={ErrorCode}, RetryAfter={RetryAfter}, MigrateToChatId={MigrateToChatId}",
+                "Telegram API Error. ErrorCode={ErrorCode}, RetryAfter={RetryAfter}, MigrateToChatId={MigrateToChatId}",
                 apiRequestException.ErrorCode,
                 apiRequestException.Parameters?.RetryAfter,
                 apiRequestException.Parameters?.MigrateToChatId);
         }
         else
         {
-            _logger.LogError(exception, @"Telegram API Error");
+            _logger.LogError(exception, "Telegram API Error");
         }
 
         return Task.CompletedTask;
@@ -146,6 +146,6 @@ public sealed partial class TelegramBotService
         );
     }
 
-    [GeneratedRegex(@"^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
+    [GeneratedRegex("^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
     private static partial Regex CommandRegex();
 }

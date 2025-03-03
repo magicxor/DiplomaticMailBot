@@ -111,7 +111,7 @@ public sealed class MessageOutboxRepositoryTests
 
         // Act
         await repository.SendPendingMailsAsync(
-            async (source, target, mailCandidateSm, ct) =>
+            async (source, target, mailCandidateSm, _) =>
             {
                 processedMails.Add((source, target, mailCandidateSm));
                 await Task.CompletedTask;

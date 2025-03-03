@@ -16,7 +16,7 @@ public sealed class RespawnableContextManager<TContext> : IDisposable
     private readonly string _dbConnectionString;
     private readonly Func<string, TContext> _dbContextCreator;
 
-    private RespawnerOptions RespawnerOptions { get; init; } = new()
+    private RespawnerOptions RespawnerOptions { get; } = new()
     {
         DbAdapter = DbAdapter.Postgres,
         SchemasToInclude = ["public"],

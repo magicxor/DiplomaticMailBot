@@ -58,7 +58,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var outgoingRelation = new DiplomaticRelation
         {
@@ -72,7 +72,7 @@ public sealed class MessageCandidateRepositoryTests
             TargetChat = sourceChat,
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.DiplomaticRelations.AddRangeAsync(new[] { outgoingRelation, incomingRelation }, cancellationToken);
+        await dbContext.DiplomaticRelations.AddRangeAsync([outgoingRelation, incomingRelation], cancellationToken);
 
         var slotTemplate = new SlotTemplate
         {
@@ -143,7 +143,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var slotInstanceTemplate = new SlotTemplate
         {
@@ -394,7 +394,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var incomingRelation = new DiplomaticRelation
         {
@@ -456,7 +456,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var outgoingRelation = new DiplomaticRelation
         {
@@ -518,7 +518,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var outgoingRelation = new DiplomaticRelation
         {
@@ -532,7 +532,7 @@ public sealed class MessageCandidateRepositoryTests
             TargetChat = sourceChat,
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.DiplomaticRelations.AddRangeAsync(new[] { outgoingRelation, incomingRelation }, cancellationToken);
+        await dbContext.DiplomaticRelations.AddRangeAsync([outgoingRelation, incomingRelation], cancellationToken);
 
         var slotTemplate = new SlotTemplate
         {
@@ -604,7 +604,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var outgoingRelation = new DiplomaticRelation
         {
@@ -618,7 +618,7 @@ public sealed class MessageCandidateRepositoryTests
             TargetChat = sourceChat,
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.DiplomaticRelations.AddRangeAsync(new[] { outgoingRelation, incomingRelation }, cancellationToken);
+        await dbContext.DiplomaticRelations.AddRangeAsync([outgoingRelation, incomingRelation], cancellationToken);
 
         var slotTemplate = new SlotTemplate
         {
@@ -702,7 +702,7 @@ public sealed class MessageCandidateRepositoryTests
             ChatAlias = "target",
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.RegisteredChats.AddRangeAsync(new[] { sourceChat, targetChat }, cancellationToken);
+        await dbContext.RegisteredChats.AddRangeAsync([sourceChat, targetChat], cancellationToken);
 
         var outgoingRelation = new DiplomaticRelation
         {
@@ -716,7 +716,7 @@ public sealed class MessageCandidateRepositoryTests
             TargetChat = sourceChat,
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
         };
-        await dbContext.DiplomaticRelations.AddRangeAsync(new[] { outgoingRelation, incomingRelation }, cancellationToken);
+        await dbContext.DiplomaticRelations.AddRangeAsync([outgoingRelation, incomingRelation], cancellationToken);
 
         var slotTemplate = new SlotTemplate
         {

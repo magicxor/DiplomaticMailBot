@@ -8,8 +8,6 @@ namespace DiplomaticMailBot.Cli.Utils;
 
 public static class HttpPolicyProvider
 {
-    public static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
-
     private const int MaxRetryAfterCount = 2;
     private static readonly TimeSpan DefaultRetryAfterTimeout = TimeSpan.FromSeconds(1);
     private static readonly IAsyncPolicy<HttpResponseMessage> RetryAfterPolicy = Policy

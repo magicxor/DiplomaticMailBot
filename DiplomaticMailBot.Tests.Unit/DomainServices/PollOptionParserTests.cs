@@ -38,10 +38,7 @@ public sealed class PollOptionParserTests
         var result = _parser.GetMessageId(pollOptionText);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
-        });
+        Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
     }
 
     [Test]
@@ -54,10 +51,7 @@ public sealed class PollOptionParserTests
         var result = _parser.GetMessageId(pollOptionText);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.OpeningBracketNotFound.ToInt()));
-        });
+        Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.OpeningBracketNotFound.ToInt()));
     }
 
     [Test]
@@ -70,10 +64,7 @@ public sealed class PollOptionParserTests
         var result = _parser.GetMessageId(pollOptionText);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.ClosingBracketNotFound.ToInt()));
-        });
+        Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.ClosingBracketNotFound.ToInt()));
     }
 
     [Test]
@@ -102,10 +93,7 @@ public sealed class PollOptionParserTests
         var result = _parser.GetMessageId(pollOptionText);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
-        });
+        Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
     }
 
     [Test]
@@ -118,9 +106,6 @@ public sealed class PollOptionParserTests
         var result = _parser.GetMessageId(pollOptionText);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
-        });
+        Assert.That(result.Match(err => err.Code, success => success), Is.EqualTo(EventCode.MessageIdNotFound.ToInt()));
     }
 }

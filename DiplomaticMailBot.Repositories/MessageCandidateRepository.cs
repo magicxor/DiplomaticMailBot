@@ -95,17 +95,17 @@ public sealed class MessageCandidateRepository
         }
 
         var slotInstance = await applicationDbContext.SlotInstances
-                                        .Include(x => x.Template)
-                                        .OrderByDescending(x => x.Date)
-                                        .ThenByDescending(x => x.Id)
-                                        .FirstOrDefaultAsync(x => x.TemplateId == sm.SlotTemplateId
-                                                                  && x.Status == SlotInstanceStatus.Collecting
-                                                                  && x.Date == sm.NextVoteSlotDate
-                                                                  && x.SourceChatId == sourceChat.Id
-                                                                  && x.TargetChatId == targetChat.Id
-                                                                  && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == x.Id)
-                                                                  && !applicationDbContext.MessageOutbox.Any(obx => obx.SlotInstanceId == x.Id),
-                                            cancellationToken);
+            .Include(x => x.Template)
+            .OrderByDescending(x => x.Date)
+            .ThenByDescending(x => x.Id)
+            .FirstOrDefaultAsync(x => x.TemplateId == sm.SlotTemplateId
+                && x.Status == SlotInstanceStatus.Collecting
+                && x.Date == sm.NextVoteSlotDate
+                && x.SourceChatId == sourceChat.Id
+                && x.TargetChatId == targetChat.Id
+                && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == x.Id)
+                && !applicationDbContext.MessageOutbox.Any(obx => obx.SlotInstanceId == x.Id),
+                cancellationToken);
 
         if (slotInstance is null)
         {
@@ -142,9 +142,9 @@ public sealed class MessageCandidateRepository
         var messagePreview = sm.Preview.TryLeft(128);
 
         if (await applicationDbContext.MessageCandidates
-                .AnyAsync(candidate => candidate.MessageId == sm.MessageId
-                               && candidate.SlotInstanceId == slotInstance.Id,
-                    cancellationToken))
+            .AnyAsync(candidate => candidate.MessageId == sm.MessageId
+                && candidate.SlotInstanceId == slotInstance.Id,
+                cancellationToken))
         {
             _logger.LogInformation("Mail candidate already exists: MessageId={MessageId}, SourceChatId={SourceChatId}, TargetChatId={TargetChatId}, SlotInstanceId={SlotInstanceId}",
                 sm.MessageId,
@@ -155,7 +155,7 @@ public sealed class MessageCandidateRepository
         }
 
         if (await applicationDbContext.MessageCandidates
-                .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= Defaults.MaxPollOptionCount)
+            .CountAsync(candidate => candidate.SlotInstanceId == slotInstance.Id, cancellationToken) >= Defaults.MaxPollOptionCount)
         {
             _logger.LogInformation("Mail candidate limit reached: SlotInstanceId={SlotInstanceId}", slotInstance.Id);
             return new DomainError(EventCode.MessageCandidateLimitReached.ToInt(), "Mail candidate limit reached");
@@ -198,16 +198,16 @@ public sealed class MessageCandidateRepository
         var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var candidates = await applicationDbContext.MessageCandidates
-                            .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
-                                                    && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
-                                                    && mailCandidate.SlotInstance.SourceChat.ChatId == sourceChatId
-                                                    && applicationDbContext
-                                                        .SlotInstances
-                                                        .Any(slot => slot.Id == mailCandidate.SlotInstanceId
-                                                                              && slot.Status == SlotInstanceStatus.Collecting
-                                                                              && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id)
-                                                                              && !applicationDbContext.MessageOutbox.Any(outbox => outbox.SlotInstanceId == slot.Id)))
-                            .ToListAsync(cancellationToken: cancellationToken);
+            .Where(mailCandidate => mailCandidate.MessageId == messageToWithdrawId
+                && (mailCandidate.AuthorId == commandSenderId || mailCandidate.SubmitterId == commandSenderId)
+                && mailCandidate.SlotInstance.SourceChat.ChatId == sourceChatId
+                && applicationDbContext
+                    .SlotInstances
+                    .Any(slot => slot.Id == mailCandidate.SlotInstanceId
+                                          && slot.Status == SlotInstanceStatus.Collecting
+                                          && !applicationDbContext.SlotPolls.Any(poll => poll.SlotInstanceId == slot.Id)
+                                          && !applicationDbContext.MessageOutbox.Any(outbox => outbox.SlotInstanceId == slot.Id)))
+            .ToListAsync(cancellationToken: cancellationToken);
 
         if (candidates.Count == 0)
         {

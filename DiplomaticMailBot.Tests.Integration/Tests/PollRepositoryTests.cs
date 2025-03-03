@@ -117,7 +117,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.OpenPendingPollsAsync(
-            async (source, target, timeLeft, candidateSm, ct) =>
+            async (source, target, _, candidateSm, _) =>
             {
                 messageCallbackCalled = true;
                 Assert.That(source.ChatId, Is.EqualTo(sourceChat.ChatId));
@@ -125,7 +125,7 @@ public sealed class PollRepositoryTests
                 Assert.That(candidateSm.MessageId, Is.EqualTo(candidate.MessageId));
                 await Task.CompletedTask;
             },
-            async (source, target, candidates, ct) =>
+            async (_, _, _, _) =>
             {
                 pollCallbackCalled = true;
                 await Task.CompletedTask;
@@ -246,12 +246,12 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.OpenPendingPollsAsync(
-            async (source, target, timeLeft, candidateSm, ct) =>
+            async (_, _, _, _, _) =>
             {
                 messageCallbackCalled = true;
                 await Task.CompletedTask;
             },
-            async (source, target, pollCandidates, ct) =>
+            async (source, target, pollCandidates, _) =>
             {
                 pollCallbackCalled = true;
                 Assert.That(source.ChatId, Is.EqualTo(sourceChat.ChatId));
@@ -467,7 +467,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.CloseExpiredPollsAsync(
-            async (chatId, messageId, ct) =>
+            async (chatId, messageId, _) =>
             {
                 stopPollCallbackCalled = true;
                 stopPollCallbackChatId = chatId;
@@ -572,7 +572,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.CloseExpiredPollsAsync(
-            async (chatId, messageId, ct) => 0,
+            async (_, _, _) => 0,
             cancellationToken);
 
         // Assert
@@ -669,7 +669,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.CloseExpiredPollsAsync(
-            async (chatId, messageId, ct) =>
+            async (_, _, _) =>
             {
                 stopPollCallbackCalled = true;
                 return 0;
@@ -758,7 +758,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.CloseExpiredPollsAsync(
-            async (chatId, messageId, ct) =>
+            async (_, _, _) =>
             {
                 stopPollCallbackCalled = true;
                 return 0;
@@ -1035,7 +1035,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (_, _, _, _) =>
             {
                 reminderCallbackCalled = true;
                 await Task.CompletedTask;
@@ -1127,7 +1127,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (_, _, _, _) =>
             {
                 reminderCallbackCalled = true;
                 await Task.CompletedTask;
@@ -1199,7 +1199,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (_, _, _, _) =>
             {
                 reminderCallbackCalled = true;
                 await Task.CompletedTask;
@@ -1280,7 +1280,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (_, _, _, _) =>
             {
                 reminderCallbackCalled = true;
                 await Task.CompletedTask;
@@ -1369,7 +1369,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (_, _, _, _) =>
             {
                 reminderCallbackCalled = true;
                 await Task.CompletedTask;
@@ -1510,7 +1510,7 @@ public sealed class PollRepositoryTests
 
         // Act
         await repository.SendVoteApproachingRemindersAsync(
-            async (source, target, timeLeft, ct) =>
+            async (source, target, timeLeft, _) =>
             {
                 reminders.Add(new RelationResult(source.ChatId, target.ChatId, timeLeft));
                 await Task.CompletedTask;
