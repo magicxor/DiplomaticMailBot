@@ -293,6 +293,12 @@ dotnet_diagnostic.SA1211.severity = none
 # MA0031: Replace 'Count() > 1' with 'Skip(1).Any()'
 dotnet_diagnostic.MA0031.severity = none
 
+# S6608: Indexing at Count-1 should be used instead of the "Enumerable" extension method "Last"
+dotnet_diagnostic.S6608.severity = none
+
+# SA1011: Closing square bracket should be followed by a space.
+dotnet_diagnostic.SA1011.severity = none
+
 # The relationship defined by this property contributes to a dependency loop
 resharper_entity_framework_model_validation_circular_dependency_highlighting = none
 

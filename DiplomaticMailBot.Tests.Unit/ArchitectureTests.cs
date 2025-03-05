@@ -1,13 +1,13 @@
 using DiplomaticMailBot.Cli.Ref;
 using DiplomaticMailBot.Common.Ref;
-using DiplomaticMailBot.Domain.Ref;
-using DiplomaticMailBot.Entities.Ref;
-using DiplomaticMailBot.Repositories.Ref;
-using DiplomaticMailBot.ServiceModels.Ref;
+using DiplomaticMailBot.Domain.Implementations.Ref;
+using DiplomaticMailBot.Infra.Repositories.Implementations.Ref;
 using DiplomaticMailBot.Services.Ref;
-using DiplomaticMailBot.TelegramInterop.Ref;
 using NetArchTest.Rules;
 using System.Reflection;
+using DiplomaticMailBot.Infra.Entities.Ref;
+using DiplomaticMailBot.Infra.ServiceModels.Ref;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Ref;
 
 namespace DiplomaticMailBot.Tests.Unit;
 

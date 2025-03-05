@@ -13,9 +13,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DiplomaticMailBot.Common\DiplomaticMailBot.Common.csproj" />
-      <ProjectReference Include="..\DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj" />
-      <ProjectReference Include="..\DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj" />
-      <ProjectReference Include="..\DiplomaticMailBot.TelegramInterop\DiplomaticMailBot.TelegramInterop.csproj" />
+      <ProjectReference Include="..\DiplomaticMailBot.Domain.Implementations\DiplomaticMailBot.Domain.Implementations.csproj" />
+      <ProjectReference Include="..\DiplomaticMailBot.Infra.Repositories.Implementations\DiplomaticMailBot.Infra.Repositories.Implementations.csproj" />
+      <ProjectReference Include="..\DiplomaticMailBot.Infra.Telegram.Implementations\DiplomaticMailBot.Infra.Telegram.Implementations.csproj" />
     </ItemGroup>
 
 </Project>

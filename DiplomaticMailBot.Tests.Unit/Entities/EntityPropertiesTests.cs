@@ -1,5 +1,5 @@
 using System.Reflection;
-using DiplomaticMailBot.Entities;
+using DiplomaticMailBot.Infra.Entities;
 
 namespace DiplomaticMailBot.Tests.Unit.Entities;
 

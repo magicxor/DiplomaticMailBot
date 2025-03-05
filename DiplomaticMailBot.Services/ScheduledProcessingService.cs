@@ -2,9 +2,9 @@
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
-using DiplomaticMailBot.Domain;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.TelegramInterop.Extensions;
+using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,19 +19,19 @@ public sealed class ScheduledProcessingService
     private readonly IOptions<BotConfiguration> _options;
     private readonly ILogger<ScheduledProcessingService> _logger;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly PollRepository _pollRepository;
-    private readonly MessageOutboxRepository _messageOutboxRepository;
-    private readonly PollOptionParser _pollOptionParser;
-    private readonly PreviewGenerator _previewGenerator;
+    private readonly IPollRepository _pollRepository;
+    private readonly IMessageOutboxRepository _messageOutboxRepository;
+    private readonly IPollOptionParser _pollOptionParser;
+    private readonly IPreviewGenerator _previewGenerator;
 
     public ScheduledProcessingService(
         IOptions<BotConfiguration> options,
         ILogger<ScheduledProcessingService> logger,
         ITelegramBotClient telegramBotClient,
-        PollRepository pollRepository,
-        MessageOutboxRepository messageOutboxRepository,
-        PollOptionParser pollOptionParser,
-        PreviewGenerator previewGenerator)
+        IPollRepository pollRepository,
+        IMessageOutboxRepository messageOutboxRepository,
+        IPollOptionParser pollOptionParser,
+        IPreviewGenerator previewGenerator)
     {
         _options = options;
         _logger = logger;

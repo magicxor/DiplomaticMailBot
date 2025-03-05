@@ -4,13 +4,16 @@ using DiplomaticMailBot.Cli.Utils;
 using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
-using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.Data.Utils;
-using DiplomaticMailBot.Domain;
-using DiplomaticMailBot.Repositories;
+using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Infra.Database.DbContexts;
+using DiplomaticMailBot.Infra.Database.Utils;
+using DiplomaticMailBot.Domain.Implementations;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.Repositories.Implementations;
+using DiplomaticMailBot.Infra.Telegram.Contracts;
 using DiplomaticMailBot.Services;
 using DiplomaticMailBot.Services.CommandHandlers;
-using DiplomaticMailBot.TelegramInterop.Services;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NLog;
@@ -77,17 +80,17 @@ public static class Program
                                 .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection"), ContextConfiguration.NpgsqlOptionsAction)
                                 .LogTo(msg => LogMessage(logger, msg, null));
                         })
-                        .AddScoped<TelegramInfoService>()
+                        .AddScoped<ITelegramInfoService, TelegramInfoService>()
                         /* Repositories */
-                        .AddScoped<RegisteredChatRepository>()
-                        .AddScoped<DiplomaticRelationRepository>()
-                        .AddScoped<MessageOutboxRepository>()
-                        .AddScoped<PollRepository>()
-                        .AddScoped<MessageCandidateRepository>()
-                        .AddScoped<SeedRepository>()
+                        .AddScoped<IRegisteredChatRepository, RegisteredChatRepository>()
+                        .AddScoped<IDiplomaticRelationRepository, DiplomaticRelationRepository>()
+                        .AddScoped<IMessageOutboxRepository, MessageOutboxRepository>()
+                        .AddScoped<IPollRepository, PollRepository>()
+                        .AddScoped<IMessageCandidateRepository, MessageCandidateRepository>()
+                        .AddScoped<ISeedRepository, SeedRepository>()
                         /* Domain */
-                        .AddScoped<PreviewGenerator>()
-                        .AddScoped<PollOptionParser>()
+                        .AddScoped<IPreviewGenerator, PreviewGenerator>()
+                        .AddScoped<IPollOptionParser, PollOptionParser>()
                         /* Services */
                         .AddScoped<RegisterChatHandler>()
                         .AddScoped<BreakOffRelationsHandler>()

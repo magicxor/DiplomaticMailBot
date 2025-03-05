@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using DiplomaticMailBot.Common.Enums;
-using DiplomaticMailBot.Domain;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.TelegramInterop.Extensions;
-using DiplomaticMailBot.TelegramInterop.Services;
+using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.Telegram.Contracts;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -12,15 +12,15 @@ namespace DiplomaticMailBot.Services.CommandHandlers;
 public sealed partial class BreakOffRelationsHandler
 {
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly TelegramInfoService _telegramInfoService;
-    private readonly DiplomaticRelationRepository _diplomaticRelationRepository;
-    private readonly PreviewGenerator _previewGenerator;
+    private readonly ITelegramInfoService _telegramInfoService;
+    private readonly IDiplomaticRelationRepository _diplomaticRelationRepository;
+    private readonly IPreviewGenerator _previewGenerator;
 
     public BreakOffRelationsHandler(
         ITelegramBotClient telegramBotClient,
-        TelegramInfoService telegramInfoService,
-        DiplomaticRelationRepository diplomaticRelationRepository,
-        PreviewGenerator previewGenerator)
+        ITelegramInfoService telegramInfoService,
+        IDiplomaticRelationRepository diplomaticRelationRepository,
+        IPreviewGenerator previewGenerator)
     {
         _telegramBotClient = telegramBotClient;
         _telegramInfoService = telegramInfoService;

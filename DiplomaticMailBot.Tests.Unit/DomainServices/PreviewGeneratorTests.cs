@@ -1,4 +1,4 @@
-using DiplomaticMailBot.Domain;
+using DiplomaticMailBot.Domain.Implementations;
 using Telegram.Bot.Types;
 
 namespace DiplomaticMailBot.Tests.Unit.DomainServices;

@@ -1,12 +1,12 @@
-﻿using DiplomaticMailBot.Repositories;
+﻿using DiplomaticMailBot.Infra.Repositories.Contracts;
 
 namespace DiplomaticMailBot.Services;
 
 public sealed class SeedService
 {
-    private readonly SeedRepository _seedRepository;
+    private readonly ISeedRepository _seedRepository;
 
-    public SeedService(SeedRepository seedRepository)
+    public SeedService(ISeedRepository seedRepository)
     {
         _seedRepository = seedRepository;
     }
