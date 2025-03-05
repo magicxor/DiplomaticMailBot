@@ -1,9 +1,9 @@
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
-using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.Entities;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.Infra.Database.DbContexts;
+using DiplomaticMailBot.Infra.Entities;
+using DiplomaticMailBot.Infra.Repositories.Implementations;
+using DiplomaticMailBot.Infra.ServiceModels.RegisteredChat;
 using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;

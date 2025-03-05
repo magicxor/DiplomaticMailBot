@@ -1,5 +1,5 @@
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Telegram.Bot.Types;
-using DiplomaticMailBot.TelegramInterop.Extensions;
 
 namespace DiplomaticMailBot.Tests.Unit.Extensions;
 

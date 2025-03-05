@@ -1,4 +1,4 @@
-using DiplomaticMailBot.Data.EfFunctions;
+using DiplomaticMailBot.Infra.Database.EfFunctions;
 
 namespace DiplomaticMailBot.Tests.Unit.DbFunctions;
 

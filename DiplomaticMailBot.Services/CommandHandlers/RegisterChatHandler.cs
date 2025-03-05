@@ -2,11 +2,11 @@
 using System.Text.RegularExpressions;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
-using DiplomaticMailBot.Domain;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.RegisteredChat;
-using DiplomaticMailBot.TelegramInterop.Extensions;
-using DiplomaticMailBot.TelegramInterop.Services;
+using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.ServiceModels.RegisteredChat;
+using DiplomaticMailBot.Infra.Telegram.Contracts;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -17,16 +17,16 @@ public sealed partial class RegisterChatHandler
 {
     private readonly ILogger<RegisterChatHandler> _logger;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly TelegramInfoService _telegramInfoService;
-    private readonly RegisteredChatRepository _registeredChatRepository;
-    private readonly PreviewGenerator _previewGenerator;
+    private readonly ITelegramInfoService _telegramInfoService;
+    private readonly IRegisteredChatRepository _registeredChatRepository;
+    private readonly IPreviewGenerator _previewGenerator;
 
     public RegisterChatHandler(
         ILogger<RegisterChatHandler> logger,
         ITelegramBotClient telegramBotClient,
-        TelegramInfoService telegramInfoService,
-        RegisteredChatRepository registeredChatRepository,
-        PreviewGenerator previewGenerator)
+        ITelegramInfoService telegramInfoService,
+        IRegisteredChatRepository registeredChatRepository,
+        IPreviewGenerator previewGenerator)
     {
         _logger = logger;
         _telegramBotClient = telegramBotClient;

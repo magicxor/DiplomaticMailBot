@@ -37,11 +37,11 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DiplomaticMailBot.Common\DiplomaticMailBot.Common.csproj" />
-        <ProjectReference Include="..\DiplomaticMailBot.Data\DiplomaticMailBot.Data.csproj" />
-        <ProjectReference Include="..\DiplomaticMailBot.Domain\DiplomaticMailBot.Domain.csproj" />
-        <ProjectReference Include="..\DiplomaticMailBot.Entities\DiplomaticMailBot.Entities.csproj" />
-        <ProjectReference Include="..\DiplomaticMailBot.Repositories\DiplomaticMailBot.Repositories.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Infra.Database\DiplomaticMailBot.Infra.Database.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Domain.Implementations\DiplomaticMailBot.Domain.Implementations.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Infra.Entities\DiplomaticMailBot.Infra.Entities.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Infra.Repositories.Implementations\DiplomaticMailBot.Infra.Repositories.Implementations.csproj" />
         <ProjectReference Include="..\DiplomaticMailBot.Services\DiplomaticMailBot.Services.csproj" />
-        <ProjectReference Include="..\DiplomaticMailBot.TelegramInterop\DiplomaticMailBot.TelegramInterop.csproj" />
+        <ProjectReference Include="..\DiplomaticMailBot.Infra.Telegram.Implementations\DiplomaticMailBot.Infra.Telegram.Implementations.csproj" />
     </ItemGroup>
 </Project>

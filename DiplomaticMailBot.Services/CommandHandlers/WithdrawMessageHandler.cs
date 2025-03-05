@@ -1,6 +1,6 @@
 ﻿using DiplomaticMailBot.Common.Enums;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.TelegramInterop.Extensions;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -9,11 +9,11 @@ namespace DiplomaticMailBot.Services.CommandHandlers;
 public sealed class WithdrawMessageHandler
 {
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly MessageCandidateRepository _messageCandidateRepository;
+    private readonly IMessageCandidateRepository _messageCandidateRepository;
 
     public WithdrawMessageHandler(
         ITelegramBotClient telegramBotClient,
-        MessageCandidateRepository messageCandidateRepository)
+        IMessageCandidateRepository messageCandidateRepository)
     {
         _telegramBotClient = telegramBotClient;
         _messageCandidateRepository = messageCandidateRepository;

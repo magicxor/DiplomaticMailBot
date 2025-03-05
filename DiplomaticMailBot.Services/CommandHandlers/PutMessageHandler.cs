@@ -3,10 +3,10 @@ using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Common.Utils;
-using DiplomaticMailBot.Domain;
-using DiplomaticMailBot.Repositories;
-using DiplomaticMailBot.ServiceModels.MessageCandidate;
-using DiplomaticMailBot.TelegramInterop.Extensions;
+using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Infra.Repositories.Contracts;
+using DiplomaticMailBot.Infra.ServiceModels.MessageCandidate;
+using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Humanizer;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -19,17 +19,17 @@ public sealed partial class PutMessageHandler
     private readonly IOptions<BotConfiguration> _options;
     private readonly TimeProvider _timeProvider;
     private readonly ITelegramBotClient _telegramBotClient;
-    private readonly MessageCandidateRepository _messageCandidateRepository;
-    private readonly PreviewGenerator _previewGenerator;
-    private readonly RegisteredChatRepository _registeredChatRepository;
+    private readonly IMessageCandidateRepository _messageCandidateRepository;
+    private readonly IPreviewGenerator _previewGenerator;
+    private readonly IRegisteredChatRepository _registeredChatRepository;
 
     public PutMessageHandler(
         IOptions<BotConfiguration> options,
         TimeProvider timeProvider,
         ITelegramBotClient telegramBotClient,
-        MessageCandidateRepository messageCandidateRepository,
-        PreviewGenerator previewGenerator,
-        RegisteredChatRepository registeredChatRepository)
+        IMessageCandidateRepository messageCandidateRepository,
+        IPreviewGenerator previewGenerator,
+        IRegisteredChatRepository registeredChatRepository)
     {
         _options = options;
         _timeProvider = timeProvider;

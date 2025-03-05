@@ -1,6 +1,6 @@
-using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.Entities;
-using DiplomaticMailBot.Repositories;
+using DiplomaticMailBot.Infra.Database.DbContexts;
+using DiplomaticMailBot.Infra.Entities;
+using DiplomaticMailBot.Infra.Repositories.Implementations;
 using DiplomaticMailBot.Tests.Common;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Extensions;

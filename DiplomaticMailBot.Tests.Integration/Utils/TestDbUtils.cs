@@ -1,6 +1,6 @@
 using DiplomaticMailBot.Common.Enums;
-using DiplomaticMailBot.Data.DbContexts;
-using DiplomaticMailBot.Data.Utils;
+using DiplomaticMailBot.Infra.Database.DbContexts;
+using DiplomaticMailBot.Infra.Database.Utils;
 using DiplomaticMailBot.Tests.Integration.Constants;
 using DiplomaticMailBot.Tests.Integration.Services;
 using JetBrains.Annotations;

@@ -1,6 +1,5 @@
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace DiplomaticMailBot.Tests.Unit.Extensions;
 
