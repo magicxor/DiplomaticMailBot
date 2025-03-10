@@ -88,14 +88,14 @@ public sealed class StringExtensionsTests
     [Test]
     public void GetNonEmpty_WhenAllValuesEmpty_ShouldReturnEmptyCollection()
     {
-        var result = StringExtensions.GetNonEmpty(null, string.Empty, " ", "\t", "\n");
+        var result = StringExtensions.FilterNonEmpty(null, string.Empty, " ", "\t", "\n");
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public void GetNonEmpty_WhenSomeValuesNonEmpty_ShouldReturnNonEmptyValues()
     {
-        var result = StringExtensions.GetNonEmpty(null, "test1", string.Empty, " ", "test2", "\t", "\n");
+        var result = StringExtensions.FilterNonEmpty(null, "test1", string.Empty, " ", "test2", "\t", "\n");
         Assert.That(result, Is.EqualTo(new[] { "test1", "test2" }));
     }
 
@@ -116,38 +116,6 @@ public sealed class StringExtensionsTests
     public void IsNotNullOrEmpty_WhenNonEmpty_ShouldReturnTrue()
     {
         Assert.That("test".IsNotNullOrEmpty(), Is.True);
-    }
-
-    [Test]
-    public void EscapeSpecialTelegramMdCharacters_WhenNull_ShouldThrowArgumentNullException()
-    {
-        const string? value = null;
-        Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramMdCharacters());
-    }
-
-    [Test]
-    public void EscapeSpecialTelegramMdCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
-    {
-        const string input = "Hello_World*[Test]~`>#+-=|{}.!";
-        const string expected = @"Hello\_World\*\[Test\]\~\`\>\#\+\-\=\|\{\}\.\!";
-        var result = input.EscapeSpecialTelegramMdCharacters();
-        Assert.That(result, Is.EqualTo(expected));
-    }
-
-    [Test]
-    public void EscapeSpecialTelegramHtmlCharacters_WhenNull_ShouldThrowArgumentNullException()
-    {
-        const string? value = null;
-        Assert.Throws<ArgumentNullException>(() => _ = value!.EscapeSpecialTelegramHtmlCharacters());
-    }
-
-    [Test]
-    public void EscapeSpecialTelegramHtmlCharacters_WhenContainsSpecialCharacters_ShouldEscapeThem()
-    {
-        const string input = "Hello<World>&Test";
-        const string expected = "Hello&lt;World&gt;&amp;Test";
-        var result = input.EscapeSpecialTelegramHtmlCharacters();
-        Assert.That(result, Is.EqualTo(expected));
     }
 
     [Test]
