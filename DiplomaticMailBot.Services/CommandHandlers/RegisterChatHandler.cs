@@ -52,7 +52,7 @@ public sealed partial class RegisterChatHandler
                     .ThenBy(chat => chat.Id)
                     .Select(chat => string.Join(
                         " - ",
-                        StringExtensions.GetNonEmpty(
+                        StringExtensions.FilterNonEmpty(
                             chat.CreatedAt?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                             _previewGenerator.GetChatDisplayString(chat.ChatAlias, chat.ChatTitle))
                         )))

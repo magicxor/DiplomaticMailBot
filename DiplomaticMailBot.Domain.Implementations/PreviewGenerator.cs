@@ -2,6 +2,7 @@
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Domain.Contracts;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace DiplomaticMailBot.Domain.Implementations;
 
@@ -47,7 +48,7 @@ public sealed class PreviewGenerator : IPreviewGenerator
         ArgumentNullException.ThrowIfNull(message);
 
         var authorName = message.From?.Username
-                         ?? string.Join(' ', StringExtensions.GetNonEmpty(message.From?.FirstName, message.From?.LastName));
+                         ?? string.Join(' ', StringExtensions.FilterNonEmpty(message.From?.FirstName, message.From?.LastName));
 
         return authorName.TryLeft(maxLength);
     }
@@ -67,13 +68,13 @@ public sealed class PreviewGenerator : IPreviewGenerator
     {
         var caption = messageId.ToString(CultureInfo.InvariantCulture);
         var url = GetMessageLinkUrl(chatId, messageId);
-        return $"[{caption.EscapeSpecialTelegramMdCharacters()}]({url})";
+        return $"[{caption.EscapeMarkdown(ParseMode.MarkdownV2)}]({url})";
     }
 
     public string GetMessageLinkMarkdown(long chatId, int messageId, string caption)
     {
         var url = GetMessageLinkUrl(chatId, messageId);
-        return $"[{caption.EscapeSpecialTelegramMdCharacters()}]({url})";
+        return $"[{caption.EscapeMarkdown(ParseMode.MarkdownV2)}]({url})";
     }
 
     public string GetMessageLinkHtml(long chatId, int messageId)
@@ -86,6 +87,6 @@ public sealed class PreviewGenerator : IPreviewGenerator
     public string GetMessageLinkHtml(long chatId, int messageId, string caption)
     {
         var url = GetMessageLinkUrl(chatId, messageId);
-        return $"""<a href="{url}">{caption.EscapeSpecialTelegramHtmlCharacters()}</a>""";
+        return $"""<a href="{url}">{caption.EscapeHtml()}</a>""";
     }
 }

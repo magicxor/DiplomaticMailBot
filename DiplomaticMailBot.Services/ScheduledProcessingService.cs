@@ -3,6 +3,7 @@ using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Errors;
 using DiplomaticMailBot.Common.Extensions;
 using DiplomaticMailBot.Domain.Contracts;
+using DiplomaticMailBot.Domain.Implementations;
 using DiplomaticMailBot.Infra.Repositories.Contracts;
 using DiplomaticMailBot.Infra.Telegram.Implementations.Extensions;
 using Humanizer;
@@ -50,7 +51,7 @@ public sealed class ScheduledProcessingService
                 _logger.LogInformation("Sending reminder about approaching vote start in chat {ChatId}", sourceChat.ChatId);
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(Defaults.NormalMessageMaxChars),
+                    $"Желаете отправить послание в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeHtml()}? Ответьте на любое сообщение командой <code>{BotCommands.PutMessage} {targetChat.ChatAlias}</code>. До начала голосования: {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}.".TryLeft(Defaults.NormalMessageMaxChars),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },
@@ -66,7 +67,7 @@ public sealed class ScheduledProcessingService
 
                 var message = await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(Defaults.NormalMessageMaxChars),
+                    $"{_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "Послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeHtml()} будет отправлено через {timeLeft.Humanize(precision: 2, culture: _options.Value.GetCultureInfo())}".TryLeft(Defaults.NormalMessageMaxChars),
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
 
@@ -191,7 +192,7 @@ public sealed class ScheduledProcessingService
 
                 await _telegramBotClient.SendMessage(
                     sourceChat.ChatId,
-                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeSpecialTelegramHtmlCharacters()} отправлено!",
+                    $"Ваше {_previewGenerator.GetMessageLinkHtml(sourceChat.ChatId, mailCandidate.MessageId, "послание")} в чат {_previewGenerator.GetChatDisplayString(targetChat.ChatAlias, targetChat.ChatTitle).EscapeHtml()} отправлено!",
                     ParseMode.Html,
                     cancellationToken: cancellationToken);
             },

@@ -80,38 +80,12 @@ public static class StringExtensions
     }
 
     [Pure]
-    public static IReadOnlyCollection<string> GetNonEmpty(params string?[] values)
+    public static IReadOnlyCollection<string> FilterNonEmpty(params string?[] values)
     {
         return values
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x!)
             .ToList();
-    }
-
-    [Pure]
-    public static string EscapeSpecialTelegramMdCharacters(this string src)
-    {
-        ArgumentNullException.ThrowIfNull(src);
-
-        string[] chars = ["_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"];
-
-        foreach (var c in chars)
-        {
-            src = src.Replace(c, @"\" + c, StringComparison.Ordinal);
-        }
-
-        return src;
-    }
-
-    [Pure]
-    public static string EscapeSpecialTelegramHtmlCharacters(this string src)
-    {
-        ArgumentNullException.ThrowIfNull(src);
-
-        return src
-            .Replace("&", "&amp;", StringComparison.Ordinal)
-            .Replace("<", "&lt;", StringComparison.Ordinal)
-            .Replace(">", "&gt;", StringComparison.Ordinal);
     }
 
     [Pure]
