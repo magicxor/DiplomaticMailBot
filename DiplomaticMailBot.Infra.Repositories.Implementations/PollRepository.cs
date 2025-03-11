@@ -50,7 +50,7 @@ public sealed class PollRepository : IPollRepository
         var tomorrow = today.AddDays(1);
         var maxTimeBeforeNotice = TimeSpan.FromHours(4);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         /* find those diplomatic relations that are mutual */
         var joined = applicationDbContext.DiplomaticRelations
@@ -301,7 +301,7 @@ public sealed class PollRepository : IPollRepository
         var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var slotInstancesToOpenPoll = await applicationDbContext.SlotInstances
             .TagWithCallSite()
@@ -460,7 +460,7 @@ public sealed class PollRepository : IPollRepository
         var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var pollsToClose = await applicationDbContext.SlotPolls
             .TagWithCallSite()

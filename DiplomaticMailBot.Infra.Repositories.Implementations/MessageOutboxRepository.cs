@@ -37,7 +37,7 @@ public sealed class MessageOutboxRepository : IMessageOutboxRepository
         var today = DateOnly.FromDateTime(utcNow);
         var timeNow = TimeOnly.FromDateTime(utcNow);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var mailsToSend = await applicationDbContext.MessageOutbox
             .TagWithCallSite()
