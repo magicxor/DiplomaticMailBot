@@ -32,7 +32,7 @@ public sealed class RegisteredChatRepository : IRegisteredChatRepository
 
     public async Task<IReadOnlyCollection<RegisteredChatSm>> ListRegisteredChatsAsync(CancellationToken cancellationToken = default)
     {
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         return await applicationDbContext.RegisteredChats
             .TagWithCallSite()
@@ -49,7 +49,7 @@ public sealed class RegisteredChatRepository : IRegisteredChatRepository
 
     public async Task<SlotTemplateSm?> GetChatSlotTemplateByTelegramChatIdAsync(long telegramChatId, CancellationToken cancellationToken = default)
     {
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         return await applicationDbContext.RegisteredChats
             .TagWithCallSite()
@@ -75,7 +75,7 @@ public sealed class RegisteredChatRepository : IRegisteredChatRepository
 
         _logger.LogTrace("Creating or updating registered chat {Alias}", registeredChatCreateOrUpdateRequestSm.ChatAlias);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var isAliasTaken = await applicationDbContext.RegisteredChats
             .TagWithCallSite()
@@ -172,7 +172,7 @@ public sealed class RegisteredChatRepository : IRegisteredChatRepository
     {
         _logger.LogInformation("Deleting registered chat {ChatId}", chatId);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var registeredChat = await applicationDbContext.RegisteredChats
             .TagWithCallSite()

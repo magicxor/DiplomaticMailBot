@@ -21,7 +21,7 @@ public sealed class SeedRepository : ISeedRepository
 
     public async Task MigrateAsync(CancellationToken cancellationToken = default)
     {
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         await applicationDbContext.Database.MigrateAsync(cancellationToken);
 
@@ -32,7 +32,7 @@ public sealed class SeedRepository : ISeedRepository
     {
         _logger.LogDebug("Seeding default slot template");
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         if (await applicationDbContext.SlotTemplates.TagWithCallSite().AnyAsync(cancellationToken: cancellationToken))
         {
@@ -59,7 +59,7 @@ public sealed class SeedRepository : ISeedRepository
     {
         _logger.LogDebug("Seeding chat slot templates");
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
         var defaultSlotTemplate = await applicationDbContext.SlotTemplates
             .TagWithCallSite()
             .OrderBy(x => x.Id)

@@ -49,7 +49,7 @@ public sealed class MessageCandidateRepository : IMessageCandidateRepository
             sm.SlotTemplateId,
             sm.NextVoteSlotDate);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
             .TagWithCallSite()
@@ -201,7 +201,7 @@ public sealed class MessageCandidateRepository : IMessageCandidateRepository
         ArgumentOutOfRangeException.ThrowIfZero(messageToWithdrawId);
         ArgumentOutOfRangeException.ThrowIfZero(commandSenderId);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var candidates = await applicationDbContext.MessageCandidates
             .TagWithCallSite()

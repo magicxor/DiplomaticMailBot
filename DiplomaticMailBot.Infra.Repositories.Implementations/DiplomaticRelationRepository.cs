@@ -36,7 +36,7 @@ public sealed class DiplomaticRelationRepository : IDiplomaticRelationRepository
         ArgumentOutOfRangeException.ThrowIfZero(sourceChatId);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetChatAlias);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
             .TagWithCallSite()
@@ -110,7 +110,7 @@ public sealed class DiplomaticRelationRepository : IDiplomaticRelationRepository
         ArgumentOutOfRangeException.ThrowIfZero(sourceChatId);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetChatAlias);
 
-        var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var applicationDbContext = await _applicationDbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var chats = await applicationDbContext.RegisteredChats
             .TagWithCallSite()
