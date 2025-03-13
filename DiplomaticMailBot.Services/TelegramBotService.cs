@@ -187,6 +187,6 @@ public sealed partial class TelegramBotService
         );
     }
 
-    [GeneratedRegex("^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
-    private static partial Regex CommandRegex();
+    [GeneratedRegex("^/(?<command>[A-Za-z0-9_]+)(?:@(?<botname>[A-Za-z0-9_]+))?.*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
+    public static partial Regex CommandRegex();
 }
