@@ -116,5 +116,5 @@ public sealed partial class PutMessageHandler
     }
 
     [GeneratedRegex(@$"^{BotCommands.PutMessage}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
-    private static partial Regex PutMessageRegex();
+    public static partial Regex PutMessageRegex();
 }

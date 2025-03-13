@@ -86,5 +86,5 @@ public sealed partial class EstablishRelationsHandler
     }
 
     [GeneratedRegex(@$"^{BotCommands.EstablishRelations}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
-    private static partial Regex EstablishRelationsRegex();
+    public static partial Regex EstablishRelationsRegex();
 }

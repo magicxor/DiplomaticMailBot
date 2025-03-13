@@ -162,5 +162,5 @@ public static partial class TelegramUtils
     }
 
     [GeneratedRegex("^[A-Za-z0-9_-]+$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
-    private static partial Regex DeepLinkPayloadRegex();
+    public static partial Regex DeepLinkPayloadRegex();
 }

@@ -67,6 +67,9 @@ dotnet_diagnostic.SA1008.severity = none
 # SA1208: Using directive for 'System.Collections.Generic' should appear before directive for 'Microsoft.AspNetCore.Identity'
 dotnet_diagnostic.SA1208.severity = none
 
+# SA1204: Static members should appear before non-static members
+dotnet_diagnostic.SA1204.severity = none
+
 # SA1309: Field '_address' should not begin with an underscore
 dotnet_diagnostic.SA1309.severity = none
 

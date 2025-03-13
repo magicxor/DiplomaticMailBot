@@ -83,5 +83,5 @@ public sealed partial class BreakOffRelationsHandler
     }
 
     [GeneratedRegex(@$"^{BotCommands.BreakOffRelations}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
-    private static partial Regex BreakOffRelationsRegex();
+    public static partial Regex BreakOffRelationsRegex();
 }
