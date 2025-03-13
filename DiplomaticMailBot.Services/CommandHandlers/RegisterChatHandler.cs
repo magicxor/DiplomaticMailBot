@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
@@ -174,9 +174,9 @@ public sealed partial class RegisterChatHandler
         }
     }
 
-    [GeneratedRegex(@$"^{BotCommands.RegisterChat}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
+    [GeneratedRegex(@$"^{BotCommands.RegisterChat}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
     private static partial Regex RegisterChatRegex();
 
-    [GeneratedRegex(@$"^{BotCommands.DeregisterChat}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
+    [GeneratedRegex(@$"^{BotCommands.DeregisterChat}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
     private static partial Regex DeregisterChatRegex();
 }

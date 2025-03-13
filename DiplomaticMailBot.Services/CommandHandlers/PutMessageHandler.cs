@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using DiplomaticMailBot.Common.Configuration;
 using DiplomaticMailBot.Common.Enums;
 using DiplomaticMailBot.Common.Extensions;
@@ -115,6 +115,6 @@ public sealed partial class PutMessageHandler
         }
     }
 
-    [GeneratedRegex(@$"^{BotCommands.PutMessage}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
+    [GeneratedRegex(@$"^{BotCommands.PutMessage}(?:@(?<botname>[A-Za-z0-9_]+))?\s+(?<alias>[A-Za-z0-9_]+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
     private static partial Regex PutMessageRegex();
 }

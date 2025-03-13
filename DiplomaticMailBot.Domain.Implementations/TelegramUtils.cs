@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -161,6 +161,6 @@ public static partial class TelegramUtils
         }
     }
 
-    [GeneratedRegex("^[A-Za-z0-9_-]+$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, 500)]
+    [GeneratedRegex("^[A-Za-z0-9_-]+$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.ExplicitCapture, 500)]
     private static partial Regex DeepLinkPayloadRegex();
 }
