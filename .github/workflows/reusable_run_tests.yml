@@ -43,7 +43,7 @@ jobs:
         dotnet --version
 
     - name: Run tests
-      run: dotnet test $SOLUTION --configuration $BUILD_CONFIG --framework ${{ matrix.dotnet.tfm }} --logger trx --results-directory "TestResults-${{ matrix.dotnet.version }}" /p:CollectCoverage=true /maxcpucount:1
+      run: dotnet test $SOLUTION --configuration $BUILD_CONFIG --framework ${{ matrix.dotnet.tfm }} --logger trx --results-directory "TestResults" /maxcpucount:1 /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverage.json" /p:CoverletOutputFormat="opencover%2Cjson" --verbosity normal
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -60,3 +60,20 @@ jobs:
         path: "**/*.trx"
         reporter: dotnet-trx
         fail-on-error: true
+
+    - name: Create Test Coverage Badge
+      uses: simon-k/dotnet-code-coverage-badge@v1.0.0
+      id: create_coverage_badge
+      with:
+        label: Unit Test Coverage
+        color: brightgreen
+        path: TestResults/coverage.opencover.xml
+        gist-filename: coverage.json
+        gist-id: a3b00492f5c856c25ee7101f4257108f
+        gist-auth-token: ${{ secrets.GIST_AUTH_TOKEN }}
+
+    - name: Print code coverage
+      run: echo "Code coverage percentage ${{steps.create_coverage_badge.outputs.percentage}}%"
+
+    - name: Print badge data
+      run: echo "Badge data ${{steps.create_coverage_badge.outputs.badge}}"
