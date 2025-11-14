@@ -4,13 +4,18 @@
   <PropertyGroup>
     <!-- Code analysis -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>9-all</AnalysisLevel>
+    <AnalysisLevel>10-all</AnalysisLevel>
 
     <!-- Warnings and errors -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Features>strict</Features>
+
+    <!--
+    NU1903: Package 'XXX' 1.1.1 has a known high severity vulnerability
+    -->
+    <WarningsNotAsErrors>NU1903</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

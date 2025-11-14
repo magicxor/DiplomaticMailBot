@@ -17,6 +17,10 @@ dotnet_diagnostic.CS1998.severity = suggestion
 # Reason: it could be too verbose to use it everywhere, but this is a good reminder
 dotnet_diagnostic.CA1848.severity = none
 
+# CA1873: Evaluation of this argument may be expensive and unnecessary if logging is disabled
+# Reason: logging performance is not critical in our context, and this warning is too aggressive
+dotnet_diagnostic.CA1873.severity = none
+
 # CA1716: Rename namespace Constants so that it no longer conflicts with the reserved language keyword 'Shared'.
 # Using a reserved keyword as the name of a namespace makes it harder for consumers in other languages to use the namespace.
 # Reason: we decided to keep it as is for now
@@ -301,6 +305,9 @@ dotnet_diagnostic.S6608.severity = none
 
 # SA1011: Closing square bracket should be followed by a space.
 dotnet_diagnostic.SA1011.severity = none
+
+# MA0015: The expression does not match a parameter
+dotnet_diagnostic.MA0015.severity = none
 
 # The relationship defined by this property contributes to a dependency loop
 resharper_entity_framework_model_validation_circular_dependency_highlighting = none
