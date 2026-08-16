@@ -71,7 +71,7 @@ jobs:
         path: TestResults
 
     - name: Publish test report
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v3
       if: always()
       with:
         name: dotnet-test-results-${{ matrix.dotnet.version }}
