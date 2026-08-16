@@ -232,7 +232,7 @@ public sealed class PollRepositoryTests
                 SlotInstance = slotInstance,
             },
         };
-        await dbContext.MessageCandidates.AddRangeAsync(candidates);
+        await dbContext.MessageCandidates.AddRangeAsync(candidates, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(
@@ -1476,7 +1476,7 @@ public sealed class PollRepositoryTests
             new DiplomaticRelation { SourceChat = chat3, TargetChat = chat4, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
             new DiplomaticRelation { SourceChat = chat4, TargetChat = chat3, CreatedAt = timeProvider.GetUtcNow().UtcDateTime },
         };
-        await dbContext.DiplomaticRelations.AddRangeAsync(relations);
+        await dbContext.DiplomaticRelations.AddRangeAsync(relations, cancellationToken);
 
         // Create some existing slot instances to verify they don't trigger reminders
         var existingSlots = new[]
@@ -1498,7 +1498,7 @@ public sealed class PollRepositoryTests
                 TargetChat = chat3,
             },
         };
-        await dbContext.SlotInstances.AddRangeAsync(existingSlots);
+        await dbContext.SlotInstances.AddRangeAsync(existingSlots, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new PollRepository(

@@ -61,7 +61,7 @@ public sealed class RegisteredChatRepositoryTests
                 CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             },
         };
-        await dbContext.RegisteredChats.AddRangeAsync(chats);
+        await dbContext.RegisteredChats.AddRangeAsync(chats, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var repository = new RegisteredChatRepository(
