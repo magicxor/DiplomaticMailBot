@@ -16,9 +16,8 @@ public sealed class DbContainerManager
 
         var containerName = "dipmailbot_integration_test_db_" + Guid.NewGuid().ToString("D");
 
-        var containerBuilder = new PostgreSqlBuilder()
+        var containerBuilder = new PostgreSqlBuilder("postgres:17-bookworm")
             .WithName(containerName)
-            .WithImage("postgres:17-bookworm")
             .WithExposedPort(TestDefaults.DbPort)
             .WithPassword(TestDefaults.DbPassword)
             .WithAutoRemove(true)
